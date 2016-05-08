@@ -49,15 +49,9 @@ tag :: Event a -> b -> Event b
 tag NoEvent   _ = NoEvent
 tag (Event _) b = Event b
 
-eventToMaybe (Event x) = Just x
-eventToMaybe NoEvent   = Nothing
-
-boolToEvent :: Bool -> Event ()
-boolToEvent True  = Event ()
-boolToEvent False = NoEvent
-
 edge :: SF Bool (Event ())
-edge = arr boolToEvent
+edge = feedback False $ arr $ \(n,o) ->
+  if o then (NoEvent, n) else (boolToEvent n, n)
 
 switch sf sfC = MSF.switch (sf >>> second (arr eventToMaybe)) sfC
 
@@ -65,13 +59,23 @@ reactimate :: IO a -> (Bool -> IO (DTime, Maybe a)) -> (Bool -> b -> IO Bool) ->
 reactimate senseI sense actuate sf = do
   runMaybeT $ MSF.reactimate $ liftMStreamFTrans (senseSF >>> sfIO) >>> actuateSF
   return ()
- where sfIO       = liftMStreamFPurer (return.runIdentity) (runReaderS sf)
+ where sfIO        = liftMStreamFPurer (return.runIdentity) (runReaderS sf)
 
-       senseSF    = switch senseFirst senseRest
-       senseFirst = liftMStreamF_ senseI >>> (arr $ \x -> ((0, x), Event x))
+       -- Sense
+       senseSF     = switch senseFirst senseRest
+       senseFirst  = liftMStreamF_ senseI >>> (arr $ \x -> ((0, x), Event x))
        senseRest a = liftMStreamF_ (sense True) >>> (arr id *** keepLast a)
+
        keepLast :: Monad m => a -> MStreamF m (Maybe a) a
        keepLast a = MStreamF $ \ma -> let a' = fromMaybe a ma in return (a', keepLast a')
 
-       -- actuateSF  :: MStreamF IO b ()
-       actuateSF  = arr (\x -> (True, x)) >>> liftMStreamF (lift . uncurry actuate) >>> exitIf
+       -- Consume/render
+       -- actuateSF :: MStreamF IO b ()
+       actuateSF    = arr (\x -> (True, x)) >>> liftMStreamF (lift . uncurry actuate) >>> exitIf
+
+eventToMaybe (Event x) = Just x
+eventToMaybe NoEvent   = Nothing
+
+boolToEvent :: Bool -> Event ()
+boolToEvent True  = Event ()
+boolToEvent False = NoEvent
