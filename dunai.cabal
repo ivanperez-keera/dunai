@@ -63,3 +63,7 @@ executable dunai-examples-bearriver-bouncingball-yampa
                      SDL,
                      SDL-gfx,
                      Yampa
+
+source-repository head
+  type:     git
+  location: git@bitbucket.org:iperezdominguez/dunai.git
