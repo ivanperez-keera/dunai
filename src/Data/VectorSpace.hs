@@ -1,19 +1,16 @@
 {-# LANGUAGE TypeFamilies           #-}
 {-# LANGUAGE FlexibleContexts       #-}
 {-# LANGUAGE UndecidableInstances   #-}
------------------------------------------------------------------------------------------
 -- |
--- Module      :  FRP.Yampa.VectorSpace
--- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
--- License     :  BSD-style (see the LICENSE file in the distribution)
+-- Module      :  Data.VectorSpace
+-- Copyright   :  (c) Ivan Perez and Manuel Bärenz
+-- License     :  See the LICENSE file in the distribution.
 --
--- Maintainer  :  nilsson@cs.yale.edu
+-- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
 --
 -- Vector space type relation and basic instances.
---
------------------------------------------------------------------------------------------
 
 module Data.VectorSpace where
 
