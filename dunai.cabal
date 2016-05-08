@@ -1,4 +1,4 @@
-name:                bearriver
+name:                dunai
 version:             0.1.0.0
 synopsis:            Generalised reactive framework supporting classic, arrowized and monadic FRP.
 -- description:
