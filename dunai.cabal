@@ -25,8 +25,6 @@ library
                      Data.MonadicStreamFunction.Parallel
 
 		     -- Auxiliary definitions
-                     Control.Monad.SamplingMonad
-                     Control.Monad.TaggingMonad
                      Data.VectorSpace
                      Data.VectorSpace.Instances
                      Data.VectorSpace.Tuples
