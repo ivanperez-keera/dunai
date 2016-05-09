@@ -55,6 +55,10 @@ Flag kinect
   Description: Enable Kinect support (with freenect)
   Default: True
 
+Flag bearriver
+  Description: Compile using Yampa's replacement BearRiver
+  Default: False
+
 executable haskanoid
   -- .hs or .lhs file containing the Main module.
   main-is: Main.hs
@@ -97,11 +101,16 @@ executable haskanoid
   -- Other library packages from which modules are imported.
   build-depends:       base >= 4.6 && < 5,
                        transformers >= 0.3 && < 0.6,
-                       mtl,
                        MissingH,
-                       Yampa >= 0.9.6 && < 0.11,
                        SDL, SDL-image, SDL-mixer, SDL-ttf,
                        IfElse
+
+  if flag(bearriver)
+    build-depends: bearriver,
+                   dunai,
+                   mtl
+  else
+    build-depends: Yampa >= 0.9.6 && < 0.11
 
   if flag(wiimote)
     build-depends: hcwiid
