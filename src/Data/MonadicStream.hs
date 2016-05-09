@@ -55,7 +55,7 @@ readerS fs = MStream $ ReaderT $ \a -> do
 data Stream a = Stream a (Stream a)
 
 widthFirst :: [MStream [] a] -> Stream [a]
-widthFirst asList = let (aList, as') = unzip $ concat $ map decons asList
+widthFirst asList = let (aList, as') = unzip $ concatMap decons asList
                 in Stream aList $ widthFirst as'
 
 functorUnzip :: Functor f => f (a, b) -> (f a, f b)
@@ -66,7 +66,7 @@ applicativeZip a b = (,) <$> a <*> b
 
 bundle' :: (Monad m, ProductPreserving m) => m (MStream m a) -> Stream (m a)
 bundle' as = let (a, as') = funzip $ join $ fmap decons as
-            in Stream a $ bundle' as'
+             in Stream a $ bundle' as'
 
 bundle :: (Monad m, ProductPreserving m) => MStream m a -> Stream (m a)
 bundle = bundle' . return

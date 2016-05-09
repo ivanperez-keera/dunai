@@ -88,7 +88,7 @@ transG1 transformInput transformOutput msf =
   transG transformInput transformOutput' msf
     where
       -- transformOutput' :: forall c. a2 -> m1 (b1, c) -> m2 (b2, Maybe c)
-      transformOutput' a b = return . second Just =<< transformOutput a b
+      transformOutput' a b = second Just <$> transformOutput a b
 
 transG :: (Monad m1, Monad m2)
        => (a2 -> m1 a1)
@@ -129,7 +129,7 @@ runStateS''' :: (Functor m, Monad m) => MStreamF (StateT s m) a b -> MStreamF m 
 runStateS''' = transG transformInput transformOutput
   where
     transformInput  (_, a)           = return a
-    transformOutput (s, _) msfaction = sym <$> flip runStateT s msfaction
+    transformOutput (s, _) msfaction = sym <$> runStateT msfaction s
     sym ((b, msf), s)                = ((s, b), Just msf)
 
 runMaybeS'' :: Monad m => MStreamF (MaybeT m) a b -> MStreamF m a (Maybe b)
@@ -179,7 +179,7 @@ wrapReaderT :: ((s, a) -> m b) -> a -> ReaderT s m b
 wrapReaderT g i = ReaderT $ g . flip (,) i
 
 unwrapReaderT :: (a -> ReaderT s m b) -> (s, a) -> m b
-unwrapReaderT g i = uncurry (flip runReaderT) $ (second g) i
+unwrapReaderT g i = uncurry (flip runReaderT) $ second g i
 
 -- ** Alternative State wrapping/unwrapping MSF combinators
 --
@@ -194,15 +194,15 @@ stateS' = lifterS (\g i -> StateT ((resort <$>) . (g . flip (,) i)))
 --   return ((b, msf'), s')
 
 runStateS' :: (Functor m, Monad m) => MStreamF (StateT s m) a b -> MStreamF m (s, a) (s, b)
-runStateS' = lifterS (\g i -> resort <$> (uncurry (flip runStateT) (second g i)))
- where resort = \((b, msf), s) -> ((s, b), msf)
+runStateS' = lifterS (\g i -> resort <$> uncurry (flip runStateT) (second g i))
+ where resort ((b, msf), s) = ((s, b), msf)
 
 
 runStateS'' :: (Functor m, Monad m) => MStreamF (StateT s m) a b -> MStreamF m (s, a) (s, b)
 runStateS'' = transS transformInput transformOutput
   where
     transformInput  (_, a)           = return a
-    transformOutput (s, _) msfaction = sym <$> flip runStateT s msfaction
+    transformOutput (s, _) msfaction = sym <$> runStateT msfaction s
     sym ((b, msf), s)                = ((s, b), msf)
 
 {-
@@ -255,7 +255,7 @@ wrapMSFWriterT g i = do
 
 unwrapMSFWriterT :: (Monad m, Functor m) => (a -> WriterT s m (b, ct)) -> a -> m ((s, b), ct)
 unwrapMSFWriterT g i = resort <$> runWriterT (g i)
-  where resort = \((b, msf), s) -> ((s, b), msf)
+  where resort ((b, msf), s) = ((s, b), msf)
 
 -- * Reader monad
 readerS :: Monad m => MStreamF m (s, a) b -> MStreamF (ReaderT s m) a b
@@ -495,7 +495,7 @@ inExceptT = liftMStreamF id -- extracts value from monadic action
 widthFirst :: (Functor m, Monad m) => MStreamF (ListT m) a b -> MStreamF m a [b]
 widthFirst msf = widthFirst' [msf] where
     widthFirst' msfs = MStreamF $ \a -> do
-        (bs, msfs') <- unzip . concat <$> (sequence $ map (runListT . flip unMStreamF a) msfs)
+        (bs, msfs') <- unzip . concat <$> mapM (runListT . flip unMStreamF a) msfs
         return (bs, widthFirst' msfs')
 
 
