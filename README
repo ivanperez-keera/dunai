@@ -1,3 +1,11 @@
+This repository implements a generalized version of reactive programming, on
+top of which other variants like Yampa, Classic FRP and Reactive Values can
+be implemented.
+
+PLEASE, DO NOT REDISTRIBUTE IT YET. We will do so in due time.
+
+* Structure, internals and current status.
+
 This project is split in three parts:
 
 - Dunai: a reactive library that combines monads and arrows.
@@ -14,8 +22,6 @@ agreed on either the syntax or intended behaviour of trans-monadic reactive
 networks. So, don't get too caught up in the current implementation, and don't
 freak out if you can't understand why there are three implementations of the
 same function.
-
-PLEASE, DO NOT REDISTRIBUTE IT YET. We will do so in due time.
 
 * Examples: Haskanoid
 
@@ -47,3 +53,15 @@ cabal install -f-wiimote -f-kinect -fbearriver examples/haskanoid
 You may have to use cabal sandbox add-source and install all libs with one
 cabal install invocation to link against the same versions of all common
 dependencies.
+
+* About the name
+
+Dunai (aka. Danube) is one of the main rivers in Europe, originating in Germany
+and touching Austria, Slovakia, Hungary, Croatia, Serbia, Romania, Bulgaria,
+Moldova and Ukraine.
+
+The (temporary) name is chosen following the idea of naming FRP libraries after
+rivers, and knowing that this library can be used to implement many others.
+I've chosen Dunai specifically taking into account the authors' relation with
+some of the countries it passes through, and knowing that this library has
+helped unite otherwise very different people from different backgrounds.
