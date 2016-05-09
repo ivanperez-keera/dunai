@@ -26,7 +26,8 @@ same function.
 * Examples: Haskanoid
 
 Performance is ok, simpler games will be playable without further
-optimisations. This uses unaccelerated SDL 1.2.
+optimisations. This uses unaccelerated SDL 1.2. The speed is comparable to
+Yampa's.
 
 2016-05-09 15:29:41 dash@dash-desktop:~/Projects/PhD/Yampa/yampa-clocks-dunai$ ./.cabal-sandbox/bin/haskanoid
 
