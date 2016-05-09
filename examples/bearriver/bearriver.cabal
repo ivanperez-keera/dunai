@@ -1,0 +1,28 @@
+name:                bearriver
+version:             0.10.4
+synopsis:            A replacement of Yampa based on Monadic Stream Functions.
+-- description:         
+homepage:            keera.co.uk
+license:             BSD3
+license-file:        LICENSE
+author:              Ivan Perez and Manuel Bärenz
+maintainer:          ivan.perez@keera.co.uk
+-- copyright:           
+category:            FRP
+build-type:          Simple
+-- extra-source-files:  
+cabal-version:       >=1.10
+
+library
+  exposed-modules:     FRP.Yampa,
+                       FRP.Yampa.Point2,
+                       FRP.Yampa.VectorSpace,
+                       FRP.Yampa.Vector2,
+                       FRP.Yampa.Point3,
+                       FRP.Yampa.Vector3,
+                       FRP.Yampa.AffineSpace,
+                       FRP.BearRiver
+
+  build-depends:       base >=4.7 && <5, transformers >=0.3
+  hs-source-dirs:      src/
+  default-language:    Haskell2010
