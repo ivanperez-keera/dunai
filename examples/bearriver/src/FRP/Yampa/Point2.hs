@@ -27,7 +27,6 @@ module FRP.Yampa.Point2 (
 import FRP.Yampa.VectorSpace ()
 import FRP.Yampa.AffineSpace
 import FRP.Yampa.Vector2
-import FRP.Yampa.Forceable
 
 ------------------------------------------------------------------------------
 -- 2D point, constructors and selectors.
@@ -54,11 +53,3 @@ instance RealFloat a => AffineSpace (Point2 a) (Vector2 a) a where
     (Point2 x y) .-^ v = Point2 (x - vector2X v) (y - vector2Y v)
 
     (Point2 x1 y1) .-. (Point2 x2 y2) = vector2 (x1 - x2) (y1 - y2)
-
-
-------------------------------------------------------------------------------
--- Forceable instance
-------------------------------------------------------------------------------
-
-instance RealFloat a => Forceable (Point2 a) where
-     force = id

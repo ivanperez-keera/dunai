@@ -28,7 +28,6 @@ module FRP.Yampa.Vector2 (
 ) where
 
 import FRP.Yampa.VectorSpace
-import FRP.Yampa.Forceable
 
 
 ------------------------------------------------------------------------------
@@ -92,11 +91,3 @@ instance RealFloat a => VectorSpace (Vector2 a) a where
 
 vector2Rotate :: RealFloat a => a -> Vector2 a -> Vector2 a
 vector2Rotate theta' v = vector2Polar (vector2Rho v) (vector2Theta v + theta')
-
-
-------------------------------------------------------------------------------
--- Forceable instance
-------------------------------------------------------------------------------
-
-instance RealFloat a => Forceable (Vector2 a) where
-     force = id

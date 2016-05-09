@@ -40,30 +40,6 @@ library
   default-language:  Haskell2010
   ghc-options:       -Wall -fno-warn-unused-do-bind
 
-executable dunai-examples-bearriver-bouncingball
-  main-is: BouncingBall.hs
-  hs-source-dirs:    examples
-  default-language:  Haskell2010
-  ghc-options:       -Wall -fno-warn-unused-do-bind
-  cpp-options:       -DBEARRIVER
-  other-modules:     FRP.BearRiver
-  build-depends:     base >=4.6 && < 5,
-                     transformers, mtl,
-                     SDL,
-                     SDL-gfx,
-                     dunai,
-                     Yampa
-
-executable dunai-examples-bearriver-bouncingball-yampa
-  main-is: BouncingBall.hs
-  hs-source-dirs:    examples
-  default-language:  Haskell2010
-  ghc-options:       -Wall -fno-warn-unused-do-bind
-  build-depends:     base >=4.6 && < 5,
-                     SDL,
-                     SDL-gfx,
-                     Yampa
-
 source-repository head
   type:     git
   location: git@bitbucket.org:iperezdominguez/dunai.git

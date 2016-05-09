@@ -23,6 +23,6 @@ library
                        FRP.Yampa.AffineSpace,
                        FRP.BearRiver
 
-  build-depends:       base >=4.7 && <5, transformers >=0.3
+  build-depends:       base >=4.7 && <5, transformers >=0.3, mtl, dunai
   hs-source-dirs:      src/
   default-language:    Haskell2010

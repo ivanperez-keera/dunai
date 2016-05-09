@@ -30,7 +30,6 @@ module FRP.Yampa.Vector3 (
 ) where
 
 import FRP.Yampa.VectorSpace
-import FRP.Yampa.Forceable
 
 ------------------------------------------------------------------------------
 -- 3D vector, constructors and selectors.
@@ -110,11 +109,3 @@ vector3Rotate theta' phi' v =
     vector3Spherical (vector3Rho v)
                      (vector3Theta v + theta')
                      (vector3Phi v + phi')
-
-
-------------------------------------------------------------------------------
--- Forceable instance
-------------------------------------------------------------------------------
-
-instance RealFloat a => Forceable (Vector3 a) where
-     force = id
