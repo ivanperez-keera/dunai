@@ -13,6 +13,7 @@ import Control.Arrow
 import Control.Category (Category(..))
 import Control.Monad
 import Control.Monad.Base
+import Data.Monoid
 import Prelude hiding ((.), id, sum)
 
 -- Internal (generic)
@@ -129,18 +130,19 @@ pauseOn cond = pauseOnGeneral cond $ \s -> print s >> getLine >> return ()
 
 -- * Tests and examples
 
-sum :: (RModule n, Monad m) => MStreamF m n n
-sum = sumFrom zeroVector
+sum :: (Monoid n, Monad m) => MStreamF m n n
+sum = sumFrom mempty
 {-# INLINE sum #-}
 
-sumFrom :: (RModule n, Monad m) => n -> MStreamF m n n
-sumFrom n0 = MStreamF $ \n -> let acc = n0 ^+^ n
-                              in acc `seq` return (acc, sumFrom acc)
+sumFrom :: (Monoid n, Monad m) => n -> MStreamF m n n
+sumFrom n0 = MStreamF $ \n -> let acc = n0 `mappend` n
+                              -- in acc `seq` return (acc, sumFrom acc)
+                              in return (acc, sumFrom acc)
 -- sum = feedback 0 (arr (uncurry (+) >>> dup))
 --  where dup x = (x,x)
 
 count :: (Num n, Monad m) => MStreamF m () n
-count = arr (const 1) >>> sum
+count = arr (const (Sum 1)) >>> sum >>> arr getSum
 
 unfold :: Monad m => (a -> (b,a)) -> a -> MStreamF m () b
 unfold f a = MStreamF $ \_ -> let (b,a') = f a in b `seq` return (b, unfold f a')
