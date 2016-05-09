@@ -1,0 +1,18 @@
+This project is split in three parts:
+
+- Dunai: a reactive library that combines monads and arrows.
+- BearRiver: Yampa implemented on top of Dunai.
+- Examples: ballbounce, haskanoid
+  - sample applications that work both on traditional Yampa and BearRiver.
+
+We need to add examples of apps written in classic FRP, reactive values, etc. A
+new game, in honor of Paul Hudak, has been designed to work best with this
+library. It will also be added to the repo.
+
+Dunai uses monad transformers, but it's still very experimental and we have not
+agreed on either the syntax or intended behaviour of trans-monadic reactive
+networks. So, don't get too caught up in the current implementation, and don't
+freak out if you can't understand why there are three implementations of the
+same function.
+
+PLEASE, DO NOT REDISTRIBUTE IT YET. We will do so in due time.
