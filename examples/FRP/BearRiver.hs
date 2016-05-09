@@ -22,7 +22,6 @@ import           Data.Maybe
 import           Data.MonadicStreamFunction   as X hiding (iPre, reactimate, switch, sum, trace)
 import qualified Data.MonadicStreamFunction   as MSF
 import           Data.MonadicStreamFunction.ArrowLoop
-import           Debug.Trace
 import           FRP.Yampa.VectorSpace        as X
 
 type ClockInfo = Reader DTime
@@ -124,8 +123,7 @@ after q x = feedback q $ go
               let t' = t - dt
                   e  = if t > 0 && t' < 0 then Event x else NoEvent
                   ct = if t' < 0 then constant (NoEvent, t') else go
-              trace (show (t', isJust (eventToMaybe (e)))) $
-                return ((e, t'), ct)
+              return ((e, t'), ct)
 
 constant x = arr (const x)
 
@@ -170,5 +168,5 @@ dSwitch sf sfC = MStreamF $ \a -> do
 -- switch sf sfC = MStreamF $ \a -> do
 --   (o, ct) <- unMStreamF sf a
 --   case o of
---    (_, Event c) -> trace "Ha!" $ unMStreamF (sfC c) a
+--    (_, Event c) -> unMStreamF (sfC c) a
 --    (b, NoEvent) -> return (b, switch ct sfC)
