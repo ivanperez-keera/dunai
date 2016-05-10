@@ -80,7 +80,7 @@ transS transformInput transformOutput msf = MStreamF $ \a2 -> do
     return (b2, transS transformInput transformOutput msf')
 
 -- ** A more general lifting mechanism that enables recovery.
-transG1 :: (Monad m1, Monad m2)
+transG1 :: (Monad m1, Functor m2, Monad m2)
         => (a2 -> m1 a1)
         -> (forall c. a2 -> m1 (b1, c) -> m2 (b2, c))
         -> MStreamF m1 a1 b1 -> MStreamF m2 a2 b2
