@@ -1,6 +1,6 @@
 module FRP.Yampa (module X) where
 
-import FRP.BearRiver         as X
+import FRP.BearRiver         as X hiding (andThen)
 import FRP.Yampa.AffineSpace as X
 import FRP.Yampa.Point2      as X
 import FRP.Yampa.Point3      as X
