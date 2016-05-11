@@ -209,7 +209,8 @@ iterFrom f b = MStreamF $ \a -> do
 
 reactimate :: IO a -> (Bool -> IO (DTime, Maybe a)) -> (Bool -> b -> IO Bool) -> SF a b -> IO ()
 reactimate senseI sense actuate sf = do
-  runMaybeT $ MSF.reactimate $ liftMStreamFTrans (senseSF >>> sfIO) >>> actuateSF
+  -- runMaybeT $ MSF.reactimate $ liftMStreamFTrans (senseSF >>> sfIO) >>> actuateSF
+  MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
   return ()
  where sfIO        = liftMStreamFPurer (return.runIdentity) (runReaderS sf)
 
@@ -223,7 +224,8 @@ reactimate senseI sense actuate sf = do
 
        -- Consume/render
        -- actuateSF :: MStreamF IO b ()
-       actuateSF    = arr (\x -> (True, x)) >>> liftMStreamF (lift . uncurry actuate) >>> exitIf
+       -- actuateSF    = arr (\x -> (True, x)) >>> liftMStreamF (lift . uncurry actuate) >>> exitIf
+       actuateSF    = arr (\x -> (True, x)) >>> liftMStreamF (uncurry actuate)
 
        switch sf sfC = MSF.switch (sf >>> second (arr eventToMaybe)) sfC
 
