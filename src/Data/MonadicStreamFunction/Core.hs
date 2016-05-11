@@ -164,3 +164,9 @@ reactimate :: Monad m => MStreamF m () () -> m ()
 reactimate sf = do
   (_, sf') <- unMStreamF sf ()
   reactimate sf'
+
+-- | Runs an MSF indefinitely passing a unit-carrying input stream.
+reactimateB :: Monad m => MStreamF m () Bool -> m ()
+reactimateB sf = do
+  (b, sf') <- unMStreamF sf ()
+  if b then return () else reactimateB sf'
