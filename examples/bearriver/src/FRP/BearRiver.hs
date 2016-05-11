@@ -31,8 +31,9 @@ type SF        = MStreamF ClockInfo
 type ClockInfo = Reader DTime
 
 identity :: SF a a
-identity = id
+identity = arr id
 
+constant :: b -> SF a b
 constant = arr . const
 
 iPre :: a -> SF a a
@@ -58,7 +59,7 @@ derivative = derivativeFrom zeroVector
 derivativeFrom :: VectorSpace a s => a -> SF a a
 derivativeFrom n0 = MStreamF $ \n -> do
   dt <- ask
-  let res = (n ^-^ n0) /^ realToFrac dt
+  let res = (n ^-^ n0) ^/ realToFrac dt
   res `seq` return (res, derivativeFrom n)
 
 -- * Events
