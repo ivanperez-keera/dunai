@@ -1,4 +1,3 @@
-{-# LANGUAGE Arrows #-}
 -- Part of this code is taken and adapted from:
 -- https://wiki.haskell.org/WxHaskell/Quick_start#Hello_world_in_wxHaskell
 module Main where
@@ -70,37 +69,3 @@ pushReactimate_ msf = do
 -- ** Auxiliary WX functions
 setJust :: widget -> Attr widget attr -> attr -> IO ()
 setJust c p v = set c [ p := v ]
-
--- -- ** Keera Hails - WX bridget on top of Dunai
--- type ReactiveValueRO m a = MStream m a
--- type ReactiveValueWO m a = MSink   m a
--- type ReactiveValueRW m a = (MStream m a, MSink m a)
--- 
--- reactiveWXFieldRO :: widget -> Attr widget attr -> ReactiveValueRO IO attr
--- reactiveWXFieldRO widget attr = liftMStreamF_ (get widget attr)
--- 
--- reactiveWXFieldWO :: Eq attr => widget -> Attr widget attr -> ReactiveValueWO IO attr
--- reactiveWXFieldWO widget attr = liftMStreamF $ \v -> do
---   o <- get widget attr
---   if v == o
---     then return ()
---     else setJust widget attr v
--- 
--- reactiveWXFieldRW :: Eq attr => widget -> Attr widget attr -> ReactiveValueRW IO attr
--- reactiveWXFieldRW widget attr =
---   ( reactiveWXFieldRO widget attr
---   , reactiveWXFieldWO widget attr
---   )
--- 
--- liftRW2 :: Monad m => (a -> b, b -> a) -> ReactiveValueRW m a -> ReactiveValueRW m b
--- liftRW2 (f, f') (sg, sk) = (sg >>> arr f, arr f' >>> sk)
--- 
--- (=:=) :: Monad m => ReactiveValueRW m a -> ReactiveValueRW m a -> MStreamF m () ()
--- (sg1,sk1) =:= (sg2, sk2) = 
---   constant () >>> ((sg1 >>> sk2) &&& (sg2 >>> sk1)) >>> constant ()
--- 
--- constant :: Monad m => b -> MStreamF m a b
--- constant = arr . const
--- 
--- voidA :: Arrow a => a b c -> a b ()
--- voidA a = a >>> arr (const ())
