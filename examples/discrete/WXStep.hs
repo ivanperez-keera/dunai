@@ -22,6 +22,10 @@ main = start $ do
   let labelMSF  = labelTextSk lenLbl . arr show . ioRefSg counter
       buttonMSF = ioRefSg counter >>> arr (+1) >>> ioRefSk counter
 
+  -- NOTE: The order here is *very* important. If you write
+  -- labelMSF &&& buttonMSF, then they will be desynced
+  -- (meaning that, at the end of one simulation step, the label
+  -- will not show the contents of the IORef).
   let appMSF = (buttonMSF &&& labelMSF) >>> arr (const ())
 
   hndlr <- pushReactimate_ appMSF 
