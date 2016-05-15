@@ -10,10 +10,7 @@ import Data.MonadicStreamFunction
 import Graphics.UI.WX
 
 main :: IO ()
-main = start hello
-
-hello :: IO ()
-hello = do
+main = start $ do
   f      <- frame      []
   lenLbl <- staticText f [ text := "0" ]
   entry  <- textEntry  f []
