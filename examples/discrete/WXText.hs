@@ -2,12 +2,12 @@
 -- https://wiki.haskell.org/WxHaskell/Quick_start#Hello_world_in_wxHaskell
 module Main where
 
+import Prelude hiding ((.))
+import Control.Category
 import Control.Monad
 import Data.IORef
 import Data.MonadicStreamFunction
 import Graphics.UI.WX
-import Control.Category
-import Prelude hiding ((.))
 
 main :: IO ()
 main = start hello
@@ -17,7 +17,7 @@ hello
   = do f      <- frame      []
        lenLbl <- staticText f [ text := "0" ]
        entry  <- textEntry  f []
-       quit   <- button     f [text := "Quit", on command := close f]
+       quit   <- button     f [ text := "Quit", on command := close f ]
 
        -- Reactive network
        let appMSF =
@@ -36,17 +36,17 @@ hello
                                             ] )]
 
 
+-- * Auxiliary definitions
 
--- * Adhoc Dunai-WX backend
-
+-- ** Adhoc Dunai-WX backend
 textEntryTextSg :: TextCtrl a -> MStream IO String
 textEntryTextSg entry = liftMStreamF_ (get entry text)
 
 labelTextSk :: StaticText a -> MSink IO String
-labelTextSk lbl = liftMStreamF (\t -> set lbl [ text := t ])
+labelTextSk lbl = liftMStreamF $ setJust lbl text
+  -- (\t -> set lbl [ text := t ])
 
--- * Slightly general MSF definitions
-
+-- ** MSF-related definitions and extensions
 type MSink m a = MStreamF m a ()
 
 -- | Run an MSF on an input sample step by step, using an IORef to store the
@@ -66,3 +66,7 @@ pushReactimate_ :: MStreamF IO () () -> IO (IO ())
 pushReactimate_ msf = do
   f <- pushReactimate msf
   return (void (f ()))
+
+-- ** Auxiliary WX functions
+setJust :: widget -> Attr widget attr -> attr -> IO ()
+setJust c p v = set c [ p := v ]
