@@ -7,6 +7,7 @@ import Prelude hiding ((.))
 import Control.Category
 import Control.Monad
 import Data.IORef
+import Data.Maybe
 import Data.MonadicStreamFunction
 import Graphics.UI.WX
 
@@ -22,8 +23,8 @@ hello = do
   quit   <- button     f [ text := "Quit", on command := close f ]
 
   -- Reactive network
-  let appMSF = voidA $ (labelTextSk lenLbl . arr (show.length) . textEntryTextSg entry1)
-                   &&& (reactiveWXFieldRW entry1 text =:= liftRW2 (reverse, reverse) (reactiveWXFieldRW entry2 text))
+  let appMSF = voidA $ (reactiveWXFieldRW entry1 text =:= liftRW2 (reverse, reverse) (reactiveWXFieldRW entry2 text))
+                   &&& (labelTextSk lenLbl . arr (show.length) . textEntryTextSg entry1)
 
   -- appMSF =
   --   textEntryTextSg entry >>> arr (show.length) >>> labelTextSk lenLbl
@@ -99,9 +100,21 @@ reactiveWXFieldRW widget attr =
 liftRW2 :: Monad m => (a -> b, b -> a) -> ReactiveValueRW m a -> ReactiveValueRW m b
 liftRW2 (f, f') (sg, sk) = (sg >>> arr f, arr f' >>> sk)
 
-(=:=) :: Monad m => ReactiveValueRW m a -> ReactiveValueRW m a -> MStreamF m () ()
-(sg1,sk1) =:= (sg2, sk2) = 
-  constant () >>> ((sg1 >>> sk2) &&& (sg2 >>> sk1)) >>> constant ()
+(=:=) :: (Monad m, Eq a) => ReactiveValueRW m a -> ReactiveValueRW m a -> MStreamF m () ()
+(sg1,sk1) =:= (sg2, sk2) =
+  voidA ((sg1 >>> pushify sk2) &&& (sg2 >>> pushify sk1))
+
+-- (=:>) :: (Monad m, Eq a) => ReactiveValueRW m a -> ReactiveValueRW m a -> MStreamF m () ()
+-- sg =:> sk = pushReactimate_ (sg >>> sk)
+
+pushify :: (Monad m, Eq a) => MStreamF m a b -> MStreamF m a b
+pushify msf = feedback Nothing (pushify' msf)
+
+pushify' msf = proc (a, mov) -> do
+   nv <- if Just a == fmap fst mov
+           then returnA -< snd (fromJust mov)
+           else msf -< a
+   returnA -< (nv, Just (a, nv))
 
 constant :: Monad m => b -> MStreamF m a b
 constant = arr . const
