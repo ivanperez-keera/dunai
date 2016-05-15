@@ -13,27 +13,27 @@ main :: IO ()
 main = start hello
 
 hello :: IO ()
-hello
-  = do f      <- frame      []
-       lenLbl <- staticText f [ text := "0" ]
-       entry  <- textEntry  f []
-       quit   <- button     f [ text := "Quit", on command := close f ]
+hello = do
+  f      <- frame      []
+  lenLbl <- staticText f [ text := "0" ]
+  entry  <- textEntry  f []
+  quit   <- button     f [ text := "Quit", on command := close f ]
 
-       -- Reactive network
-       let appMSF =
-             labelTextSk lenLbl . arr (show.length) . textEntryTextSg entry
+  -- Reactive network
+  let appMSF =
+        labelTextSk lenLbl . arr (show.length) . textEntryTextSg entry
 
-       -- appMSF =
-       --   textEntryTextSg entry >>> arr (show.length) >>> labelTextSk lenLbl
+  -- appMSF =
+  --   textEntryTextSg entry >>> arr (show.length) >>> labelTextSk lenLbl
 
-       hndlr <- pushReactimate_ appMSF 
+  hndlr <- pushReactimate_ appMSF 
 
-       set entry [ on update := hndlr ]
-       
-       set f [layout := margin 10 (column 5 [ floatCentre (widget lenLbl)
-                                            , floatCentre (widget entry)
-                                            , floatCentre (widget quit)
-                                            ] )]
+  set entry [ on update := hndlr ]
+  
+  set f [layout := margin 10 (column 5 [ floatCentre (widget lenLbl)
+                                       , floatCentre (widget entry)
+                                       , floatCentre (widget quit)
+                                       ] )]
 
 
 -- * Auxiliary definitions
