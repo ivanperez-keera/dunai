@@ -70,3 +70,20 @@ pushReactimate_ msf = do
 -- ** Auxiliary WX functions
 setJust :: widget -> Attr widget attr -> attr -> IO ()
 setJust c p v = set c [ p := v ]
+
+-- ** Keera Hails - WX bridget on top of Dunai
+type ReactiveValueRO m a = MStream m a
+type ReactiveValueWO m a = MSink   m a
+type ReactiveValueRW m a = (MStream m a, MSink m a)
+
+reactiveWXFieldRO :: widget -> Attr widget attr -> ReactiveValueRO IO attr
+reactiveWXFieldRO widget attr = liftMStreamF_ (get widget attr)
+
+reactiveWXFieldWO :: widget -> Attr widget attr -> ReactiveValueWO IO attr
+reactiveWXFieldWO widget attr = liftMStreamF  (setJust widget attr)
+
+reactiveWXFieldRW :: widget -> Attr widget attr -> ReactiveValueRW IO attr
+reactiveWXFieldRW widget attr =
+  ( reactiveWXFieldRO widget attr
+  , reactiveWXFieldWO widget attr
+  )
