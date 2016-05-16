@@ -1,7 +1,0 @@
-* Are RModules more general than monoids? Why aren't sum and sumfrom defined
-over monoids?
-
-  Motivation: There already is a standard vector library, but it's too heavy
-for mobile games. We currently provide a custom implementation of VectorSpace.
-If we use monoid or something more general available in base, people can choose
-between using our VectorSpace (provided separately) or the one in 'vector'.
