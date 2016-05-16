@@ -1,6 +1,13 @@
 {-# LANGUAGE Arrows #-}
 -- Part of this code is taken and adapted from:
 -- https://wiki.haskell.org/WxHaskell/Quick_start#Hello_world_in_wxHaskell
+--
+-- NOTE: Currently, there exists a problem with implementing push-based
+-- evaluation.
+--
+-- Ideas: using some monad or another arrow-based mechanism to remember
+-- values and not push unless its necessary. Maybe using arrow transformers
+-- instead of monad transformers, like Henrik suggested?
 module Main where
 
 import Prelude hiding ((.))
@@ -8,7 +15,8 @@ import Control.Category
 import Control.Monad
 import Data.IORef
 import Data.Maybe
-import Data.MonadicStreamFunction
+import Data.MonadicStreamFunction hiding (trace)
+import Debug.Trace
 import Graphics.UI.WX
 
 main :: IO ()
@@ -100,21 +108,21 @@ reactiveWXFieldRW widget attr =
 liftRW2 :: Monad m => (a -> b, b -> a) -> ReactiveValueRW m a -> ReactiveValueRW m b
 liftRW2 (f, f') (sg, sk) = (sg >>> arr f, arr f' >>> sk)
 
-(=:=) :: (Monad m, Eq a) => ReactiveValueRW m a -> ReactiveValueRW m a -> MStreamF m () ()
+(=:=) :: (Monad m, Show a, Eq a) => ReactiveValueRW m a -> ReactiveValueRW m a -> MStreamF m () ()
 (sg1,sk1) =:= (sg2, sk2) =
-  voidA ((sg1 >>> pushify sk2) &&& (sg2 >>> pushify sk1))
+  voidA ((sg1 >>> pushify sk2) &&& (sg2 >>> sk1))
 
 -- (=:>) :: (Monad m, Eq a) => ReactiveValueRW m a -> ReactiveValueRW m a -> MStreamF m () ()
 -- sg =:> sk = pushReactimate_ (sg >>> sk)
 
-pushify :: (Monad m, Eq a) => MStreamF m a b -> MStreamF m a b
+-- pushify :: (Monad m, Eq a) => MStreamF m a b -> MStreamF m a b
 pushify msf = feedback Nothing (pushify' msf)
 
 pushify' msf = proc (a, mov) -> do
-   nv <- if Just a == fmap fst mov
-           then returnA -< snd (fromJust mov)
-           else msf -< a
-   returnA -< (nv, Just (a, nv))
+  nv <- if Just a == (trace (show (a, mov)) $ fmap fst mov)
+          then returnA -< snd (fromJust mov)
+          else msf     -< a
+  returnA -< (nv, Just (a, nv))
 
 constant :: Monad m => b -> MStreamF m a b
 constant = arr . const
