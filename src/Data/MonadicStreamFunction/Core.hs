@@ -114,8 +114,11 @@ performOnFirstSample sfaction = MStreamF $ \a -> do
 
 -- ** Delays and signal overwriting
 
-iPre :: Monad m => a -> MStreamF m a b -> MStreamF m a b
-iPre a sf = MStreamF $ \_ -> unMStreamF sf a
+-- iPre :: Monad m => a -> MStreamF m a b -> MStreamF m a b
+-- iPre a sf = MStreamF $ \_ -> unMStreamF sf a
+
+iPre :: Monad m => a -> MStreamF m a a
+iPre = delay
 
 delay :: Monad m => a -> MStreamF m a a
 delay firsta = MStreamF $ \a -> return (firsta, delay a)
