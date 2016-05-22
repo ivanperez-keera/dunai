@@ -31,7 +31,7 @@ hello = do
   quit   <- button     f [ text := "Quit", on command := close f ]
 
   reactiveWXFieldRW entry1 text =:= (liftRW2 (reverse, reverse) (reactiveWXFieldRW entry2 text))
-  reactiveWXFieldRO entry1 text =:> (arr (show.length) >>> labelTextSk lenLbl)
+  reactiveWXFieldRO entry1 text =:> (arr (show.length) >>> reactiveWXFieldWO lenLbl text)
   
   set f [layout := margin 10 (column 5 [ floatCentre (widget lenLbl)
                                        , floatCentre (widget entry1)
@@ -41,13 +41,6 @@ hello = do
 
 
 -- * Auxiliary definitions
-
--- ** Adhoc Dunai-WX backend
-textEntryTextSg :: TextCtrl a -> MStream IO String
-textEntryTextSg entry = liftMStreamF_ (get entry text)
-
-labelTextSk :: StaticText a -> MSink IO String
-labelTextSk lbl = liftMStreamF $ setProp lbl text
 
 -- ** MSF-related definitions and extensions
 type MSink m a = MStreamF m a ()
