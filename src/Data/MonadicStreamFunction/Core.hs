@@ -1,5 +1,5 @@
 {-# LANGUAGE ExplicitForAll #-}
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE Rank2Types     #-}
 -- | Monadic Stream Functions are synchronized stream functions
 -- with side effects.
 
@@ -22,7 +22,6 @@
 -- exports everything. Users should *never* import this module
 -- individually, but the main module instead.
 module Data.MonadicStreamFunction.Core where
-
 
 -- External
 import Control.Applicative
