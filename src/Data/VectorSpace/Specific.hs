@@ -1,4 +1,5 @@
-{-# LANGUAGE TypeFamilies           #-}
+{-# LANGUAGE TypeFamilies         #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Data.VectorSpace.Specific where
 
 import Data.VectorSpace

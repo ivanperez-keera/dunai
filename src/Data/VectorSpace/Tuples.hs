@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleInstances      #-}
 {-# LANGUAGE TypeFamilies           #-}
+{-# OPTIONS_GHC -fno-warn-orphans   #-}
 module Data.VectorSpace.Tuples where
 
 import Data.VectorSpace

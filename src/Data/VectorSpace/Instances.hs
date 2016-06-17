@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleInstances      #-}
 {-# LANGUAGE TypeFamilies           #-}
 {-# LANGUAGE UndecidableInstances   #-}
+{-# OPTIONS_GHC -fno-warn-orphans   #-}
 module Data.VectorSpace.Instances where
 
 import Data.VectorSpace

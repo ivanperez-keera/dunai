@@ -20,43 +20,18 @@ import Prelude hiding ((.), id, sum)
 import Data.VectorSpace
 import Data.VectorSpace.Instances()
 
-import Data.MonadicStreamFunction.Core        as X
-import Data.MonadicStreamFunction.ArrowChoice as X
-import Data.MonadicStreamFunction.ArrowLoop   as X
-import Data.MonadicStreamFunction.ArrowPlus   as X
+import Data.MonadicStreamFunction.Core          as X
+import Data.MonadicStreamFunction.ArrowChoice   as X
+import Data.MonadicStreamFunction.ArrowLoop     as X
+import Data.MonadicStreamFunction.ArrowPlus     as X
+import Data.MonadicStreamFunction.MonadicStream as X
 
--- ** Instances for monadic streams
-
-instance Functor m => Functor (MStreamF m r)
-  where
-    -- fmap f as = as >>> arr f
-    fmap f as = MStreamF $ \r -> fTuple <$> unMStreamF as r
-      where
-        fTuple (a, as') = (f a, f <$> as')
-
-instance Applicative m => Applicative (MStreamF m r) where
-  -- pure a = constantly a
-  pure a = MStreamF $ \_ -> pure (a, pure a)
-  {-
-  fs <*> as = proc _ -> do
-      f <- fs -< ()
-      a <- as -< ()
-      returnA -< f a
-  -}
-  fs <*> as = MStreamF $ \r -> applyTuple <$> unMStreamF fs r <*> unMStreamF as r
-    where
-      applyTuple (f, fs') (a, as') = (f a, fs' <*> as')
 
 -- ** Lifts
 
 {-# DEPRECATED insert "Don't use this. liftMStreamF id instead" #-}
 insert :: Monad m => MStreamF m (m a) a
 insert = liftMStreamF id
--- This expands to the old code:
---
--- MStreamF $ \ma -> do
---   a <- ma
---   return (a, insert)
 
 liftMStreamF_ :: Monad m => m b -> MStreamF m a b
 liftMStreamF_ = liftMStreamF . const
@@ -155,7 +130,7 @@ repeatedly f = repeatedly'
 
 -- FIXME: This should *not* be in this module
 mapMStreamF :: Monad m => MStreamF m a b -> MStreamF m [a] [b]
-mapMStreamF sf = MStreamF $ consume sf
+mapMStreamF = MStreamF . consume
   where
     consume :: Monad m => MStreamF m a t -> [a] -> m ([t], MStreamF m [a] [t])
     consume sf []     = return ([], mapMStreamF sf)
@@ -163,6 +138,3 @@ mapMStreamF sf = MStreamF $ consume sf
       (b, sf')   <- unMStreamF sf a
       (bs, sf'') <- consume sf' as
       b `seq` return (b:bs, sf'')
-
--- * Streams (or generators)
-type MStream m a = MStreamF m () a
