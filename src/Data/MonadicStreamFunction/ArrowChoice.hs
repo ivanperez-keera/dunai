@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Data.MonadicStreamFunction.ArrowChoice where
 
 import Control.Arrow

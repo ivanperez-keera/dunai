@@ -1,5 +1,5 @@
 {-# LANGUAGE ExplicitForAll #-}
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE Rank2Types     #-}
 -- | Monadic Stream Functions are synchronized stream functions
 -- with side effects.
 
@@ -23,9 +23,7 @@
 -- individually, but the main module instead.
 module Data.MonadicStreamFunction.Core where
 
-
 -- External
-import Control.Applicative
 import Control.Arrow
 import Control.Category (Category(..))
 import Control.Monad
@@ -114,17 +112,16 @@ performOnFirstSample sfaction = MStreamF $ \a -> do
 
 -- ** Delays and signal overwriting
 
--- iPre :: Monad m => a -> MStreamF m a b -> MStreamF m a b
--- iPre a sf = MStreamF $ \_ -> unMStreamF sf a
-
 iPre :: Monad m => a -> MStreamF m a a
-iPre = delay
-
-delay :: Monad m => a -> MStreamF m a a
-delay firsta = MStreamF $ \a -> return (firsta, delay a)
--- delay firsta = feedback a $ lift swap
+iPre firsta = MStreamF $ \a -> return (firsta, delay a)
+-- iPre firsta = feedback firsta $ lift swap
 --   where swap (a,b) = (b, a)
--- delay firsta = next firsta identity
+-- iPre firsta = next firsta identity
+
+-- FIXME: Remove delay from this module. We should try to make this module
+-- small, keeping only primitives.
+delay :: Monad m => a -> MStreamF m a a
+delay = iPre
 
 -- ** Switching
 

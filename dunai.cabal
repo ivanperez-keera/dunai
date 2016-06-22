@@ -32,6 +32,7 @@ library
                      Data.MonadicStreamFunction.Instances
                      Data.MonadicStreamFunction.Instances.Num
                      Data.MonadicStreamFunction.Instances.VectorSpace
+                     Data.MonadicStreamFunction.MonadicStream
                      Data.MonadicStreamFunction.Parallel
                      Data.MonadicStreamFunction.ReactHandle
 

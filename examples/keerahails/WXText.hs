@@ -30,17 +30,8 @@ hello = do
   entry2 <- textEntry  f []
   quit   <- button     f [ text := "Quit", on command := close f ]
 
-  -- Reactive network
-  let appMSF = voidA $ (reactiveWXFieldRW entry1 text =:= liftRW2 (reverse, reverse) (reactiveWXFieldRW entry2 text))
-                   &&& (labelTextSk lenLbl . arr (show.length) . textEntryTextSg entry1)
-
-  -- appMSF =
-  --   textEntryTextSg entry >>> arr (show.length) >>> labelTextSk lenLbl
-
-  hndlr <- pushReactimate_ appMSF 
-
-  set entry1 [ on update := hndlr ]
-  set entry2 [ on update := hndlr ]
+  reactiveWXFieldRW entry1 text =:= (liftRW2 (reverse, reverse) (reactiveWXFieldRW entry2 text))
+  reactiveWXFieldRO entry1 text =:> (arr (show.length) >>> reactiveWXFieldWO lenLbl text)
   
   set f [layout := margin 10 (column 5 [ floatCentre (widget lenLbl)
                                        , floatCentre (widget entry1)
@@ -50,14 +41,6 @@ hello = do
 
 
 -- * Auxiliary definitions
-
--- ** Adhoc Dunai-WX backend
-textEntryTextSg :: TextCtrl a -> MStream IO String
-textEntryTextSg entry = liftMStreamF_ (get entry text)
-
-labelTextSk :: StaticText a -> MSink IO String
-labelTextSk lbl = liftMStreamF $ setJust lbl text
-  -- (\t -> set lbl [ text := t ])
 
 -- ** MSF-related definitions and extensions
 type MSink m a = MStreamF m a ()
@@ -80,44 +63,51 @@ pushReactimate_ msf = do
   f <- pushReactimate msf
   return (void (f ()))
 
--- ** Auxiliary WX functions
-setJust :: widget -> Attr widget attr -> attr -> IO ()
-setJust c p v = set c [ p := v ]
+-- ** Keera Hails
 
--- ** Keera Hails - WX bridget on top of Dunai
-type ReactiveValueRO m a = MStream m a
+type ReactiveValueRO m a = (MStream m a, m () -> m ())
 type ReactiveValueWO m a = MSink   m a
-type ReactiveValueRW m a = (MStream m a, MSink m a)
+type ReactiveValueRW m a = (MStream m a, MSink m a, m () -> m ())
 
-reactiveWXFieldRO :: widget -> Attr widget attr -> ReactiveValueRO IO attr
-reactiveWXFieldRO widget attr = liftMStreamF_ (get widget attr)
+liftRW2 :: Monad m => (a -> b, b -> a) -> ReactiveValueRW m a -> ReactiveValueRW m b
+liftRW2 (f, f') (sg, sk, h) = (sg >>> arr f, arr f' >>> sk, h)
+
+(=:=) :: (Show a, Eq a) => ReactiveValueRW IO a -> ReactiveValueRW IO a -> IO ()
+(sg1,sk1,h1) =:= (sg2, sk2, h2) = do
+  (sg1,h1) =:> sk2
+  (sg2,h2) =:> sk1
+
+(=:>) :: (Show a, Eq a) => ReactiveValueRO IO a -> ReactiveValueWO IO a -> IO ()
+(sg, h) =:> sk = h =<< pushReactimate_ (sg >>> sk)
+
+-- ** Auxiliary WX functions
+setProp :: widget -> Attr widget attr -> attr -> IO ()
+setProp c p v = set c [ p := v ]
+
+-- ** Keera Hails - WX bridge on top of Dunai
+reactiveWXFieldRO :: Updating widget => widget -> Attr widget attr -> ReactiveValueRO IO attr
+reactiveWXFieldRO widget attr =
+  ( liftMStreamF_ (get widget attr)
+  , \m -> set widget [ on update :~ (\m1 -> m1 >> m) ]
+  )
 
 reactiveWXFieldWO :: Eq attr => widget -> Attr widget attr -> ReactiveValueWO IO attr
 reactiveWXFieldWO widget attr = liftMStreamF $ \v -> do
   o <- get widget attr
   if v == o
     then return ()
-    else setJust widget attr v
+    else setProp widget attr v
 
-reactiveWXFieldRW :: Eq attr => widget -> Attr widget attr -> ReactiveValueRW IO attr
-reactiveWXFieldRW widget attr =
-  ( reactiveWXFieldRO widget attr
-  , reactiveWXFieldWO widget attr
-  )
+reactiveWXFieldRW :: (Updating widget, Eq attr) => widget -> Attr widget attr -> ReactiveValueRW IO attr
+reactiveWXFieldRW widget attr = (sg, sk, h)
+ where (sg, h) = reactiveWXFieldRO widget attr
+       sk      = reactiveWXFieldWO widget attr
 
-liftRW2 :: Monad m => (a -> b, b -> a) -> ReactiveValueRW m a -> ReactiveValueRW m b
-liftRW2 (f, f') (sg, sk) = (sg >>> arr f, arr f' >>> sk)
-
-(=:=) :: (Monad m, Show a, Eq a) => ReactiveValueRW m a -> ReactiveValueRW m a -> MStreamF m () ()
-(sg1,sk1) =:= (sg2, sk2) =
-  voidA ((sg1 >>> pushify sk2) &&& (sg2 >>> sk1))
-
--- (=:>) :: (Monad m, Eq a) => ReactiveValueRW m a -> ReactiveValueRW m a -> MStreamF m () ()
--- sg =:> sk = pushReactimate_ (sg >>> sk)
-
--- pushify :: (Monad m, Eq a) => MStreamF m a b -> MStreamF m a b
+pushify :: (Monad m, Eq a, Show a, Show b) => MStreamF m a b -> MStreamF m a b
 pushify msf = feedback Nothing (pushify' msf)
 
+pushify' :: (Eq a, Monad m, Show a, Show b)
+         => MStreamF m a b -> MStreamF m (a, Maybe (a, b)) (b, Maybe (a, b))
 pushify' msf = proc (a, mov) -> do
   nv <- if Just a == (trace (show (a, mov)) $ fmap fst mov)
           then returnA -< snd (fromJust mov)
