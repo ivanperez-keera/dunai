@@ -82,4 +82,4 @@ test-suite haddock-coverage
 
 source-repository head
   type:     git
-  location: git@bitbucket.org:iperezdominguez/dunai.git
+  location: git@github.com:ivanperez-keera/dunai.git
