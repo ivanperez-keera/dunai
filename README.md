@@ -27,6 +27,7 @@ Performance is ok, simpler games will be playable without further
 optimisations. This uses unaccelerated SDL 1.2. The speed is comparable to
 Yampa's.
 
+```
 2016-05-09 15:29:41 dash@dash-desktop:~/Projects/PhD/Yampa/yampa-clocks-dunai$ ./.cabal-sandbox/bin/haskanoid
 
 Performance report :: Time per frame: 13.88ms, FPS: 72.04610951008645, Total running time: 1447
@@ -35,6 +36,7 @@ Performance report :: Time per frame: 17.48ms, FPS: 57.20823798627002, Total run
 Performance report :: Time per frame: 19.56ms, FPS: 51.12474437627812, Total running time: 6797
 Performance report :: Time per frame: 19.96ms, FPS: 50.100200400801604, Total running time: 8793
 Performance report :: Time per frame: 19.44ms, FPS: 51.440329218106996, Total running time: 10737
+```
 
 It runs almost in constant memory, with about 50% more memory consumption than
 with Yampa (200k for Yampa and 300K for dunai/bearriver). There is very minor
@@ -47,12 +49,14 @@ FRP.BearRiver and Data.MonadicStreamFunction.
 
 You can try it with:
 
+```
 git clone git@bitbucket.org:iperezdominguez/dunai.git
 cd dunai
 cabal sandbox init
 cabal install
 cabal install examples/bearriver
 cabal install -f-wiimote -f-kinect -fbearriver examples/haskanoid
+```
 
 You may have to use cabal sandbox add-source and install all libs with one
 cabal install invocation to link against the same versions of all common
