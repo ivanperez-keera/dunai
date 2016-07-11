@@ -1,12 +1,11 @@
-{-# LANGUAGE RecursiveDo #-}
+{-# LANGUAGE RecursiveDo          #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Data.MonadicStreamFunction.ArrowLoop where
 
 import Data.MonadicStreamFunction.Core
 
 -- External
 import Control.Arrow
-import Control.Category (Category(..))
-import Control.Monad
 import Control.Monad.Fix
 
 instance (Monad m, MonadFix m) => ArrowLoop (MStreamF m) where

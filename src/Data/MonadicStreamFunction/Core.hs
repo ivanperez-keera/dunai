@@ -24,7 +24,6 @@
 module Data.MonadicStreamFunction.Core where
 
 -- External
-import Control.Applicative
 import Control.Arrow
 import Control.Category (Category(..))
 import Control.Monad

@@ -1,11 +1,10 @@
-{-# LANGUAGE TypeFamilies           #-}
+{-# LANGUAGE TypeFamilies #-}
 module Data.MonadicStreamFunction.Instances where
 
 -- External
 import Control.Arrow
 
 -- Internal
-import Control.Arrow.Util
 import Data.MonadicStreamFunction.Core
 
 -- Numerical operations are defined elementwise on the output
