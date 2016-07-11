@@ -2,8 +2,6 @@ This repository implements a generalized version of reactive programming, on
 top of which other variants like Yampa, Classic FRP and Reactive Values can
 be implemented.
 
-PLEASE, DO NOT REDISTRIBUTE IT YET. We will do so in due time.
-
 * Structure, internals and current status.
 
 This project is split in three parts:
@@ -41,6 +39,11 @@ Performance report :: Time per frame: 19.44ms, FPS: 51.440329218106996, Total ru
 It runs almost in constant memory, with about 50% more memory consumption than
 with Yampa (200k for Yampa and 300K for dunai/bearriver). There is very minor
 leaking, probably we can fix that with seq.
+
+We have obtained different figures tracking different modules. In the paper, we
+provided figures for the whole game, but we need to run newer reliable
+benchmarks including every module and only things that live in FRP.Yampa,
+FRP.BearRiver and Data.MonadicStreamFunction.
 
 You can try it with:
 
