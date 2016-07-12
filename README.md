@@ -50,7 +50,7 @@ FRP.BearRiver and Data.MonadicStreamFunction.
 You can try it with:
 
 ```
-git clone git@bitbucket.org:iperezdominguez/dunai.git
+git clone https://github.com/ivanperez-keera/dunai.git
 cd dunai
 cabal sandbox init
 cabal install
