@@ -62,6 +62,17 @@ You may have to use cabal sandbox add-source and install all libs with one
 cabal install invocation to link against the same versions of all common
 dependencies.
 
+* Contributions
+
+We are following this guide:
+
+http://nvie.com/posts/a-successful-git-branching-model/
+
+Please, feel free to open new issues. In particular, we are looking for:
+
+- Unexplored ways of using MSFs.
+- Other games or applications that use MSFs (including but not limited to Yampa games).
+
 * About the name
 
 Dunai (aka. Danube) is one of the main rivers in Europe, originating in Germany
