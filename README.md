@@ -75,11 +75,11 @@ Please, feel free to open new issues. In particular, we are looking for:
 
 * About the name
 
-Dunai (aka. Danube) is one of the main rivers in Europe, originating in Germany
-and touching Austria, Slovakia, Hungary, Croatia, Serbia, Romania, Bulgaria,
-Moldova and Ukraine.
+Dunai (aka. Danube, or Дунай) is one of the main rivers in Europe, originating
+in Germany and touching Austria, Slovakia, Hungary, Croatia, Serbia, Romania,
+Bulgaria, Moldova and Ukraine.
 
-The (temporary) name is chosen following the idea of naming FRP libraries after
+The name is chosen following the idea of naming FRP libraries after
 rivers, and knowing that this library can be used to implement many others.
 I've chosen Dunai specifically taking into account the authors' relation with
 some of the countries it passes through, and knowing that this library has
