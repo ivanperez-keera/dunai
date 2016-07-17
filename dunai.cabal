@@ -36,7 +36,7 @@ library
                      Data.MonadicStreamFunction.Parallel
                      Data.MonadicStreamFunction.ReactHandle
 
-		     -- Auxiliary definitions
+         -- Auxiliary definitions
                      Data.VectorSpace
                      Data.VectorSpace.Instances
                      Data.VectorSpace.Tuples
