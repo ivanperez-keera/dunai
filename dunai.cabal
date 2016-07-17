@@ -24,6 +24,7 @@ flag test-doc-coverage
 
 library
   exposed-modules:   Control.Monad.Trans.MStreamF
+                     Data.MonadicStream
                      Data.MonadicStreamFunction
                      Data.MonadicStreamFunction.Core
                      Data.MonadicStreamFunction.ArrowChoice
@@ -32,7 +33,6 @@ library
                      Data.MonadicStreamFunction.Instances
                      Data.MonadicStreamFunction.Instances.Num
                      Data.MonadicStreamFunction.Instances.VectorSpace
-                     Data.MonadicStreamFunction.MonadicStream
                      Data.MonadicStreamFunction.Parallel
                      Data.MonadicStreamFunction.ReactHandle
 
