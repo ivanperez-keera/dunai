@@ -6,6 +6,7 @@ module Control.Monad.Trans.MStreamF where
 import Data.Monoid
 import Control.Applicative
 import Control.Arrow
+import qualified Control.Category as Category
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.List
@@ -486,8 +487,42 @@ throwMaybe = mapMaybeS $ liftMStreamF throwE
 throwS :: Monad m => MStreamF (ExceptT e m) e a
 throwS = liftMStreamF throwE
 
+throw :: Monad m => e -> MStreamF (ExceptT e m) a b
+throw = liftMStreamF_ . throwE
+
+pass :: Monad m => MStreamF (ExceptT e m) a a
+pass = Category.id
+
 inExceptT :: Monad m => MStreamF (ExceptT e m) (ExceptT e m a) a
 inExceptT = liftMStreamF id -- extracts value from monadic action
+
+{-
+tagged :: MStreamF (ExceptT e m) a b -> MStreamF (ExceptT t m) (a, t) b
+tagged msf = MStreamF $ \(a, t) -> ExceptT $ do
+  cont <- runExceptT $ unMStreamF msf a
+  case cont of
+    Left  e     -> _ return t
+    Right bmsf' -> _ return bmsf'
+    -}
+-- * Monad interface for Exception MSFs
+
+newtype MSFExcept m a b e = MSFExcept { unMSFExcept :: MStreamF (ExceptT e m) a b }
+
+try :: MStreamF (ExceptT e m) a b -> MSFExcept m a b e
+try = MSFExcept
+
+instance Functor (MSFExcept m a b) where
+
+instance Monad m => Applicative (MSFExcept m a b) where
+  pure = MSFExcept . throw
+
+instance Monad m => Monad (MSFExcept m a b) where
+  MSFExcept msf >>= f = MSFExcept $ MStreamF $ \a -> do
+    cont <- lift $ runExceptT $ unMStreamF msf a
+    case cont of
+      Left e          -> unMStreamF (unMSFExcept $ f e) a
+      Right (b, msf') -> return (b, unMSFExcept $ try msf' >>= f)
+
 
 -- * List monad
 
