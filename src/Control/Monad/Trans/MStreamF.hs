@@ -506,7 +506,7 @@ tagged msf = MStreamF $ \(a, t) -> ExceptT $ do
     -}
 -- * Monad interface for Exception MSFs
 
-newtype MSFExcept m a b e = MSFExcept { unMSFExcept :: MStreamF (ExceptT e m) a b }
+newtype MSFExcept m a b e = MSFExcept { runMSFExcept :: MStreamF (ExceptT e m) a b }
 
 try :: MStreamF (ExceptT e m) a b -> MSFExcept m a b e
 try = MSFExcept
@@ -520,10 +520,20 @@ instance Monad m => Monad (MSFExcept m a b) where
   MSFExcept msf >>= f = MSFExcept $ MStreamF $ \a -> do
     cont <- lift $ runExceptT $ unMStreamF msf a
     case cont of
-      Left e          -> unMStreamF (unMSFExcept $ f e) a
-      Right (b, msf') -> return (b, unMSFExcept $ try msf' >>= f)
+      Left e          -> unMStreamF (runMSFExcept $ f e) a
+      Right (b, msf') -> return (b, runMSFExcept $ try msf' >>= f)
 
+data Empty
 
+safely :: Monad m => MSFExcept m a b Empty -> MStreamF m a b
+safely (MSFExcept msf) = safely' msf
+  where
+    safely' msf = MStreamF $ \a -> do
+      Right (b, msf') <- runExceptT $ unMStreamF msf a
+      return (b, safely' msf')
+
+safe :: Monad m => MStreamF m a b -> MSFExcept m a b e
+safe = try . liftMStreamFTrans
 -- * List monad
 
 -- Name alternative (in the article): collect
