@@ -32,11 +32,10 @@ library
                      Data.MonadicStreamFunction.Instances
                      Data.MonadicStreamFunction.Instances.Num
                      Data.MonadicStreamFunction.Instances.VectorSpace
-                     Data.MonadicStreamFunction.MonadicStream
                      Data.MonadicStreamFunction.Parallel
                      Data.MonadicStreamFunction.ReactHandle
 
-		     -- Auxiliary definitions
+         -- Auxiliary definitions
                      Data.VectorSpace
                      Data.VectorSpace.Instances
                      Data.VectorSpace.Tuples
@@ -82,4 +81,4 @@ test-suite haddock-coverage
 
 source-repository head
   type:     git
-  location: git@bitbucket.org:iperezdominguez/dunai.git
+  location: git@github.com:ivanperez-keera/dunai.git
