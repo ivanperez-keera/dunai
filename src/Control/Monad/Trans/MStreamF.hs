@@ -534,6 +534,13 @@ safely (MSFExcept msf) = safely' msf
 
 safe :: Monad m => MStreamF m a b -> MSFExcept m a b e
 safe = try . liftMStreamFTrans
+
+once :: Monad m => (a -> m b) -> MSFExcept m a b ()
+once f = MSFExcept $ liftMStreamF (lift . f) >>> throw ()
+
+once_ :: Monad m => m b -> MSFExcept m a b ()
+once_ = once . const
+
 -- * List monad
 
 -- Name alternative (in the article): collect
