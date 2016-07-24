@@ -535,10 +535,10 @@ safely (MSFExcept msf) = safely' msf
 safe :: Monad m => MStreamF m a b -> MSFExcept m a b e
 safe = try . liftMStreamFTrans
 
-once :: Monad m => (a -> m b) -> MSFExcept m a b ()
+once :: Monad m => (a -> m b) -> MSFExcept m a c ()
 once f = MSFExcept $ liftMStreamF (lift . f) >>> throw ()
 
-once_ :: Monad m => m b -> MSFExcept m a b ()
+once_ :: Monad m => m b -> MSFExcept m c d ()
 once_ = once . const
 
 tagged :: Monad m => MStreamF (ExceptT e1 m) a b -> MStreamF (ExceptT e2 m) (a, e2) b
