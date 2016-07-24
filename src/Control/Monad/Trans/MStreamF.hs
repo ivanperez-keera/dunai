@@ -541,6 +541,13 @@ once f = MSFExcept $ liftMStreamF (lift . f) >>> throw ()
 once_ :: Monad m => m b -> MSFExcept m a b ()
 once_ = once . const
 
+tagged :: Monad m => MStreamF (ExceptT e1 m) a b -> MStreamF (ExceptT e2 m) (a, e2) b
+tagged msf = MStreamF $ \(a, e2) -> ExceptT $ do
+  cont <- runExceptT $ unMStreamF msf a
+  case cont of
+    Left e1 -> return $ Left e2
+    Right (b, msf') -> return $ Right (b, tagged msf')
+
 -- * List monad
 
 -- Name alternative (in the article): collect
