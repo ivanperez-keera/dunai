@@ -115,7 +115,7 @@ sumFrom n0 = MStreamF $ \n -> let acc = n0 `mappend` n
 -- sum = feedback 0 (arr (uncurry (+) >>> dup))
 --  where dup x = (x,x)
 
-count :: (Num n, Monad m) => MStreamF m () n
+count :: (Num n, Monad m) => MStreamF m a n
 count = arr (const (Sum 1)) >>> sum >>> arr getSum
 
 unfold :: Monad m => (a -> (b,a)) -> a -> MStreamF m () b
