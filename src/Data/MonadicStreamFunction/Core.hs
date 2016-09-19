@@ -51,7 +51,6 @@ instance Monad m => Arrow (MStreamF m) where
   first sf = MStreamF $ \(a,c) -> do
     (b, sf') <- unMStreamF sf a
     b `seq` return ((b, c), first sf')
-    -- This is called the "monadic strength" of m
 
 -- ** Lifts
 liftMStreamF :: Monad m => (a -> m b) -> MStreamF m a b
@@ -96,7 +95,7 @@ liftMStreamFTrans sf = MStreamF $ \a -> do
   (b, sf') <- lift $ unMStreamF sf a
   return (b, liftMStreamFTrans sf')
 
--- | Lifting the innest monadic actions in a monad stacks (generalisation of liftIO)
+-- | Lifting the innermost monadic actions in a monad stacks (generalisation of liftIO)
 liftMStreamFBase :: (Monad m2, MonadBase m1 m2) => MStreamF m1 a b -> MStreamF m2 a b
 liftMStreamFBase sf = MStreamF $ \a -> do
   (b, sf') <- liftBase $ unMStreamF sf a
