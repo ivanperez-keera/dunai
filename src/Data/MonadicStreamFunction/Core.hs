@@ -60,6 +60,8 @@ liftMSF f = go
               return (b, go)
 
 
+liftS :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
+liftS = liftMSF . (liftBase .)
 
 -- * Monadic lifting from one monad into another
 
