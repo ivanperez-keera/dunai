@@ -2,7 +2,14 @@ module BasicExamples where
 
 import Data.MonadicStreamFunction
 
-type MSF = MStreamF
+
+testSerial :: MSF IO () ()
+testSerial =   liftS (\_ -> getLine)
+           >>> (arr id &&& arr reverse)
+           >>> liftS print
+
+main :: IO ()
+main = reactimate testSerial
 
 summator :: (Num n, Monad m) => MSF m n n
 summator = feedback 0 (arr add2)
