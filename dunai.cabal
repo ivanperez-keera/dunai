@@ -23,7 +23,7 @@ flag test-doc-coverage
   manual: True
 
 library
-  exposed-modules:   Control.Monad.Trans.MStreamF
+  exposed-modules:   Control.Monad.Trans.MSF
                      Data.MonadicStreamFunction
                      Data.MonadicStreamFunction.Core
                      Data.MonadicStreamFunction.ArrowChoice
