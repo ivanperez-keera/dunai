@@ -8,7 +8,6 @@ module Data.MonadicStreamFunction
  where
 
 -- External
-import Control.Applicative
 import Control.Arrow
 import Control.Category (Category(..))
 import Control.Monad
@@ -40,11 +39,11 @@ liftMSF_ = liftMSF . const
 -- ** Monad stacks
 
 (^>>>) :: MonadBase m1 m2 => MSF m1 a b -> MSF m2 b c -> MSF m2 a c
-sf1 ^>>> sf2 = (liftMSFBase sf1) >>> sf2
+sf1 ^>>> sf2 = liftMSFBase sf1 >>> sf2
 {-# INLINE (^>>>) #-}
 
 (>>>^) :: MonadBase m1 m2 => MSF m2 a b -> MSF m1 b c -> MSF m2 a c
-sf1 >>>^ sf2 = sf1 >>> (liftMSFBase sf2)
+sf1 >>>^ sf2 = sf1 >>> liftMSFBase sf2
 {-# INLINE (>>>^) #-}
 
 -- ** Delays and signal overwriting
@@ -65,14 +64,14 @@ next b sf = MSF $ \a -> do
 
 -- See also: 'switch', and the exception monad combinators for MSFs in
 -- Control.Monad.Trans.MSF
-
+{-}
 untilS :: Monad m => MSF m a b -> MSF m b Bool -> MSF m a (b, Maybe ())
 untilS sf1 sf2 = sf1 >>> (arr id &&& (sf2 >>> arr boolToMaybe))
   where boolToMaybe x = if x then Just () else Nothing
 
 andThen :: Monad m => MSF m a (b, Maybe ()) -> MSF m a b -> MSF m a b
 andThen sf1 sf2 = switch sf1 $ const sf2
-
+-}
 -- ** Feedback loops
 
 -- | Missing: 'feedback'
