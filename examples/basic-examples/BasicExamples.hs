@@ -1,7 +1,10 @@
 module BasicExamples where
 
+import Control.Monad.Trans.MSF
 import Data.MonadicStreamFunction
 
+
+import Data.Text (readMaybe)
 
 testSerial :: MSF IO () ()
 testSerial =   liftS (\_ -> getLine)
@@ -17,3 +20,10 @@ summator = feedback 0 (arr add2)
 
 counter :: (Num n, Monad m) => MSF m () n
 counter = arr (const 1) >>> summator
+
+testMaybe :: MSF (MaybeT IO) () ()
+testMaybe =   liftS (const getLine)
+          >>> arr readMaybe
+          >>> maybeExit
+          >>> summator
+          >>> liftS print
