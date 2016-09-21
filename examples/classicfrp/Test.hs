@@ -6,7 +6,7 @@ import           Control.Monad
 import           Control.Monad.Identity
 import           Control.Monad.Trans.Reader
 import           Control.Monad.Trans.Class
-import           Control.Monad.Trans.MStreamF
+import           Control.Monad.Trans.MSF
 import           Data.Maybe
 import           Data.MonadicStreamFunction hiding (reactimate, switch, trace)
 import qualified Data.MonadicStreamFunction as MSF
@@ -14,7 +14,7 @@ import           Debug.Trace
 import           FRP.BearRiver
 import           Graphics.UI.SDL            as SDL
 import           Graphics.UI.SDL.Primitives as SDL
-              
+
 type Stream m b = SF m () b
 type Signal a   = Stream IO a
 
@@ -24,7 +24,7 @@ ballInCirclesAroundMouse =
 
 -- Mouse position
 mousePos :: Signal (Int, Int)
-mousePos = liftMStreamF (\() -> lift getMousePos)
+mousePos = liftMSF (\() -> lift getMousePos)
 
 -- Ball going around in circles
 ballInCircles :: Signal (Int, Int)
@@ -70,4 +70,4 @@ reactimate' sf =
   MSF.reactimate $ sense >>> sfIO >>> actuate
  where sfIO    = runReaderS sf
        sense   = arr (const (0.2, ()))
-       actuate = liftMStreamF render
+       actuate = liftMSF render

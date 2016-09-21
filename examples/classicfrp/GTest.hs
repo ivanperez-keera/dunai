@@ -9,7 +9,7 @@ import           Control.Monad.Identity
 import           Control.Monad.Trans.Reader
 import           Control.Monad.Trans.State
 import           Control.Monad.Trans.Class
-import           Control.Monad.Trans.MStreamF
+import           Control.Monad.Trans.MSF
 import           Data.Maybe
 import           Data.MonadicStreamFunction hiding (reactimate, switch, trace)
 import qualified Data.MonadicStreamFunction as MSF
@@ -17,7 +17,7 @@ import           Debug.Trace
 import           FRP.BearRiver
 import           Graphics.UI.SDL            as SDL
 import           Graphics.UI.SDL.Primitives as SDL
-              
+
 type Stream m b = SF m () b
 type Signal m a = Stream m a
 
@@ -27,7 +27,7 @@ ballInCirclesAroundMouse =
 
 -- Mouse position
 mousePos :: GameMonad m => Signal m (Int, Int)
-mousePos = liftMStreamF (\() -> lift getMousePos)
+mousePos = liftMSF (\() -> lift getMousePos)
 
 -- Ball going around in circles
 ballInCircles :: (Functor m, Monad m) => Signal m (Int, Int)
@@ -64,12 +64,12 @@ render (px,py) = do
 
 reactimate' :: Signal Identity (Int, Int) -> IO ()
 reactimate' sf =
-  MSF.reactimate $ sense >>> liftMStreamFPurer (return.runIdentity) sfIO >>> actuate
+  MSF.reactimate $ sense >>> liftMSFPurer (return.runIdentity) sfIO >>> actuate
  where sfIO    = runReaderS sf
        sense   = arr (const (0.2, ()))
-       actuate = liftMStreamF render
+       actuate = liftMSF render
 
-runOnce :: (Monad m, Applicative m) => MStreamF m a b -> a -> m b
+runOnce :: (Monad m, Applicative m) => MSF m a b -> a -> m b
 runOnce msf a = head <$> embed msf [a]
 
 runGame :: IO ()
@@ -79,14 +79,14 @@ runGame = do
   MSF.reactimate $ sense >>> sfIO >>> actuate
  where sfIO    = runReaderS ballInCirclesAroundMouse
        sense   = arr (const (0.2, ()))
-       actuate = liftMStreamF render
+       actuate = liftMSF render
 
 runDebug :: StateT [PureGameEnv] IO ()
 runDebug =
   MSF.reactimate $ sense >>> sfIO >>> actuate
  where sfIO    = runReaderS ballInCirclesAroundMouse
        sense   = arr (const (0.2, ()))
-       actuate = liftMStreamF (lift . print)
+       actuate = liftMSF (lift . print)
 
 class (Functor m, Applicative m, Monad m) => GameMonad m where
   getMousePos :: m (Int, Int)
@@ -105,7 +105,7 @@ instance (Functor m, Applicative m, Monad m) => GameMonad (ReaderT PureGameEnv m
   getMousePos = pureMousePos <$> ask
 
 data PureGameEnv = PureGameEnv { pureMousePos :: (Int, Int)}
-  
+
 instance (Functor m, Monad m) => GameMonad (StateT [PureGameEnv] m) where
   getMousePos = StateT $ \ls -> case ls of
     []     -> error "End of saved input trace"
@@ -117,15 +117,15 @@ testPureEnv = map PureGameEnv
   , (496,327)
   , (613,253)
   , (616,214)
-  , (500,79) 
-  , (463,59) 
-  , (454,54) 
-  , (437,51) 
-  , (350,63) 
-  , (281,82) 
+  , (500,79)
+  , (463,59)
+  , (454,54)
+  , (437,51)
+  , (350,63)
+  , (281,82)
   ]
 
-sampleTrace = 
+sampleTrace =
  [ ((347,128),(266,140))
  , ((310,149),(252,170))
  , ((295,183),(252,219))
@@ -158,7 +158,7 @@ sampleTrace =
 -- (378,98)
 -- Mouse position: (281,82)
 -- (305,120)
--- 
+--
 -- (463,335)
 -- (540,336)
 -- (656,266)

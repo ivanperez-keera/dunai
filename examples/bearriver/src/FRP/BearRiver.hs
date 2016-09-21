@@ -13,9 +13,9 @@ module FRP.BearRiver
 import           Control.Applicative
 import           Control.Arrow                as X
 import           Control.Monad                (mapM)
-import           Control.Monad.Reader
+--import           Control.Monad.Reader
 import           Control.Monad.Trans.Maybe
-import           Control.Monad.Trans.MStreamF
+import           Control.Monad.Trans.MSF
 import           Data.Traversable             as T
 import           Data.Functor.Identity
 import           Data.Maybe
@@ -27,7 +27,7 @@ import           FRP.Yampa.VectorSpace        as X
 type Time  = Double
 type DTime = Double
 
-type SF m        = MStreamF (ClockInfo m)
+type SF m        = MSF (ClockInfo m)
 type ClockInfo m = ReaderT DTime m
 
 identity :: Monad m => SF m a a
@@ -37,7 +37,7 @@ constant :: Monad m => b -> SF m a b
 constant = arr . const
 
 iPre :: Monad m => a -> SF m a a
-iPre i = MStreamF $ \i' -> return (i, iPre i')
+iPre i = MSF $ \i' -> return (i, iPre i')
 
 -- * Continuous time
 
@@ -48,7 +48,7 @@ integral :: (Monad m, VectorSpace a s) => SF m a a
 integral = integralFrom zeroVector
 
 integralFrom :: (Monad m, VectorSpace a s) => a -> SF m a a
-integralFrom n0 = MStreamF $ \n -> do
+integralFrom n0 = MSF $ \n -> do
   dt <- ask
   let acc = n0 ^+^ realToFrac dt *^ n
   acc `seq` return (acc, integralFrom acc)
@@ -57,7 +57,7 @@ derivative :: (Monad m, VectorSpace a s) => SF m a a
 derivative = derivativeFrom zeroVector
 
 derivativeFrom :: (Monad m, VectorSpace a s) => a -> SF m a a
-derivativeFrom n0 = MStreamF $ \n -> do
+derivativeFrom n0 = MSF $ \n -> do
   dt <- ask
   let res = (n ^-^ n0) ^/ realToFrac dt
   res `seq` return (res, derivativeFrom n)
@@ -118,11 +118,11 @@ edge :: Monad m => SF m Bool (Event ())
 edge = edgeFrom True
 
 edgeBy :: Monad m => (a -> a -> Maybe b) -> a -> SF m a (Event b)
-edgeBy isEdge a_prev = MStreamF $ \a ->
+edgeBy isEdge a_prev = MSF $ \a ->
   return (maybeToEvent (isEdge a_prev a), edgeBy isEdge a)
 
 edgeFrom :: Monad m => Bool -> SF m Bool (Event())
-edgeFrom prev = MStreamF $ \a -> do
+edgeFrom prev = MSF $ \a -> do
   let res = if prev then NoEvent else if a then Event () else NoEvent
       ct  = edgeFrom a
   return (res, ct)
@@ -145,7 +145,7 @@ after :: Monad m
       -> b    -- ^ Value to produce at that time
       -> SF m a (Event b)
 after q x = feedback q $ go
- where go = MStreamF $ \(_, t) -> do
+ where go = MSF $ \(_, t) -> do
               dt <- ask
               let t' = t - dt
                   e  = if t > 0 && t' < 0 then Event x else NoEvent
@@ -153,8 +153,8 @@ after q x = feedback q $ go
               return ((e, t'), ct)
 
 (-->) :: Monad m => b -> SF m a b -> SF m a b
-b0 --> sf = MStreamF $ \a -> do 
-  (_, ct) <- unMStreamF sf a
+b0 --> sf = MSF $ \a -> do
+  (_, ct) <- unMSF sf a
   return (b0, ct)
 
 accumHoldBy :: Monad m => (b -> a -> b) -> b -> SF m (Event a) b
@@ -165,37 +165,37 @@ accumHoldBy f b = feedback b $ arr $ \(a, b') ->
 dpSwitchB :: (Monad m , Traversable col)
           => col (SF m a b) -> SF m (a, col b) (Event c) -> (col (SF m a b) -> c -> SF m a (col b))
           -> SF m a (col b)
-dpSwitchB sfs sfF sfCs = MStreamF $ \a -> do
-  res <- T.mapM (`unMStreamF` a) sfs
+dpSwitchB sfs sfF sfCs = MSF $ \a -> do
+  res <- T.mapM (`unMSF` a) sfs
   let bs   = fmap fst res
       sfs' = fmap snd res
-  (e,sfF') <- unMStreamF sfF (a, bs)
+  (e,sfF') <- unMSF sfF (a, bs)
   let ct = case e of
              Event c -> sfCs sfs' c
-             NoEvent -> dpSwitchB sfs' sfF' sfCs 
+             NoEvent -> dpSwitchB sfs' sfF' sfCs
   return (bs, ct)
 
 dSwitch ::  Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
-dSwitch sf sfC = MStreamF $ \a -> do
-  (o, ct) <- unMStreamF sf a
+dSwitch sf sfC = MSF $ \a -> do
+  (o, ct) <- unMSF sf a
   case o of
-    (b, Event c) -> do (_,ct') <- unMStreamF (sfC c) a
+    (b, Event c) -> do (_,ct') <- unMSF (sfC c) a
                        return (b, ct')
     (b, NoEvent) -> return (b, dSwitch ct sfC)
 
 switch :: Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
-switch sf sfC = MStreamF $ \a -> do
-  (o, ct) <- unMStreamF sf a
+switch sf sfC = MSF $ \a -> do
+  (o, ct) <- unMSF sf a
   case o of
-    (_, Event c) -> unMStreamF (sfC c) a
+    (_, Event c) -> unMSF (sfC c) a
     (b, NoEvent) -> return (b, switch ct sfC)
 
 parC :: Monad m => SF m a b -> SF m [a] [b]
 parC sf = parC' [sf]
 
 parC' :: Monad m => [SF m a b] -> SF m [a] [b]
-parC' sfs = MStreamF $ \as -> do
-  os <- T.mapM (\(a,sf) -> unMStreamF sf a) $ zip as sfs
+parC' sfs = MSF $ \as -> do
+  os <- T.mapM (\(a,sf) -> unMSF sf a) $ zip as sfs
   let bs  = fmap fst os
       cts = fmap snd os
   return (bs, parC' cts)
@@ -203,30 +203,30 @@ parC' sfs = MStreamF $ \as -> do
 -- NOTE: BUG in this function, it needs two a's but we
 -- can only provide one
 iterFrom :: Monad m => (a -> a -> DTime -> b -> b) -> b -> SF m a b
-iterFrom f b = MStreamF $ \a -> do
+iterFrom f b = MSF $ \a -> do
   dt <- ask
   let b' = f a a dt b
   return (b, iterFrom f b')
 
 reactimate :: IO a -> (Bool -> IO (DTime, Maybe a)) -> (Bool -> b -> IO Bool) -> SF Identity a b -> IO ()
 reactimate senseI sense actuate sf = do
-  -- runMaybeT $ MSF.reactimate $ liftMStreamFTrans (senseSF >>> sfIO) >>> actuateSF
+  -- runMaybeT $ MSF.reactimate $ liftMSFTrans (senseSF >>> sfIO) >>> actuateSF
   MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
   return ()
- where sfIO        = liftMStreamFPurer (return.runIdentity) (runReaderS sf)
+ where sfIO        = liftMSFPurer (return.runIdentity) (runReaderS sf)
 
        -- Sense
        senseSF     = switch senseFirst senseRest
-       senseFirst  = liftMStreamF_ senseI >>> (arr $ \x -> ((0, x), Event x))
-       senseRest a = liftMStreamF_ (sense True) >>> (arr id *** keepLast a)
+       senseFirst  = liftMSF_ senseI >>> (arr $ \x -> ((0, x), Event x))
+       senseRest a = liftMSF_ (sense True) >>> (arr id *** keepLast a)
 
-       keepLast :: Monad m => a -> MStreamF m (Maybe a) a
-       keepLast a = MStreamF $ \ma -> let a' = fromMaybe a ma in return (a', keepLast a')
+       keepLast :: Monad m => a -> MSF m (Maybe a) a
+       keepLast a = MSF $ \ma -> let a' = fromMaybe a ma in return (a', keepLast a')
 
        -- Consume/render
-       -- actuateSF :: MStreamF IO b ()
-       -- actuateSF    = arr (\x -> (True, x)) >>> liftMStreamF (lift . uncurry actuate) >>> exitIf
-       actuateSF    = arr (\x -> (True, x)) >>> liftMStreamF (uncurry actuate)
+       -- actuateSF :: MSF IO b ()
+       -- actuateSF    = arr (\x -> (True, x)) >>> liftMSF (lift . uncurry actuate) >>> exitIf
+       actuateSF    = arr (\x -> (True, x)) >>> liftMSF (uncurry actuate)
 
        switch sf sfC = MSF.switch (sf >>> second (arr eventToMaybe)) sfC
 
