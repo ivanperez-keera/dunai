@@ -34,6 +34,8 @@ import Prelude hiding ((.), id, sum)
 -- MSF: Stepwise, side-effectful MSFs without implicit knowledge of time
 data MSF m a b = MSF { unMSF :: a -> m (b, MSF m a b) }
 
+-- ** Instances
+
 instance Monad m => Category (MSF m) where
   id = go
     where go = MSF $ \a -> return (a, go)
@@ -51,6 +53,17 @@ instance Monad m => Arrow (MSF m) where
   first sf = MSF $ \(a,c) -> do
     (b, sf') <- unMSF sf a
     b `seq` return ((b, c), first sf')
+
+instance Functor m => Functor (MSF m a) where
+  -- fmap f msf == msf >>> arr f
+  fmap f msf = MSF $ fmap fS . unMSF msf
+    where
+      fS (b, cont) = (f b, fmap f cont)
+
+instance Monad m => Applicative (MSF m a) where
+  -- It is possible to define this instance with only Applicative m
+  pure = arr . const
+  fs <*> bs = (fs &&& bs) >>> arr (uncurry ($))
 
 -- ** Lifts
 liftMSF :: Monad m => (a -> m b) -> MSF m a b
