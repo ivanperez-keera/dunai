@@ -1,3 +1,4 @@
+{-# LANGUAGE Arrows                     #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 sf = bouncingBall (100.0 :: Float) 0.0
@@ -29,7 +30,7 @@ edgeFrom :: Bool -> MStreamF m Bool (Maybe ())
 edgeFrom prev = MStreamF $ \a -> do
   let res = if prev || not a then Nothing else Just ()
       ct  = edgeFrom a
-   return (res, ct)
+  return (res, ct)
 
 tag :: Maybe v -> v -> Maybe v
 tag m v = fmap (const v) m
@@ -56,17 +57,17 @@ instance Applicative DTMonad where
 
   (DTMonad (mdt1, f)) <*> (DTMonad (mdt2, v)) = DTMonad (mdt, f v)
     where mdt = case (mdt1, mdt2) of
-                  (Just dt1, Just dt2) = Just $ min dt1 dt2
-                  (Nothing,  Just dt2) = Just dt2
-                  (Just dt1, Nothing)  = Just dt1
-                  _                    = Nothing
+                  (Just dt1, Just dt2) -> Just $ min dt1 dt2
+                  (Nothing,  Just dt2) -> Just dt2
+                  (Just dt1, Nothing)  -> Just dt1
+                  _                    -> Nothing
 
 instance Monad DTMonad where
   (DTMonad (mdt1, v1)) >>= f =
      let DTMonad (mdt2, v2) = f v1
          mdt = case (mdt1, mdt2) of
-                  (Just dt1, Just dt2) = Just $ min dt1 dt2
-                  (Nothing,  Just dt2) = Just dt2
-                  (Just dt1, Nothing)  = Just dt1
-                  _                    = Nothing
+                  (Just dt1, Just dt2) -> Just $ min dt1 dt2
+                  (Nothing,  Just dt2) -> Just dt2
+                  (Just dt1, Nothing)  -> Just dt1
+                  _                    -> Nothing
      in DTMonad (mdt, v2)
