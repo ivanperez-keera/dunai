@@ -13,7 +13,7 @@ import Control.Category (Category(..))
 import Control.Monad
 import Control.Monad.Base
 import Data.Monoid
-import Prelude hiding ((.), id, sum)
+import Prelude hiding ((.), id)
 
 -- Internal (generic)
 import Data.VectorSpace
@@ -103,19 +103,24 @@ pauseOn cond = pauseOnGeneral cond $ \s -> print s >> getLine >> return ()
 
 -- * Tests and examples
 
-sum :: (Monoid n, Monad m) => MSF m n n
-sum = sumFrom mempty
-{-# INLINE sum #-}
+mappendS :: (Monoid n, Monad m) => MSF m n n
+mappendS = mappendFrom mempty
+{-# INLINE mappendS #-}
 
-sumFrom :: (Monoid n, Monad m) => n -> MSF m n n
-sumFrom n0 = MSF $ \n -> let acc = n0 `mappend` n
-                              -- in acc `seq` return (acc, sumFrom acc)
-                              in return (acc, sumFrom acc)
--- sum = feedback 0 (arr (uncurry (+) >>> dup))
---  where dup x = (x,x)
+mappendFrom :: (Monoid n, Monad m) => n -> MSF m n n
+mappendFrom n0 = MSF $ \n -> let acc = n0 `mappend` n
+                              -- in acc `seq` return (acc, mappendFrom acc)
+                              in return (acc, mappendFrom acc)
+
+sumFrom :: (RModule v, Monad m) => v -> MSF m v v
+sumFrom v = feedback v (arr (uncurry (^+^) >>> dup))
+  where dup x = (x,x)
+
+sumS :: (RModule v, Monad m) => MSF m v v
+sumS = sumFrom zeroVector
 
 count :: (Num n, Monad m) => MSF m a n
-count = arr (const (Sum 1)) >>> sum >>> arr getSum
+count = arr (const 1) >>> sumS
 
 unfold :: Monad m => (a -> (b,a)) -> a -> MSF m () b
 unfold f a = MSF $ \_ -> let (b,a') = f a in b `seq` return (b, unfold f a')
