@@ -76,18 +76,16 @@ withSideEffect_ method = withSideEffect $ const method
 
 -- * Debugging
 
-traceGeneral :: (Monad m, Show a) => (String -> m ()) -> String -> MSF m a a
-traceGeneral method msg =
+traceWith :: (Monad m, Show a) => (String -> m ()) -> String -> MSF m a a
+traceWith method msg =
   withSideEffect (method . (msg ++) . show)
 
 trace :: Show a => String -> MSF IO a a
-trace = traceGeneral putStrLn
+trace = traceWith putStrLn
 
--- FIXME: This does not seem to be a very good name.  It should be
--- something like traceWith. It also does too much.
-traceWith :: (Monad m, Show a) => (a -> Bool) -> (String -> m ()) -> String -> MSF m a a
-traceWith cond method msg = withSideEffect $ \a ->
+traceWhen :: (Monad m, Show a) => (a -> Bool) -> (String -> m ()) -> String -> MSF m a a
+traceWhen cond method msg = withSideEffect $ \a ->
   when (cond a) $ method $ msg ++ show a
 
 pauseOn :: Show a => (a -> Bool) -> String -> MSF IO a a
-pauseOn cond = traceWith cond $ \s -> print s >> getLine >> return ()
+pauseOn cond = traceWhen cond $ \s -> print s >> getLine >> return ()
