@@ -72,6 +72,9 @@ liftMSF f = go
               b <- f a
               return (b, go)
 
+-- | A simple alias that makes the relation to arr from Arrow obvious
+arrM :: Monad m => (a -> m b) -> MSF m a b
+arrM = liftMSF
 
 liftS :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
 liftS = liftMSF . (liftBase .)
