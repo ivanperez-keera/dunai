@@ -30,7 +30,7 @@ bouncingBalls = proc (mp@(mx, my, ml, mr)) -> do
   returnA -< (b : bs)
 
 fireballs :: SF (Bool, (Float, Float)) [(Float, Float)]
-fireballs = MSF.switch
+fireballs = switch
   (arr (const []) &&& arr (\(mp, pos) -> if mp then Just pos else Nothing))
   (\(p, v) -> let oldfb = voidI $ runListMSF (liftMSFTrans (bouncingBall p v))
                   newfb = fireballs
