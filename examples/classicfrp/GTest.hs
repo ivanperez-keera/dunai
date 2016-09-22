@@ -25,7 +25,7 @@ ballInCirclesAroundMouse =
 
 -- Mouse position
 mousePos :: GameMonad m => Signal m (Int, Int)
-mousePos = liftMSF (\() -> lift getMousePos)
+mousePos = arrM (\() -> lift getMousePos)
 
 -- Ball going around in circles
 ballInCircles :: (Functor m, Monad m) => Signal m (Int, Int)
@@ -65,7 +65,7 @@ reactimate' sf =
   MSF.reactimate $ sense >>> liftMSFPurer (return.runIdentity) sfIO >>> actuate
  where sfIO    = runReaderS sf
        sense   = arr (const (0.2, ()))
-       actuate = liftMSF render
+       actuate = arrM render
 
 runOnce :: (Monad m, Applicative m) => MSF m a b -> a -> m b
 runOnce msf a = head <$> embed msf [a]
@@ -77,14 +77,14 @@ runGame = do
   MSF.reactimate $ sense >>> sfIO >>> actuate
  where sfIO    = runReaderS ballInCirclesAroundMouse
        sense   = arr (const (0.2, ()))
-       actuate = liftMSF render
+       actuate = arrM render
 
 runDebug :: StateT [PureGameEnv] IO ()
 runDebug =
   MSF.reactimate $ sense >>> sfIO >>> actuate
  where sfIO    = runReaderS ballInCirclesAroundMouse
        sense   = arr (const (0.2, ()))
-       actuate = liftMSF (lift . print)
+       actuate = arrM (lift . print)
 
 class (Functor m, Applicative m, Monad m) => GameMonad m where
   getMousePos :: m (Int, Int)

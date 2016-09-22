@@ -1,5 +1,3 @@
-{-# LANGUAGE Arrows #-}
-
 import           Control.Applicative
 import           Control.Concurrent
 import           Control.Monad
@@ -24,7 +22,7 @@ ballInCirclesAroundMouse =
 
 -- Mouse position
 mousePos :: Signal (Int, Int)
-mousePos = liftMSF (\() -> lift getMousePos)
+mousePos = arrM (\() -> lift getMousePos)
 
 -- Ball going around in circles
 ballInCircles :: Signal (Int, Int)
@@ -70,4 +68,4 @@ reactimate' sf =
   MSF.reactimate $ sense >>> sfIO >>> actuate
  where sfIO    = runReaderS sf
        sense   = arr (const (0.2, ()))
-       actuate = liftMSF render
+       actuate = arrM render
