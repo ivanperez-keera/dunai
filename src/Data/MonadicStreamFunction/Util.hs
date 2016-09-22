@@ -12,6 +12,10 @@ import Data.MonadicStreamFunction.Core
 import Data.VectorSpace
 import Data.VectorSpace.Instances()
 
+-- * Useful aliases
+type MStream m a = MSF m () a
+type MSink   m a = MSF m a ()
+
 
 -- * Stateful accumulation
 
