@@ -121,9 +121,10 @@ edgeBy :: Monad m => (a -> a -> Maybe b) -> a -> SF m a (Event b)
 edgeBy isEdge a_prev = MSF $ \a ->
   return (maybeToEvent (isEdge a_prev a), edgeBy isEdge a)
 
+-- FIXME MB: I refactored that code, I'm not sure that's right.
 edgeFrom :: Monad m => Bool -> SF m Bool (Event())
 edgeFrom prev = MSF $ \a -> do
-  let res = if prev then NoEvent else if a then Event () else NoEvent
+  let res = if a then Event () else NoEvent
       ct  = edgeFrom a
   return (res, ct)
 
@@ -217,8 +218,8 @@ reactimate senseI sense actuate sf = do
 
        -- Sense
        senseSF     = switch senseFirst senseRest
-       senseFirst  = liftMSF_ senseI >>> (arr $ \x -> ((0, x), Event x))
-       senseRest a = liftMSF_ (sense True) >>> (arr id *** keepLast a)
+       senseFirst  = arrM_ senseI >>> (arr $ \x -> ((0, x), Event x))
+       senseRest a = arrM_ (sense True) >>> (arr id *** keepLast a)
 
        keepLast :: Monad m => a -> MSF m (Maybe a) a
        keepLast a = MSF $ \ma -> let a' = fromMaybe a ma in return (a', keepLast a')
@@ -226,7 +227,7 @@ reactimate senseI sense actuate sf = do
        -- Consume/render
        -- actuateSF :: MSF IO b ()
        -- actuateSF    = arr (\x -> (True, x)) >>> liftMSF (lift . uncurry actuate) >>> exitIf
-       actuateSF    = arr (\x -> (True, x)) >>> liftMSF (uncurry actuate)
+       actuateSF    = arr (\x -> (True, x)) >>> arrM (uncurry actuate)
 
        switch sf sfC = MSF.switch (sf >>> second (arr eventToMaybe)) sfC
 
