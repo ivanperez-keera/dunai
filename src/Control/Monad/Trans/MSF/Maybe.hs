@@ -44,7 +44,7 @@ maybeExit :: Monad m => MSF (MaybeT m) (Maybe a) a
 maybeExit = MSF $ MaybeT . return . fmap (\x -> (x, maybeExit))
 
 inMaybeT :: Monad m => MSF (MaybeT m) (Maybe a) a
-inMaybeT = liftMSF $ MaybeT . return
+inMaybeT = arrM $ MaybeT . return
 
 -- * Catching Maybe exceptions
 
@@ -63,23 +63,8 @@ catchMaybe msf1 msf2 = MSF $ \a -> do
 
 
 
-mapMaybeS :: Monad m => MSF m a b -> MSF m (Maybe a) (Maybe b)
-mapMaybeS msf = go
-  where
-    go = MSF $ \maybeA -> case maybeA of
-                                 Just a -> do
-                                     (b, msf') <- unMSF msf a
-                                     return (Just b, mapMaybeS msf')
-                                 Nothing -> return (Nothing, go)
 
--- mapMaybeS msf == runMaybeS (inMaybeT >>> lift mapMaybeS)
-
-{-
-maybeS :: Monad m => MSF m a (Maybe b) -> MSF (MaybeT m) a b
-maybeS msf = MSF $ \a -> MaybeT $ return $ unMSF msf a
--- maybeS msf == lift msf >>> inMaybeT
--}
-
+-- * Running MaybeT
 runMaybeS :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
 runMaybeS msf = go
   where
@@ -88,6 +73,15 @@ runMaybeS msf = go
            case bmsf of
              Just (b, msf') -> return (Just b, runMaybeS msf')
              Nothing        -> return (Nothing, go)
+
+
+-- mapMaybeS msf == runMaybeS (inMaybeT >>> lift mapMaybeS)
+
+{-
+maybeS :: Monad m => MSF m a (Maybe b) -> MSF (MaybeT m) a b
+maybeS msf = MSF $ \a -> MaybeT $ return $ unMSF msf a
+-- maybeS msf == lift msf >>> inMaybeT
+-}
 
 {-
 -- MB: Doesn't typecheck, I don't know why

@@ -13,7 +13,6 @@ import Control.Monad.Trans.Except
 
 -- Internal
 import Control.Monad.Trans.MSF.GenLift
-import Control.Monad.Trans.MSF.Maybe (mapMaybeS)
 import Data.MonadicStreamFunction
 
 
@@ -21,14 +20,14 @@ import Data.MonadicStreamFunction
 
 throwOnCond :: Monad m => (a -> Bool) -> e -> MSF (ExceptT e m) a a
 throwOnCond cond e = proc a -> if cond a
-    then liftMSF throwE -< e
+    then arrM throwE -< e
     else returnA -< a
 
 throwOnCondM :: Monad m => (a -> m Bool) -> e -> MSF (ExceptT e m) a a
 throwOnCondM cond e = proc a -> do
-    b <- liftMSF (lift . cond) -< a
+    b <- arrM (lift . cond) -< a
     if b
-    then liftMSF throwE -< e
+    then arrM throwE -< e
     else returnA -< a
 
 
@@ -37,17 +36,17 @@ throwOn e = proc b -> throwOn' -< (b, e)
 
 throwOn' :: Monad m => MSF (ExceptT e m) (Bool, e) ()
 throwOn' = proc (b, e) -> if b
-    then liftMSF throwE -< e
+    then arrM throwE -< e
     else returnA -< ()
 
 throwMaybe :: Monad m => MSF (ExceptT e m) (Maybe e) (Maybe a)
-throwMaybe = mapMaybeS $ liftMSF throwE
+throwMaybe = mapMaybeS $ arrM throwE
 
 throwS :: Monad m => MSF (ExceptT e m) e a
-throwS = liftMSF throwE
+throwS = arrM throwE
 
 throw :: Monad m => e -> MSF (ExceptT e m) a b
-throw = liftMSF_ . throwE
+throw = arrM_ . throwE
 
 pass :: Monad m => MSF (ExceptT e m) a a
 pass = Category.id
@@ -92,7 +91,7 @@ exceptS msf = go
 
 
 inExceptT :: Monad m => MSF (ExceptT e m) (ExceptT e m a) a
-inExceptT = liftMSF id -- extracts value from monadic action
+inExceptT = arrM id -- extracts value from monadic action
 
 {-
 tagged :: MSF (ExceptT e m) a b -> MSF (ExceptT t m) (a, t) b
@@ -134,7 +133,7 @@ safe :: Monad m => MSF m a b -> MSFExcept m a b e
 safe = try . liftMSFTrans
 
 once :: Monad m => (a -> m b) -> MSFExcept m a c ()
-once f = MSFExcept $ liftMSF (lift . f) >>> throw ()
+once f = MSFExcept $ arrM (lift . f) >>> throw ()
 
 once_ :: Monad m => m b -> MSFExcept m c d ()
 once_ = once . const

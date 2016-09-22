@@ -42,4 +42,4 @@ react handle = do
 createWormhole :: MonadIO m => a -> m (MSF m a (), MSF m () a)
 createWormhole a = liftIO $ do
   ref <- newIORef a
-  return (liftMSF $ liftIO . writeIORef ref, liftMSF_ $ liftIO $ readIORef ref)
+  return (arrM $ liftIO . writeIORef ref, arrM_ $ liftIO $ readIORef ref)
