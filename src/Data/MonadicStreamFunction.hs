@@ -112,15 +112,15 @@ mappendFrom n0 = MSF $ \n -> let acc = n0 `mappend` n
                               -- in acc `seq` return (acc, mappendFrom acc)
                               in return (acc, mappendFrom acc)
 
-sumFrom :: (VectorSpace v, Monad m) => v -> MSF m v v
+sumFrom :: (RModule v, Monad m) => v -> MSF m v v
 sumFrom v = feedback v (arr (uncurry (^+^) >>> dup))
   where dup x = (x,x)
 
-sumS :: (VectorSpace v, Monad m) => MSF m v v
+sumS :: (RModule v, Monad m) => MSF m v v
 sumS = sumFrom zeroVector
 
 count :: (Num n, Monad m) => MSF m a n
-count = arr (const (Sum 1)) >>> mappendS >>> arr getSum
+count = arr (const 1) >>> sumS
 
 unfold :: Monad m => (a -> (b,a)) -> a -> MSF m () b
 unfold f a = MSF $ \_ -> let (b,a') = f a in b `seq` return (b, unfold f a')
