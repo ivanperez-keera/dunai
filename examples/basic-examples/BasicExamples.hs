@@ -30,8 +30,9 @@ counter = arr (const 1) >>> summator
 testMaybe :: MSF IO () ()
 testMaybe = sumGetLines `catchMaybe` testMaybe
   where
+    sumGetLines :: MSF (MaybeT IO) () ()
     sumGetLines =   liftS (const getLine)
                 >>> arr (readMaybe :: String -> Maybe Integer)
-                >>> maybeExit
+                >>> (maybeExit :: MSF (MaybeT IO) (Maybe Integer) Integer)
                 >>> summator
                 >>> liftS print
