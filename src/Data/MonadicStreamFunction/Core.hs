@@ -19,7 +19,7 @@
 --
 -- To address potential violations of basic design principles (like 'not
 -- having orphan instances'), the main module Data.MonadicStreamFunction
--- exports everything. Users should *never* import this module
+-- exports everything. Users should *never* import this module here
 -- individually, but the main module instead.
 module Data.MonadicStreamFunction.Core where
 
@@ -141,6 +141,8 @@ delay :: Monad m => a -> MSF m a a
 delay = iPre
 
 -- ** Switching
+-- A more advanced and comfortable approach to switching is givin by Exceptions
+-- in Control.Monad.Trans.MSF.Except
 
 switch :: Monad m => MSF m a (b, Maybe c) -> (c -> MSF m a b) -> MSF m a b
 switch sf f = MSF $ \a -> do
@@ -183,7 +185,9 @@ reactimate sf = do
   reactimate sf'
 
 -- | Runs an MSF indefinitely passing a unit-carrying input stream.
+-- A more high-level approach to this would be the use of MaybeT
+-- in Control.Monad.Trans.MSF.Maybe
 reactimateB :: Monad m => MSF m () Bool -> m ()
 reactimateB sf = do
   (b, sf') <- unMSF sf ()
-  if b then return () else reactimateB sf'
+  unless b $ reactimateB sf'
