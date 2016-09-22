@@ -31,8 +31,8 @@ import Data.MonadicStreamFunction.ArrowPlus     as X
 insert :: Monad m => MSF m (m a) a
 insert = liftMSF id
 
-liftMSF_ :: Monad m => m b -> MSF m a b
-liftMSF_ = liftMSF . const
+arrM_ :: Monad m => m b -> MSF m a b
+arrM_ = arrM . const
 
 -- * Monadic lifting from one monad into another
 
@@ -60,21 +60,6 @@ next b sf = MSF $ \a -> do
 -- rather, once delay is tested:
 -- next b sf = sf >>> delay b
 
--- ** Switching
-
--- See also: 'switch', and the exception monad combinators for MSFs in
--- Control.Monad.Trans.MSF
-{-}
-untilS :: Monad m => MSF m a b -> MSF m b Bool -> MSF m a (b, Maybe ())
-untilS sf1 sf2 = sf1 >>> (arr id &&& (sf2 >>> arr boolToMaybe))
-  where boolToMaybe x = if x then Just () else Nothing
-
-andThen :: Monad m => MSF m a (b, Maybe ()) -> MSF m a b -> MSF m a b
-andThen sf1 sf2 = switch sf1 $ const sf2
--}
--- ** Feedback loops
-
--- | Missing: 'feedback'
 
 -- * Adding side effects
 withSideEffect :: Monad m => (a -> m b) -> MSF m a a

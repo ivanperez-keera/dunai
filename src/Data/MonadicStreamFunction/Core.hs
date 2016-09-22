@@ -66,18 +66,16 @@ instance Monad m => Applicative (MSF m a) where
   fs <*> bs = (fs &&& bs) >>> arr (uncurry ($))
 
 -- ** Lifts
-liftMSF :: Monad m => (a -> m b) -> MSF m a b
-liftMSF f = go
- where go = MSF $ \a -> do
+-- | Generalisation of arr from Arrow to stream functions with monads
+arrM :: Monad m => (a -> m b) -> MSF m a b
+arrM f = go
+  where go = MSF $ \a -> do
               b <- f a
               return (b, go)
 
--- | A simple alias that makes the relation to arr from Arrow obvious
-arrM :: Monad m => (a -> m b) -> MSF m a b
-arrM = liftMSF
 
 liftS :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
-liftS = liftMSF . (liftBase .)
+liftS = arrM . (liftBase .)
 
 -- * Monadic lifting from one monad into another
 
