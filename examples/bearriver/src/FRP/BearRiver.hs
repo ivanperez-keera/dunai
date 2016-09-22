@@ -121,10 +121,11 @@ edgeBy :: Monad m => (a -> a -> Maybe b) -> a -> SF m a (Event b)
 edgeBy isEdge a_prev = MSF $ \a ->
   return (maybeToEvent (isEdge a_prev a), edgeBy isEdge a)
 
--- FIXME MB: I refactored that code, I'm not sure that's right.
 edgeFrom :: Monad m => Bool -> SF m Bool (Event())
 edgeFrom prev = MSF $ \a -> do
-  let res = if a then Event () else NoEvent
+  let res | prev      = NoEvent
+          | a         = Event ()
+          | otherwise = NoEvent
       ct  = edgeFrom a
   return (res, ct)
 
