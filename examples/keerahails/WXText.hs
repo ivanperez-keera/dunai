@@ -32,7 +32,7 @@ hello = do
 
   reactiveWXFieldRW entry1 text =:= (liftRW2 (reverse, reverse) (reactiveWXFieldRW entry2 text))
   reactiveWXFieldRO entry1 text =:> (arr (show.length) >>> reactiveWXFieldWO lenLbl text)
-  
+
   set f [layout := margin 10 (column 5 [ floatCentre (widget lenLbl)
                                        , floatCentre (widget entry1)
                                        , floatCentre (widget entry2)
@@ -43,22 +43,21 @@ hello = do
 -- * Auxiliary definitions
 
 -- ** MSF-related definitions and extensions
-type MSink m a = MStreamF m a ()
 
 -- | Run an MSF on an input sample step by step, using an IORef to store the
 -- continuation.
-pushReactimate :: MStreamF IO a b -> IO (a -> IO b)
+pushReactimate :: MSF IO a b -> IO (a -> IO b)
 pushReactimate msf = do
   msfRef <- newIORef msf
   return $ \a -> do
               msf' <- readIORef msfRef
-              (b, msf'') <- unMStreamF msf' a
+              (b, msf'') <- unMSF msf' a
               writeIORef msfRef msf''
               return b
 
 -- | Run one step of an MSF on () streams, internally storing the
 -- continuation.
-pushReactimate_ :: MStreamF IO () () -> IO (IO ())
+pushReactimate_ :: MSF IO () () -> IO (IO ())
 pushReactimate_ msf = do
   f <- pushReactimate msf
   return (void (f ()))
@@ -87,12 +86,12 @@ setProp c p v = set c [ p := v ]
 -- ** Keera Hails - WX bridge on top of Dunai
 reactiveWXFieldRO :: Updating widget => widget -> Attr widget attr -> ReactiveValueRO IO attr
 reactiveWXFieldRO widget attr =
-  ( liftMStreamF_ (get widget attr)
+  ( arrM_ (get widget attr)
   , \m -> set widget [ on update :~ (\m1 -> m1 >> m) ]
   )
 
 reactiveWXFieldWO :: Eq attr => widget -> Attr widget attr -> ReactiveValueWO IO attr
-reactiveWXFieldWO widget attr = liftMStreamF $ \v -> do
+reactiveWXFieldWO widget attr = arrM $ \v -> do
   o <- get widget attr
   if v == o
     then return ()
@@ -103,18 +102,18 @@ reactiveWXFieldRW widget attr = (sg, sk, h)
  where (sg, h) = reactiveWXFieldRO widget attr
        sk      = reactiveWXFieldWO widget attr
 
-pushify :: (Monad m, Eq a, Show a, Show b) => MStreamF m a b -> MStreamF m a b
+pushify :: (Monad m, Eq a, Show a, Show b) => MSF m a b -> MSF m a b
 pushify msf = feedback Nothing (pushify' msf)
 
 pushify' :: (Eq a, Monad m, Show a, Show b)
-         => MStreamF m a b -> MStreamF m (a, Maybe (a, b)) (b, Maybe (a, b))
+         => MSF m a b -> MSF m (a, Maybe (a, b)) (b, Maybe (a, b))
 pushify' msf = proc (a, mov) -> do
   nv <- if Just a == (trace (show (a, mov)) $ fmap fst mov)
           then returnA -< snd (fromJust mov)
           else msf     -< a
   returnA -< (nv, Just (a, nv))
 
-constant :: Monad m => b -> MStreamF m a b
+constant :: Monad m => b -> MSF m a b
 constant = arr . const
 
 voidA :: Arrow a => a b c -> a b ()

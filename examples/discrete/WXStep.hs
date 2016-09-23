@@ -28,7 +28,7 @@ main = start $ do
   -- will not show the contents of the IORef).
   let appMSF = (buttonMSF &&& labelMSF) >>> arr (const ())
 
-  hndlr <- pushReactimate_ appMSF 
+  hndlr <- pushReactimate_ appMSF
   set step [ on command := hndlr ]
 
   set f [layout := margin 10 (column 5 [ floatCentre (widget lenLbl)
@@ -41,35 +41,34 @@ main = start $ do
 
 -- ** Adhoc Dunai-WX backend
 textEntryTextSg :: TextCtrl a -> MStream IO String
-textEntryTextSg entry = liftMStreamF_ (get entry text)
+textEntryTextSg entry = arrM_ (get entry text)
 
 labelTextSk :: StaticText a -> MSink IO String
-labelTextSk lbl = liftMStreamF $ setJust lbl text
+labelTextSk lbl = arrM $ setJust lbl text
   -- (\t -> set lbl [ text := t ])
 
 ioRefSg :: IORef a -> MStream IO a
-ioRefSg ioref = liftMStreamF_ (readIORef ioref)
+ioRefSg ioref = arrM_ (readIORef ioref)
 
 ioRefSk :: IORef a -> MSink IO a
-ioRefSk ioref = liftMStreamF (writeIORef ioref)
+ioRefSk ioref = arrM (writeIORef ioref)
 
 -- ** MSF-related definitions and extensions
-type MSink m a = MStreamF m a ()
 
 -- | Run an MSF on an input sample step by step, using an IORef to store the
 -- continuation.
-pushReactimate :: MStreamF IO a b -> IO (a -> IO b)
+pushReactimate :: MSF IO a b -> IO (a -> IO b)
 pushReactimate msf = do
   msfRef <- newIORef msf
   return $ \a -> do
               msf' <- readIORef msfRef
-              (b, msf'') <- unMStreamF msf' a
+              (b, msf'') <- unMSF msf' a
               writeIORef msfRef msf''
               return b
 
 -- | Run one step of an MSF on () streams, internally storing the
 -- continuation.
-pushReactimate_ :: MStreamF IO () () -> IO (IO ())
+pushReactimate_ :: MSF IO () () -> IO (IO ())
 pushReactimate_ msf = do
   f <- pushReactimate msf
   return (void (f ()))

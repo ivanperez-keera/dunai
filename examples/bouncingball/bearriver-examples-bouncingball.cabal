@@ -1,4 +1,4 @@
-name:                bearriver-examples-boucingball
+name:                bearriver-examples-bouncingball
 version:             0.1.0.0
 synopsis:            Example of a bouncing ball that works both in Yampa and in BearRiver.
 -- description:
