@@ -10,7 +10,6 @@ import Prelude hiding (id, (.))
 -- Internal
 import Data.MonadicStreamFunction.Core
 import Data.VectorSpace
-import Data.VectorSpace.Instances()
 
 -- * Useful aliases
 type MStream m a = MSF m () a
@@ -22,6 +21,10 @@ type MSink   m a = MSF m a ()
 mappendS :: (Monoid n, Monad m) => MSF m n n
 mappendS = mappendFrom mempty
 {-# INLINE mappendS #-}
+
+
+accumulateWith :: Monad m => (a -> s -> s) -> s -> MSF m a s
+accumulateWith f s = MSF $ \a -> let s' = f a s in return (s', accumulateWith f s')
 
 mappendFrom :: (Monoid n, Monad m) => n -> MSF m n n
 mappendFrom n0 = MSF $ \n -> let acc = n0 `mappend` n
@@ -36,7 +39,7 @@ sumS :: (RModule v, Monad m) => MSF m v v
 sumS = sumFrom zeroVector
 
 count :: (Num n, Monad m) => MSF m a n
-count = arr (const 1) >>> sumS
+count = arr (const 1) >>> accumulateWith (+) 0
 
 -- * Generating Signals
 
