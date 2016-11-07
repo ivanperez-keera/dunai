@@ -2,7 +2,7 @@
 {-# LANGUAGE TypeFamilies           #-}
 {-# LANGUAGE UndecidableInstances   #-}
 {-# OPTIONS_GHC -fno-warn-orphans   #-}
-module Data.VectorSpace.Instances where
+module Data.VectorSpace.Fractional where
 
 import Data.VectorSpace
 
