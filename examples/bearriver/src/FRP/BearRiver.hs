@@ -101,7 +101,7 @@ mergeBy _       NoEvent      re@(Event _) = re
 mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
 
 lMerge :: Event a -> Event a -> Event a
-lMerge = mergeBy (\e1 _e2 -> e1)
+lMerge = mergeBy (\e1 _ -> e1)
 
 -- ** Relation to other types
 
@@ -146,7 +146,7 @@ after :: Monad m
       => Time -- ^ The time /q/ after which the event should be produced
       -> b    -- ^ Value to produce at that time
       -> SF m a (Event b)
-after q x = feedback q $ go
+after q x = feedback q go
  where go = MSF $ \(_, t) -> do
               dt <- ask
               let t' = t - dt
