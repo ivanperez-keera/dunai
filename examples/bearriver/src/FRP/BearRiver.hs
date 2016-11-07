@@ -1,3 +1,4 @@
+{-# LANGUAGE Arrows     #-}
 {-# LANGUAGE RankNTypes #-}
 module FRP.BearRiver
   (module FRP.BearRiver, module X)
@@ -19,7 +20,7 @@ import           Control.Monad.Trans.MSF
 import           Data.Traversable             as T
 import           Data.Functor.Identity
 import           Data.Maybe
-import           Data.MonadicStreamFunction   as X hiding (iPre, reactimate, switch, sum, trace)
+import           Data.MonadicStreamFunction   as X hiding (reactimate, switch, sum, trace)
 import qualified Data.MonadicStreamFunction   as MSF
 import           Data.MonadicStreamFunction.ArrowLoop
 import           FRP.Yampa.VectorSpace        as X
@@ -36,8 +37,8 @@ identity = arr id
 constant :: Monad m => b -> SF m a b
 constant = arr . const
 
-iPre :: Monad m => a -> SF m a a
-iPre i = MSF $ \i' -> return (i, iPre i')
+--iPre :: Monad m => a -> SF m a a
+--iPre i = MSF $ \i' -> return (i, iPre i')
 
 -- * Continuous time
 
@@ -48,19 +49,18 @@ integral :: (Monad m, VectorSpace a s) => SF m a a
 integral = integralFrom zeroVector
 
 integralFrom :: (Monad m, VectorSpace a s) => a -> SF m a a
-integralFrom n0 = MSF $ \n -> do
-  dt <- ask
-  let acc = n0 ^+^ realToFrac dt *^ n
-  acc `seq` return (acc, integralFrom acc)
+integralFrom a0 = proc a -> do
+  dt <- arrM_ ask         -< ()
+  accumulateWith (^+^) a0 -< realToFrac dt *^ a
 
 derivative :: (Monad m, VectorSpace a s) => SF m a a
 derivative = derivativeFrom zeroVector
 
 derivativeFrom :: (Monad m, VectorSpace a s) => a -> SF m a a
-derivativeFrom n0 = MSF $ \n -> do
-  dt <- ask
-  let res = (n ^-^ n0) ^/ realToFrac dt
-  res `seq` return (res, derivativeFrom n)
+derivativeFrom a0 = proc a -> do
+  dt   <- arrM_ ask   -< ()
+  aOld <- MSF.iPre a0 -< a
+  returnA             -< (a ^-^ aOld) ^/ realToFrac dt
 
 -- * Events
 
