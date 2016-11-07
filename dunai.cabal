@@ -44,7 +44,7 @@ library
 
          -- Auxiliary definitions
                      Data.VectorSpace
-                     Data.VectorSpace.Instances
+                     Data.VectorSpace.Fractional
                      Data.VectorSpace.Tuples
                      Data.VectorSpace.Specific
 
