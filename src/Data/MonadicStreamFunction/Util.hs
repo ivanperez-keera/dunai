@@ -19,7 +19,9 @@ type MSink   m a = MSF m a ()
 -- * Stateful accumulation
 
 accumulateWith :: Monad m => (a -> s -> s) -> s -> MSF m a s
-accumulateWith f s = MSF $ \a -> let s' = f a s in return (s', accumulateWith f s')
+accumulateWith f s0 = feedback s0 $ arr g
+  where
+    g (a, s) = let s' = f a s in (s', s')
 
 -- ** Accumulation for monoids
 
