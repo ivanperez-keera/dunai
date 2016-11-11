@@ -13,6 +13,7 @@ module FRP.BearRiver
 
 import           Control.Applicative
 import           Control.Arrow                as X
+import qualified Control.Category             as Category
 import           Control.Monad                (mapM)
 --import           Control.Monad.Reader
 import           Control.Monad.Trans.Maybe
@@ -20,7 +21,7 @@ import           Control.Monad.Trans.MSF
 import           Data.Traversable             as T
 import           Data.Functor.Identity
 import           Data.Maybe
-import           Data.MonadicStreamFunction   as X hiding (reactimate, switch, sum, trace)
+import           Data.MonadicStreamFunction   as X hiding (iPre, reactimate, switch, sum, trace)
 import qualified Data.MonadicStreamFunction   as MSF
 import           Data.MonadicStreamFunction.ArrowLoop
 import           FRP.Yampa.VectorSpace        as X
@@ -32,13 +33,13 @@ type SF m        = MSF (ClockInfo m)
 type ClockInfo m = ReaderT DTime m
 
 identity :: Monad m => SF m a a
-identity = arr id
+identity = Category.id
 
 constant :: Monad m => b -> SF m a b
 constant = arr . const
 
---iPre :: Monad m => a -> SF m a a
---iPre i = MSF $ \i' -> return (i, iPre i')
+iPre :: Monad m => a -> SF m a a
+iPre = MSF.iPre
 
 -- * Continuous time
 
