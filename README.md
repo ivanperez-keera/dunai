@@ -6,9 +6,9 @@ be implemented.
 
 This project is split in three parts:
 
-- Dunai: a reactive library that combines monads and arrows.
-- BearRiver: Yampa implemented on top of Dunai.
-- Examples: ballbounce, haskanoid
+- _Dunai_: a reactive library that combines monads and arrows.
+- _BearRiver_: Yampa implemented on top of Dunai.
+- _Examples_: ballbounce, haskanoid
   - sample applications that work both on traditional Yampa and BearRiver.
 
 We need to add examples of apps written in classic FRP, reactive values, etc. A
