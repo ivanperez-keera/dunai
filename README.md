@@ -58,8 +58,8 @@ cabal install examples/bearriver
 cabal install -f-wiimote -f-kinect -fbearriver examples/haskanoid
 ```
 
-You may have to use cabal sandbox add-source and install all libs with one
-cabal install invocation to link against the same versions of all common
+You may have to use `cabal sandbox add-source` and install all libs with one
+`cabal install` invocation to link against the same versions of all common
 dependencies.
 
 # Contributions
