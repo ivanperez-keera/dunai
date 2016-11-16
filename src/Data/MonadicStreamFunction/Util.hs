@@ -18,22 +18,24 @@ type MSink   m a = MSF m a ()
 
 -- * Stateful accumulation
 
+accumulateWith :: Monad m => (a -> s -> s) -> s -> MSF m a s
+accumulateWith f s0 = feedback s0 $ arr g
+  where
+    g (a, s) = let s' = f a s in (s', s')
+
+-- ** Accumulation for monoids
+
 mappendS :: (Monoid n, Monad m) => MSF m n n
 mappendS = mappendFrom mempty
 {-# INLINE mappendS #-}
 
-
-accumulateWith :: Monad m => (a -> s -> s) -> s -> MSF m a s
-accumulateWith f s = MSF $ \a -> let s' = f a s in return (s', accumulateWith f s')
-
 mappendFrom :: (Monoid n, Monad m) => n -> MSF m n n
-mappendFrom n0 = MSF $ \n -> let acc = n0 `mappend` n
-                              -- in acc `seq` return (acc, mappendFrom acc)
-                              in return (acc, mappendFrom acc)
+mappendFrom = accumulateWith mappend
+
+-- ** Accumulation for VectorSpace instances
 
 sumFrom :: (RModule v, Monad m) => v -> MSF m v v
-sumFrom v = feedback v (arr (uncurry (^+^) >>> dup))
-  where dup x = (x,x)
+sumFrom = accumulateWith (^+^)
 
 sumS :: (RModule v, Monad m) => MSF m v v
 sumS = sumFrom zeroVector
