@@ -2,7 +2,7 @@ This repository implements a generalized version of reactive programming, on
 top of which other variants like Yampa, Classic FRP and Reactive Values can
 be implemented.
 
-* Structure, internals and current status.
+# Structure, internals and current status.
 
 This project is split in three parts:
 
@@ -21,7 +21,7 @@ networks. So, don't get too caught up in the current implementation, and don't
 freak out if you can't understand why there are three implementations of the
 same function.
 
-* Examples: Haskanoid
+# Examples: Haskanoid
 
 Performance is ok, simpler games will be playable without further
 optimisations. This uses unaccelerated SDL 1.2. The speed is comparable to
@@ -62,7 +62,7 @@ You may have to use cabal sandbox add-source and install all libs with one
 cabal install invocation to link against the same versions of all common
 dependencies.
 
-* Contributions
+# Contributions
 
 We are following this guide:
 
@@ -73,7 +73,7 @@ Please, feel free to open new issues. In particular, we are looking for:
 - Unexplored ways of using MSFs.
 - Other games or applications that use MSFs (including but not limited to Yampa games).
 
-* About the name
+# About the name
 
 Dunai (aka. Danube, or Дунай) is one of the main rivers in Europe, originating
 in Germany and touching Austria, Slovakia, Hungary, Croatia, Serbia, Romania,
