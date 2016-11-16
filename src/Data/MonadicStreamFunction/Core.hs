@@ -25,6 +25,7 @@ module Data.MonadicStreamFunction.Core where
 
 -- External
 import Control.Arrow
+import Control.Applicative
 import Control.Category (Category(..))
 import Control.Monad
 import Control.Monad.Base
@@ -60,7 +61,7 @@ instance Functor m => Functor (MSF m a) where
     where
       fS (b, cont) = (f b, fmap f cont)
 
-instance Monad m => Applicative (MSF m a) where
+instance (Functor m, Monad m) => Applicative (MSF m a) where
   -- It is possible to define this instance with only Applicative m
   pure = arr . const
   fs <*> bs = (fs &&& bs) >>> arr (uncurry ($))
