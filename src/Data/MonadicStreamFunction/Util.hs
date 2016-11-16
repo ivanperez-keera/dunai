@@ -5,6 +5,7 @@ import Control.Arrow
 import Control.Category
 import Control.Monad
 import Control.Monad.Base
+import Data.Monoid
 import Prelude hiding (id, (.))
 
 -- Internal

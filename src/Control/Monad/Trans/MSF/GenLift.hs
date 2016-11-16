@@ -1,6 +1,7 @@
 {-# LANGUAGE Rank2Types          #-}
 module Control.Monad.Trans.MSF.GenLift where
 
+import Control.Applicative
 import Data.MonadicStreamFunction
 
 -- * Attempt at writing a more generic MSF lifting combinator.  This is
