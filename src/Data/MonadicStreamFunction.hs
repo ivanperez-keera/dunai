@@ -24,7 +24,6 @@ import Data.MonadicStreamFunction.Core          as X
 import Data.MonadicStreamFunction.ArrowChoice   as X
 import Data.MonadicStreamFunction.ArrowLoop     as X
 import Data.MonadicStreamFunction.ArrowPlus     as X
-import Data.MonadicStreamFunction.MonadicStream as X
 
 
 -- ** Lifts
