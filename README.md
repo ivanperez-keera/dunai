@@ -26,6 +26,13 @@ networks. So, don't get too caught up in the current implementation, and don't
 freak out if you can't understand why there are three implementations of the
 same function.
 
+## Futher reading
+
+A paper has been published explaining the fundamentals of Monadic Stream Functions
+and what can be achieved using different monads:
+
+- [Functional Reactive Programming, Refactored](http://dl.acm.org/citation.cfm?id=2976010) ([mirror](http://www.cs.nott.ac.uk/~psxip1/papers/2016-HaskellSymposium-Perez-Barenz-Nilsson-FRPRefactored-short.pdf))
+
 # Examples: Haskanoid
 
 Performance is ok, simpler games will be playable without further
