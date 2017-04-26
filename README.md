@@ -1,3 +1,8 @@
+# Dunai
+
+[![Build Status](https://travis-ci.org/ivanperez-keera/dunai.svg?branch=master)](https://travis-ci.org/ivanperez-keera/dunai)
+[![Version on Hackage](https://img.shields.io/hackage/v/dunai.svg)](https://hackage.haskell.org/package/dunai)
+
 This repository implements a generalized version of reactive programming, on
 top of which other variants like Yampa, Classic FRP and Reactive Values can
 be implemented.
