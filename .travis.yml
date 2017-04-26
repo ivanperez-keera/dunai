@@ -25,6 +25,6 @@ notifications:
  email: true
 
 branches:
-    only:
-          - master
-          - develop
+ only:
+  - master
+  - develop
