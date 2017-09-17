@@ -2,7 +2,7 @@
 
 -- Sometimes it is beneficial to give control to an external main loop,
 -- for example OpenGL or a hardware-clocked audio server like JACK.
--- This module makes Dunai compatible with external main loops. 
+-- This module makes Dunai compatible with external main loops.
 
 module Data.MonadicStreamFunction.ReactHandle where
 
@@ -15,11 +15,11 @@ import Data.MonadicStreamFunction
 
 
 -- | A storage for the current state of an MSF
-type ReactHandle m = IORef (MStreamF m () ())
+type ReactHandle m = IORef (MSF m () ())
 
 
 -- | Needs to be called before the external main loop is dispatched
-reactInit :: MonadIO m => MStreamF m () () -> m (ReactHandle m)
+reactInit :: MonadIO m => MSF m () () -> m (ReactHandle m)
 reactInit = liftIO . newIORef
 
 
@@ -27,7 +27,7 @@ reactInit = liftIO . newIORef
 react :: MonadIO m => ReactHandle m -> m ()
 react handle = do
   msf <- liftIO $ readIORef handle
-  (_, msf') <- unMStreamF msf ()
+  (_, msf') <- unMSF msf ()
   liftIO $ writeIORef handle msf'
 
 
@@ -39,7 +39,7 @@ react handle = do
 -- This is done through a wormhole, which is a shared mutable variable
 -- that can be written from one part and read from the other.
 
-createWormhole :: MonadIO m => a -> m (MStreamF m a (), MStreamF m () a)
+createWormhole :: MonadIO m => a -> m (MSF m a (), MSF m () a)
 createWormhole a = liftIO $ do
   ref <- newIORef a
-  return (liftMStreamF $ liftIO . writeIORef ref, liftMStreamF_ $ liftIO $ readIORef ref)
+  return (arrM $ liftIO . writeIORef ref, arrM_ $ liftIO $ readIORef ref)

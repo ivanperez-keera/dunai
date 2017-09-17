@@ -8,8 +8,8 @@ import Data.MonadicStreamFunction.Core
 import Control.Arrow
 import Control.Monad.Fix
 
-instance (Monad m, MonadFix m) => ArrowLoop (MStreamF m) where
+instance (Monad m, MonadFix m) => ArrowLoop (MSF m) where
   -- loop :: a (b, d) (c, d) -> a b c
-  loop sf = MStreamF $ \a -> do
-              rec ((b,c), sf') <- unMStreamF sf (a, c)
+  loop sf = MSF $ \a -> do
+              rec ((b,c), sf') <- unMSF sf (a, c)
               return (b, loop sf')

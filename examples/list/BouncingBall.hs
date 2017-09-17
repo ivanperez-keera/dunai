@@ -8,7 +8,7 @@ import           Control.Monad.Trans.Reader
 import           Data.MonadicStreamFunction hiding (reactimate, switch, trace)
 import qualified Data.MonadicStreamFunction as MSF
 import           Debug.Trace
-import           FRP.BearRiver              as Yampa
+import           FRP.Yampa                  as Yampa
 import           Graphics.UI.SDL            as SDL
 import           Graphics.UI.SDL.Primitives as SDL
 import           ListT                      as L
@@ -30,9 +30,9 @@ bouncingBalls = proc (mp@(mx, my, ml, mr)) -> do
   returnA -< (b : bs)
 
 fireballs :: SF (Bool, (Float, Float)) [(Float, Float)]
-fireballs = MSF.switch
+fireballs = switch
   (arr (const []) &&& arr (\(mp, pos) -> if mp then Just pos else Nothing))
-  (\(p, v) -> let oldfb = voidI $ runListMSF (liftMStreamFTrans (bouncingBall p v))
+  (\(p, v) -> let oldfb = voidI $ runListMSF (liftMSFTrans (bouncingBall p v))
                   newfb = fireballs
               in (oldfb &&& newfb) >>> arr2 (++)
   )
@@ -75,7 +75,7 @@ render ps = do
   white <- SDL.mapRGB (SDL.surfaceGetPixelFormat screen) 0xFF 0xFF 0xFF
   SDL.fillRect screen Nothing white
 
-  mapM_ (\((p,_),xi) -> 
+  mapM_ (\((p,_),xi) ->
      SDL.filledCircle screen (100 + xi * 100) (600 - 100 - round p) 30 (Pixel 0xFF0000FF))
      (zip ps [1..])
 
@@ -84,16 +84,16 @@ render ps = do
   threadDelay 1000
 
 -- Auxiliary MSF functions
-applyMSF :: Monad m => (a -> MStreamF m b c) -> MStreamF m (a, b) c
-applyMSF f = MStreamF $ \(a,b) -> do
-  (c, msf') <- unMStreamF (f a) b
+applyMSF :: Monad m => (a -> MSF m b c) -> MSF m (a, b) c
+applyMSF f = MSF $ \(a,b) -> do
+  (c, msf') <- unMSF (f a) b
   return (c, arr snd >>> msf')
 
-runListMSF :: (Functor m, Monad m) => MStreamF (ListT m) a b -> MStreamF m a [b]
+runListMSF :: (Functor m, Monad m) => MSF (ListT m) a b -> MSF m a [b]
 runListMSF msf = runListMSF' [msf]
   where
-    runListMSF' msfs = MStreamF $ \a -> do
-        (bs, msfs') <- unzip . concat <$> mapM (toList . (`unMStreamF` a)) msfs
+    runListMSF' msfs = MSF $ \a -> do
+        (bs, msfs') <- unzip . concat <$> mapM (toList . (`unMSF` a)) msfs
         return (bs, runListMSF' msfs')
 
 -- Auxiliary Arrow functions
