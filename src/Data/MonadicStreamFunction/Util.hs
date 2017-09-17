@@ -144,5 +144,5 @@ next b sf = MSF $ \a -> do
 
 -- TODO: This is not elementary, it can probably be built using other
 -- construts. Move to a non-core module?
-embed_ :: Monad m => MSF m a () -> [a] -> m ()
+embed_ :: (Functor m, Monad m) => MSF m a () -> [a] -> m ()
 embed_ msf as = void $ foldM (\sf a -> snd <$> unMSF sf a) msf as
