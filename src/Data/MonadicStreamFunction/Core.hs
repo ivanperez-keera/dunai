@@ -60,10 +60,16 @@ import Control.Monad.Base
 import Control.Monad.Trans.Class
 import Prelude hiding ((.), id, sum)
 
--- MSF: Stepwise, side-effectful MSFs without implicit knowledge of time.
+-- * Definitions
+
+-- | Stepwise, side-effectful MSFs without implicit knowledge of time.
+--
+-- MSFs should be applied to streams or executed indefinitely or until they
+-- terminate. See 'reactimate' and 'reactimateB' for details. In general,
+-- calling the value constructor 'MSF' or the function 'unMSF' is discouraged.
 data MSF m a b = MSF { unMSF :: a -> m (b, MSF m a b) }
 
--- ** Instances
+-- Instances
 
 instance Monad m => Category (MSF m) where
   id = go
@@ -94,19 +100,21 @@ instance (Functor m, Monad m) => Applicative (MSF m a) where
   pure = arr . const
   fs <*> bs = (fs &&& bs) >>> arr (uncurry ($))
 
--- ** Lifts
--- | Generalisation of arr from Arrow to stream functions with monads
+-- * Lifting
+
+-- | Apply the same monadic transformation to every element of the input stream.
+--
+-- Generalisation of arr from Arrow to stream functions with monads.
 arrM :: Monad m => (a -> m b) -> MSF m a b
 arrM f = go
   where go = MSF $ \a -> do
                b <- f a
                return (b, go)
 
+-- * Monadic lifting from one monad into another
 
 liftS :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
 liftS = arrM . (liftBase .)
-
--- * Monadic lifting from one monad into another
 
 -- ** Purer monads
 
@@ -170,9 +178,12 @@ delay :: Monad m => a -> MSF m a a
 delay = iPre
 
 -- ** Switching
--- A more advanced and comfortable approach to switching is givin by Exceptions
--- in Control.Monad.Trans.MSF.Except
 
+-- | Switching applies one MSF until it produces a 'Just' output, and then
+-- "turns on" a continuation and runs it.
+--
+-- A more advanced and comfortable approach to switching is givin by Exceptions
+-- in "Control.Monad.Trans.MSF.Except"
 switch :: Monad m => MSF m a (b, Maybe c) -> (c -> MSF m a b) -> MSF m a b
 switch sf f = MSF $ \a -> do
   ((b, c), sf') <- unMSF sf a
@@ -180,12 +191,13 @@ switch sf f = MSF $ \a -> do
 
 -- ** Feedback loops
 
+-- | Well-formed looped connection of an output component as a future input.
 feedback :: Monad m => c -> MSF m (a, c) (b, c) -> MSF m a b
 feedback c sf = MSF $ \a -> do
   ((b', c'), sf') <- unMSF sf (a, c)
   return (b', feedback c' sf')
 
--- * Reactimating
+-- * Execution/simulation
 
 -- | Apply a monadic stream function to a list.
 --
@@ -207,13 +219,13 @@ embed sf (a:as) = do
   bs       <- embed sf' as
   return (b:bs)
 
--- | Runs an MSF indefinitely passing a unit-carrying input stream.
+-- | Run an MSF indefinitely passing a unit-carrying input stream.
 reactimate :: Monad m => MSF m () () -> m ()
 reactimate sf = do
   (_, sf') <- unMSF sf ()
   reactimate sf'
 
--- | Runs an MSF indefinitely passing a unit-carrying input stream.
+-- | Run an MSF indefinitely passing a unit-carrying input stream.
 -- A more high-level approach to this would be the use of MaybeT
 -- in Control.Monad.Trans.MSF.Maybe
 reactimateB :: Monad m => MSF m () Bool -> m ()
