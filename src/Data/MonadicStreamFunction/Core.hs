@@ -143,15 +143,18 @@ liftMSFPurer liftPurer sf = MSF $ \a -> do
 
 -- ** Monad stacks
 
--- | Lifting inner monadic actions in monad stacks
+-- | Lift inner monadic actions in monad stacks.
 
 -- TODO Should be able to express this in terms of MonadBase
-liftMSFTrans :: (MonadTrans t, Monad m, Monad (t m)) => MSF m a b -> MSF (t m) a b
+liftMSFTrans :: (MonadTrans t, Monad m, Monad (t m))
+             => MSF m a b
+             -> MSF (t m) a b
 liftMSFTrans sf = MSF $ \a -> do
   (b, sf') <- lift $ unMSF sf a
   return (b, liftMSFTrans sf')
 
--- | Lifting the innermost monadic actions in a monad stacks (generalisation of liftIO)
+-- | Lift innermost monadic actions in a monad stacks (generalisation of
+-- 'liftIO').
 liftMSFBase :: (Monad m2, MonadBase m1 m2) => MSF m1 a b -> MSF m2 a b
 liftMSFBase sf = MSF $ \a -> do
   (b, sf') <- liftBase $ unMSF sf a
@@ -159,7 +162,11 @@ liftMSFBase sf = MSF $ \a -> do
 
 -- * MSFs within monadic actions
 
--- | Extract MSF from a monadic action
+-- | Extract MSF from a monadic action.
+--
+-- Runs a monadic action that produces an MSF on the first iteration/step, and
+-- uses that MSF as the main signal function for all inputs (including the
+-- first one).
 performOnFirstSample :: Monad m => m (MSF m a b) -> MSF m a b
 performOnFirstSample sfaction = MSF $ \a -> do
   sf <- sfaction
@@ -167,11 +174,16 @@ performOnFirstSample sfaction = MSF $ \a -> do
 
 -- ** Delays and signal overwriting
 
-iPre :: Monad m => a -> MSF m a a
+-- | Delay a signal by one sample.
+iPre :: Monad m
+     => a         -- ^ First output
+     -> MSF m a a
 iPre firsta = MSF $ \a -> return (firsta, delay a)
 -- iPre firsta = feedback firsta $ lift swap
 --   where swap (a,b) = (b, a)
 -- iPre firsta = next firsta identity
+
+-- | See 'iPre'.
 
 -- FIXME: Remove delay from this module. We should try to make this module
 -- small, keeping only primitives.
