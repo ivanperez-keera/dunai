@@ -87,8 +87,7 @@ Dunai (aka. Danube, or Дунай) is one of the main rivers in Europe, originat
 in Germany and touching Austria, Slovakia, Hungary, Croatia, Serbia, Romania,
 Bulgaria, Moldova and Ukraine.
 
-The name is chosen following the idea of naming FRP libraries after
-rivers, and knowing that this library can be used to implement many others.
-I've chosen Dunai specifically taking into account the authors' relation with
-some of the countries it passes through, and knowing that this library has
-helped unite otherwise very different people from different backgrounds.
+Other FRP libraries, like Yampa, are named after rivers.  Dunai has been chosen
+due to the authors' relation with some of the countries it passes through, and
+knowing that this library has helped unite otherwise very different people from
+different backgrounds.
