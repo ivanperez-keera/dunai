@@ -144,6 +144,7 @@ liftMSFPurer liftPurer sf = MSF $ \a -> do
 -- ** Monad stacks
 
 -- | Lifting inner monadic actions in monad stacks
+
 -- TODO Should be able to express this in terms of MonadBase
 liftMSFTrans :: (MonadTrans t, Monad m, Monad (t m)) => MSF m a b -> MSF (t m) a b
 liftMSFTrans sf = MSF $ \a -> do
