@@ -1,7 +1,7 @@
 -- | Monadic Stream Functions are synchronized stream functions
 --   with side effects.
---   .
---   MSFs are defined by a function @step :: MSF m a b -> a -> m (b, MSF m a b)@
+--
+--   MSFs are defined by a function @unMSF :: MSF m a b -> a -> m (b, MSF m a b)@
 --   that executes one step of a simulation, and produces an output in a
 --   monadic context, and a continuation to be used for future steps.
 --   .

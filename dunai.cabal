@@ -5,7 +5,7 @@ description:
   Dunai is DSL for strongly-typed CPS-based composable transformations.
   .
   Dunai is based on a concept of Monadic Stream Functions (MSFs). MSFs are
-  transformations defined by a function @step :: MSF m a b -> a -> m (b, MSF m a b)@
+  transformations defined by a function @unMSF :: MSF m a b -> a -> m (b, MSF m a b)@
   that executes one step of a simulation, and produces an output in a monadic
   context, and a continuation to be used for future steps.
   .
