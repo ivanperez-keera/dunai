@@ -4,11 +4,10 @@
 {-# OPTIONS_GHC -fno-warn-orphans   #-}
 module Data.VectorSpace.Fractional where
 
-
--- * VectorSpace instances for Num/Fractional types. These sometimes clash with
---   user-defined instances.
---   (See https://github.com/ivanperez-keera/dunai/issues/11, where this
---   module used to be called Data.VectorSpace.Instances)
+-- VectorSpace instances for Num/Fractional types. These sometimes clash with
+-- user-defined instances.
+-- (See https://github.com/ivanperez-keera/dunai/issues/11, where this
+-- module used to be called Data.VectorSpace.Instances)
 
 import Data.VectorSpace
 
@@ -19,7 +18,6 @@ instance Num a => RModule a where
     negateVector x = -x
     x1 ^+^ x2      = x1 + x2
     x1 ^-^ x2      = x1 - x2
-
 
 instance Fractional a => VectorSpace a where
     a ^/ x = a / x
