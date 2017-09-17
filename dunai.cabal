@@ -70,7 +70,7 @@ library
                      Data.MonadicStreamFunction.ReactHandle
                      Data.MonadicStreamFunction.Util
 
-         -- Auxiliary definitions
+                     -- Auxiliary definitions
                      Data.VectorSpace
                      Data.VectorSpace.Fractional
                      Data.VectorSpace.Tuples
