@@ -7,6 +7,45 @@ This repository implements a generalized version of reactive programming, on
 top of which other variants like Yampa, Classic FRP and Reactive Values can
 be implemented.
 
+# Installation
+
+```
+$ cabal sandbox init         # Optional, but recommended
+$ cabal update
+$ cabal install dunai
+```
+
+# Examples
+
+To test Dunai:
+
+- Use `embed :: MSF m a b -> [a] -> m [b]` to collect
+  a list with the results.
+
+- Use `embed_ :: MSF m a () -> [a] -> m ()` to perform side effects without
+  collecting the results.
+
+- Use `reactimate :: MSF m () () -> m ()` when data is collected/provided by the
+  MSF itself.
+
+```haskell
+ghci> import Data.MonadicStreamFunction
+ghci> embed (arr (+1)) [1,2,3,4,5]
+[2,3,4,5,6]
+ghci> embed_ (arr (+1) >>> liftS print) [1,2,3,4,5]
+2
+3
+4
+5
+6
+ghci> reactimate (arrM_ getLine >>> arr reverse >>> liftS putStrLn)
+Hello
+olleH
+Haskell is awesome
+emosewa si lleksaH
+^C
+```
+
 # Structure, internals and current status.
 
 This project is split in three parts:
