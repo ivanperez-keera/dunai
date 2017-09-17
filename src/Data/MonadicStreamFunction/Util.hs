@@ -1,6 +1,7 @@
 module Data.MonadicStreamFunction.Util where
 
 -- External
+import Control.Applicative
 import Control.Arrow
 import Control.Category
 import Control.Monad
