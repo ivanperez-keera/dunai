@@ -60,7 +60,7 @@ import Control.Monad.Base
 import Control.Monad.Trans.Class
 import Prelude hiding ((.), id, sum)
 
--- MSF: Stepwise, side-effectful MSFs without implicit knowledge of time
+-- MSF: Stepwise, side-effectful MSFs without implicit knowledge of time.
 data MSF m a b = MSF { unMSF :: a -> m (b, MSF m a b) }
 
 -- ** Instances
@@ -99,8 +99,8 @@ instance (Functor m, Monad m) => Applicative (MSF m a) where
 arrM :: Monad m => (a -> m b) -> MSF m a b
 arrM f = go
   where go = MSF $ \a -> do
-              b <- f a
-              return (b, go)
+               b <- f a
+               return (b, go)
 
 
 liftS :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
