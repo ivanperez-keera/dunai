@@ -17,19 +17,15 @@ This project is split in three parts:
   - sample applications that work both on traditional Yampa and BearRiver.
 
 We need to add examples of apps written in classic FRP, reactive values, etc. A
-new game, in honor of Paul Hudak, has been designed to work best with this
-library. It will also be added to the repo.
+[new game](https://github.com/keera-studios/pang-a-lambda), in honor of Paul
+Hudak, has been designed to work best with this library.
 
-Dunai uses monad transformers, but it's still very experimental and we have not
-agreed on either the syntax or intended behaviour of trans-monadic reactive
-networks. So, don't get too caught up in the current implementation, and don't
-freak out if you can't understand why there are three implementations of the
-same function.
+Dunai uses monad transformers. The syntax and behaviour are still experimental.
+If something breaks/sounds strange, please open an issue.
 
 ## Futher reading
 
-A paper has been published explaining the fundamentals of Monadic Stream Functions
-and what can be achieved using different monads:
+The best introduction to the fundamentals of Monadic Stream Functions is:
 
 - [Functional Reactive Programming, Refactored](https://dl.acm.org/authorize?N34896) ([official ACM page](http://dl.acm.org/citation.cfm?id=2976010)) ([mirror](http://www.cs.nott.ac.uk/~psxip1/papers/2016-HaskellSymposium-Perez-Barenz-Nilsson-FRPRefactored-short.pdf))
 
