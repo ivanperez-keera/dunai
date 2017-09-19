@@ -46,7 +46,19 @@ emosewa si lleksaH
 ^C
 ```
 
-# Structure, internals and current status.
+# Further reading
+
+The best introduction to the fundamentals of Monadic Stream Functions is:
+
+- [Functional Reactive Programming, Refactored](https://dl.acm.org/authorize?N34896) ([official ACM page](http://dl.acm.org/citation.cfm?id=2976010)) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
+
+The following papers are also related to MSFs:
+
+- [Back to the Future: time travel in FRP](http://dl.acm.org/citation.cfm?id=3122957) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
+
+- [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/citation.cfm?id=3110246)
+
+# Structure and internals.
 
 This project is split in three parts:
 
@@ -61,18 +73,6 @@ Hudak, has been designed to work best with this library.
 
 Dunai uses monad transformers. The syntax and behaviour are still experimental.
 If something breaks/sounds strange, please open an issue.
-
-## Futher reading
-
-The best introduction to the fundamentals of Monadic Stream Functions is:
-
-- [Functional Reactive Programming, Refactored](https://dl.acm.org/authorize?N34896) ([official ACM page](http://dl.acm.org/citation.cfm?id=2976010)) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
-
-The following papers are also related to MSFs:
-
-- [Back to the Future: time travel in FRP](http://dl.acm.org/citation.cfm?id=3122957) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
-
-- [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/citation.cfm?id=3110246)
 
 # Performance
 
