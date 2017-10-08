@@ -133,10 +133,10 @@ safely (MSFExcept msf) = safely' msf
 safe :: Monad m => MSF m a b -> MSFExcept m a b e
 safe = try . liftMSFTrans
 
-once :: Monad m => (a -> m b) -> MSFExcept m a c ()
-once f = MSFExcept $ arrM (lift . f) >>> throw ()
+once :: Monad m => (a -> m b) -> MSFExcept m a c b
+once f = try $ arrM (lift . f) >>> throwS
 
-once_ :: Monad m => m b -> MSFExcept m c d ()
+once_ :: Monad m => m b -> MSFExcept m a c b
 once_ = once . const
 
 tagged :: Monad m => MSF (ExceptT e1 m) a b -> MSF (ExceptT e2 m) (a, e2) b
