@@ -104,7 +104,7 @@ instance (Functor m, Monad m) => Applicative (MSF m a) where
 
 -- | Apply the same monadic transformation to every element of the input stream.
 --
--- Generalisation of arr from Arrow to stream functions with monads.
+-- Generalisation of 'arr' from 'Arrow' to stream functions with monads.
 arrM :: Monad m => (a -> m b) -> MSF m a b
 arrM f = go
   where go = MSF $ \a -> do
@@ -195,8 +195,8 @@ delay = iPre
 -- | Switching applies one MSF until it produces a 'Just' output, and then
 -- "turns on" a continuation and runs it.
 --
--- A more advanced and comfortable approach to switching is givin by Exceptions
--- in "Control.Monad.Trans.MSF.Except"
+-- A more advanced and comfortable approach to switching is given by Exceptions
+-- in 'Control.Monad.Trans.MSF.Except'
 switch :: Monad m => MSF m a (b, Maybe c) -> (c -> MSF m a b) -> MSF m a b
 switch sf f = MSF $ \a -> do
   ((b, c), sf') <- unMSF sf a
@@ -220,10 +220,10 @@ feedback c sf = MSF $ \a -> do
 -- if the MSF produces Nothing at any point, so the output stream cannot
 -- consumed progressively.
 --
--- To explore the output progressively, use liftMSF and (>>>), together
+-- To explore the output progressively, use 'liftMSF' and '(>>>)'', together
 -- with some action that consumes/actuates on the output.
 --
--- This is called "runSF" in Liu, Cheng, Hudak, "Causal Commutative Arrows and
+-- This is called 'runSF' in Liu, Cheng, Hudak, "Causal Commutative Arrows and
 -- Their Optimization"
 embed :: Monad m => MSF m a b -> [a] -> m [b]
 embed _  []     = return []
@@ -232,15 +232,15 @@ embed sf (a:as) = do
   bs       <- embed sf' as
   return (b:bs)
 
--- | Run an MSF indefinitely passing a unit-carrying input stream.
+-- | Run an 'MSF' indefinitely passing a unit-carrying input stream.
 reactimate :: Monad m => MSF m () () -> m ()
 reactimate sf = do
   (_, sf') <- unMSF sf ()
   reactimate sf'
 
--- | Run an MSF indefinitely passing a unit-carrying input stream.
--- A more high-level approach to this would be the use of MaybeT
--- in Control.Monad.Trans.MSF.Maybe
+-- | Run an 'MSF' indefinitely passing a unit-carrying input stream.
+-- A more high-level approach to this would be the use of 'MaybeT'
+-- in 'Control.Monad.Trans.MSF.Maybe'.
 reactimateB :: Monad m => MSF m () Bool -> m ()
 reactimateB sf = do
   (b, sf') <- unMSF sf ()
