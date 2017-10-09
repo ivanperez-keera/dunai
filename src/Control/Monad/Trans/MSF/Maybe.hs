@@ -1,5 +1,10 @@
 {-# LANGUAGE Arrows              #-}
 {-# LANGUAGE Rank2Types          #-}
+{- |
+The 'Maybe' monad is very versatile. It can stand for default arguments,
+for absent values, and for (nondescript) exceptions.
+The latter viewpoint is most natural in the context of 'MSF's.
+-}
 module Control.Monad.Trans.MSF.Maybe
   ( module Control.Monad.Trans.MSF.Maybe
   , module Control.Monad.Trans.Maybe
@@ -14,46 +19,43 @@ import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
 
 
-runMaybeS'' :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
-runMaybeS'' = transG transformInput transformOutput
-  where
-    transformInput       = return
-    transformOutput _ m1 = do r <- runMaybeT m1
-                              case r of
-                                Nothing     -> return (Nothing, Nothing)
-                                Just (b, c) -> return (Just b,  Just c)
+-- * Throwing 'Nothing' as an exception ("exiting")
 
-
--- * Throwing Nothing as an exception ("exiting")
-
+-- | Throw the exception immediately.
 exit :: Monad m => MSF (MaybeT m) a b
 exit = MSF $ const $ MaybeT $ return Nothing
 
+-- | Throw the exception when the condition becomes true on the input.
 exitWhen :: Monad m => (a -> Bool) -> MSF (MaybeT m) a a
 exitWhen condition = go where
     go = MSF $ \a -> MaybeT $
-        if condition a
+      if condition a
         then return Nothing
         else return $ Just (a, go)
 
+-- | Exit when the incoming value is 'True'.
 exitIf :: Monad m => MSF (MaybeT m) Bool ()
 exitIf = MSF $ \b -> MaybeT $ return $ if b then Nothing else Just ((), exitIf)
 
--- Just a is passed along, Nothing causes the whole MSF to exit
+-- | @Just a@ is passed along, 'Nothing' causes the whole 'MSF' to exit.
 maybeExit :: Monad m => MSF (MaybeT m) (Maybe a) a
-maybeExit = MSF $ MaybeT . return . fmap (\x -> (x, maybeExit))
+maybeExit = inMaybeT
 
+-- | Embed a 'Maybe' value in the 'MaybeT' layer. Identical to 'maybeExit'.
 inMaybeT :: Monad m => MSF (MaybeT m) (Maybe a) a
 inMaybeT = arrM $ MaybeT . return
 
+
 -- * Catching Maybe exceptions
 
+-- | Run the first @msf@ until the second one produces 'True' from the output of the first.
 untilMaybe :: Monad m => MSF m a b -> MSF m b Bool -> MSF (MaybeT m) a b
 untilMaybe msf cond = proc a -> do
-  b <- liftMSFTrans msf -< a
+  b <- liftMSFTrans msf  -< a
   c <- liftMSFTrans cond -< b
   inMaybeT -< if c then Nothing else Just b
 
+-- | When an exception occurs in the first 'msf', the second 'msf' is executed from there.
 catchMaybe :: Monad m => MSF (MaybeT m) a b -> MSF m a b -> MSF m a b
 catchMaybe msf1 msf2 = MSF $ \a -> do
   cont <- runMaybeT $ unMSF msf1 a
@@ -63,8 +65,9 @@ catchMaybe msf1 msf2 = MSF $ \a -> do
 
 
 
-
--- * Running MaybeT
+-- * Running 'MaybeT'
+-- | Remove the 'MaybeT' layer by outputting 'Nothing' when the exception occurs.
+--   The continuation in which the exception occurred is then tested on the next input.
 runMaybeS :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
 runMaybeS msf = go
   where
@@ -74,6 +77,16 @@ runMaybeS msf = go
              Just (b, msf') -> return (Just b, runMaybeS msf')
              Nothing        -> return (Nothing, go)
 
+
+-- | Different implementation, to study performance.
+runMaybeS'' :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
+runMaybeS'' = transG transformInput transformOutput
+  where
+    transformInput       = return
+    transformOutput _ m1 = do r <- runMaybeT m1
+                              case r of
+                                Nothing     -> return (Nothing, Nothing)
+                                Just (b, c) -> return (Just b,  Just c)
 
 -- mapMaybeS msf == runMaybeS (inMaybeT >>> lift mapMaybeS)
 
