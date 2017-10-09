@@ -35,6 +35,28 @@ Enter a list of Ints:
 2
 Enter a list of Ints:
 ...
+
+Beware that @concatS msf@ becomes unproductive when @msf@ starts outputting empty lists forever.
+This is ok:
+
+>>> let boolToList b = if b then ["Yes"] else []
+>>> let everyOddEmpty = count >>> arr (even >>> boolToList)
+>>> reactimate $ concatS everyOddEmpty >>> arrM print
+"Yes"
+"Yes"
+"Yes"
+"Yes"
+"Yes"
+...
+
+But this will be caught in a loop:
+
+>>> let after3Empty = count >>> arr ((<= 3) >>> boolToList)
+reactimate $ concatS after3Empty  >>> arrM print
+"Yes"
+"Yes"
+"Yes"
+^CInterrupted.
 -}
 concatS :: Monad m => MStream m [b] -> MStream m b
 concatS msf = MSF $ \_ -> tick msf []
