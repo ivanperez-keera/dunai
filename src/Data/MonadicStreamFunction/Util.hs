@@ -56,7 +56,7 @@ repeatedly f = repeatedly'
  where repeatedly' a = MSF $ \() -> let a' = f a in a' `seq` return (a, repeatedly' a')
 -- repeatedly f x = feedback x (arr (f >>> \x -> (x,x)))
 
--- * Analogues of map and concat
+-- * Analogues of map and fmap
 
 mapMSF :: Monad m => MSF m a b -> MSF m [a] [b]
 mapMSF = MSF . consume
@@ -77,14 +77,6 @@ mapMaybeS msf = go
         return (Just b, mapMaybeS msf')
       Nothing -> return (Nothing, go)
 
--- | Concatenates a monadic stream of lists to a monadic stream.
-concatS :: Monad m => MStream m [b] -> MStream m b
-concatS msf = MSF $ \_ -> tick msf []
-  where
-    tick msf (b:bs) = return (b, MSF $ \_ -> tick msf bs)
-    tick msf []     = do
-      (bs, msf') <- unMSF msf ()
-      tick msf' bs
 
 
 -- * Adding side effects
