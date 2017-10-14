@@ -2,7 +2,7 @@ name:                dunai
 version:             0.1.1.0
 synopsis:            Generalised reactive framework supporting classic, arrowized and monadic FRP.
 description:
-  Dunai is DSL for strongly-typed CPS-based composable transformations.
+  Dunai is a DSL for strongly-typed CPS-based composable transformations.
   .
   Dunai is based on a concept of Monadic Stream Functions (MSFs). MSFs are
   transformations defined by a function @unMSF :: MSF m a b -> a -> m (b, MSF m a b)@
