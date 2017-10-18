@@ -62,6 +62,15 @@ catchMaybe msf1 msf2 = MSF $ \a -> do
     Nothing         -> unMSF msf2 a
 
 
+-- * Converting to and from 'MaybeT'
+
+-- | Converts a list to an 'MSF' in 'MaybeT',
+--   which outputs an element of the list at each step,
+--   throwing 'Nothing' when the list ends.
+listToMaybeS :: Monad m => [b] -> MSF (MaybeT m) a b
+listToMaybeS []       = exit
+listToMaybeS (b : bs) = iPost b $ listToMaybeS bs
+
 
 
 -- * Running MaybeT
