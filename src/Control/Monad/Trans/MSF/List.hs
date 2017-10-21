@@ -12,6 +12,10 @@ import Data.MonadicStreamFunction
 
 -- * List monad
 
+inListT :: Monad m => MSF (ListT m) [a] a
+inListT = arrM $ ListT . return
+
+
 -- Name alternative (in the article): collect
 widthFirst :: (Functor m, Monad m) => MSF (ListT m) a b -> MSF m a [b]
 widthFirst msf = widthFirst' [msf] where

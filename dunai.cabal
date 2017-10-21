@@ -57,6 +57,7 @@ library
   exposed-modules:   Control.Monad.Trans.MSF
                      Control.Monad.Trans.MSF.Except
                      Control.Monad.Trans.MSF.GenLift
+                     Control.Monad.Trans.MSF.List
                      Control.Monad.Trans.MSF.Maybe
                      Control.Monad.Trans.MSF.Random
                      Control.Monad.Trans.MSF.Reader
