@@ -1,4 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+-- | Instance of 'ArrowPlus' for Monadic Stream Functions ('MSF').
+--
+--   Import this module to include that (orphan) instance.
+--
+--   This is only defined for monads that are instances of 'MonadPlus'.
 module Data.MonadicStreamFunction.ArrowPlus where
 
 import Control.Arrow
