@@ -109,6 +109,10 @@ newtype MSFExcept m a b e = MSFExcept { runMSFExcept :: MSF (ExceptT e m) a b }
 try :: MSF (ExceptT e m) a b -> MSFExcept m a b e
 try = MSFExcept
 
+-- | Immediately throw the current input as an exception.
+currentInput :: Monad m => MSFExcept m e b e
+currentInput = try throwS
+
 instance Functor (MSFExcept m a b) where
 
 instance Monad m => Applicative (MSFExcept m a b) where
@@ -138,6 +142,15 @@ once f = try $ arrM (lift . f) >>> throwS
 
 once_ :: Monad m => m e -> MSFExcept m a b e
 once_ = once . const
+
+-- | Advances a single tick with the given Kleisli arrow,
+--   and then throws an exception.
+step :: Monad m => (a -> m (b, e)) -> MSFExcept m a b e
+step f = try $ proc a -> do
+  n      <- count           -< ()
+  (b, e) <- arrM (lift . f) -< a
+  _      <- throwOn'        -< (n > 1, e)
+  returnA                   -< b
 
 tagged :: Monad m => MSF (ExceptT e1 m) a b -> MSF (ExceptT e2 m) (a, e2) b
 tagged msf = MSF $ \(a, e2) -> ExceptT $ do
