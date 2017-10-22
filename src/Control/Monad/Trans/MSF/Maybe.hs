@@ -13,7 +13,6 @@ import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
 
-
 runMaybeS'' :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
 runMaybeS'' = transG transformInput transformOutput
   where
@@ -30,11 +29,10 @@ exit :: Monad m => MSF (MaybeT m) a b
 exit = MSF $ const $ MaybeT $ return Nothing
 
 exitWhen :: Monad m => (a -> Bool) -> MSF (MaybeT m) a a
-exitWhen condition = go where
-    go = MSF $ \a -> MaybeT $
-        if condition a
-        then return Nothing
-        else return $ Just (a, go)
+exitWhen condition = go
+  where
+    go = MSF $ \a -> MaybeT $ return $
+                       if condition a then Nothing else Just (a, go)
 
 exitIf :: Monad m => MSF (MaybeT m) Bool ()
 exitIf = MSF $ \b -> MaybeT $ return $ if b then Nothing else Just ((), exitIf)
@@ -61,7 +59,6 @@ catchMaybe msf1 msf2 = MSF $ \a -> do
     Just (b, msf1') -> return (b, msf1' `catchMaybe` msf2)
     Nothing         -> unMSF msf2 a
 
-
 -- * Converting to and from 'MaybeT'
 
 -- | Converts a list to an 'MSF' in 'MaybeT',
@@ -70,8 +67,6 @@ catchMaybe msf1 msf2 = MSF $ \a -> do
 listToMaybeS :: Monad m => [b] -> MSF (MaybeT m) a b
 listToMaybeS []       = exit
 listToMaybeS (b : bs) = iPost b $ listToMaybeS bs
-
-
 
 -- * Running MaybeT
 runMaybeS :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
@@ -82,7 +77,6 @@ runMaybeS msf = go
            case bmsf of
              Just (b, msf') -> return (Just b, runMaybeS msf')
              Nothing        -> return (Nothing, go)
-
 
 -- mapMaybeS msf == runMaybeS (inMaybeT >>> lift mapMaybeS)
 
