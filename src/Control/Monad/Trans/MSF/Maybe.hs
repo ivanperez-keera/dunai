@@ -65,8 +65,7 @@ catchMaybe msf1 msf2 = MSF $ \a -> do
 --   which outputs an element of the list at each step,
 --   throwing 'Nothing' when the list ends.
 listToMaybeS :: Monad m => [b] -> MSF (MaybeT m) a b
-listToMaybeS []       = exit
-listToMaybeS (b : bs) = iPost b $ listToMaybeS bs
+listToMaybeS = foldr iPost exit
 
 -- * Running MaybeT
 runMaybeS :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
