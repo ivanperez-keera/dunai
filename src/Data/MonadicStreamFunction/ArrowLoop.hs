@@ -1,5 +1,11 @@
+{-# LANGUAGE InstanceSigs         #-}
 {-# LANGUAGE RecursiveDo          #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+-- | Instance of 'ArrowLoop' for Monadic Stream Functions ('MSF').
+--
+--   Import this module to include that (orphan) instance.
+--
+--   This is only defined for monads that are instances of 'MonadFix'.
 module Data.MonadicStreamFunction.ArrowLoop where
 
 import Data.MonadicStreamFunction.Core
@@ -9,7 +15,7 @@ import Control.Arrow
 import Control.Monad.Fix
 
 instance (Monad m, MonadFix m) => ArrowLoop (MSF m) where
-  -- loop :: a (b, d) (c, d) -> a b c
+  loop :: MSF m (b, d) (c, d) -> MSF m b c
   loop sf = MSF $ \a -> do
               rec ((b,c), sf') <- unMSF sf (a, c)
               return (b, loop sf')
