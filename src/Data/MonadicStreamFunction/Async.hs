@@ -1,16 +1,14 @@
+-- | This module contains operations on monadic stream functions that are
+--   asynchronous, i.e. that change the speed at which data enters or leaves
+--   the 'MSF'.
+
 module Data.MonadicStreamFunction.Async where
 
--- dunai
+-- Internal
 import Data.MonadicStreamFunction.Core
 import Data.MonadicStreamFunction.Util (MStream)
 
 -- * Asynchronous operations on monadic stream functions
-
-{- |
-This module contains operations on monadic stream functions that are asynchronous,
-i.e. that change the speed at which data enters or leaves the 'MSF'.
--}
-
 
 {- |
 Concatenates a monadic stream of lists to a monadic stream.
