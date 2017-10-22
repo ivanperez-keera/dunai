@@ -6,17 +6,15 @@ module Control.Monad.Trans.MSF.Except
   ) where
 
 -- External
-import Control.Applicative
-import qualified Control.Category as Category
-import Control.Monad.Trans.Class
-import Control.Monad.Trans.Except
-  hiding (liftCallCC, liftListen, liftPass) -- Avoid conflicting exports
+import           Control.Applicative
+import qualified Control.Category           as Category
+import           Control.Monad.Trans.Class
+import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen, liftPass) -- Avoid conflicting exports
 import Control.Monad.Trans.Maybe
 
 -- Internal
-import Control.Monad.Trans.MSF.GenLift
+-- import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
-
 
 -- * Throwing exceptions
 
@@ -29,9 +27,8 @@ throwOnCondM :: Monad m => (a -> m Bool) -> e -> MSF (ExceptT e m) a a
 throwOnCondM cond e = proc a -> do
     b <- arrM (lift . cond) -< a
     if b
-    then arrM throwE -< e
-    else returnA -< a
-
+      then arrM throwE -< e
+      else returnA -< a
 
 throwOn :: Monad m => e -> MSF (ExceptT e m) Bool ()
 throwOn e = proc b -> throwOn' -< (b, e)
@@ -94,8 +91,6 @@ exceptS msf = go
             Left e          -> return (Left e,  go)
             Right (b, msf') -> return (Right b, exceptS msf')
 
-
-
 inExceptT :: Monad m => MSF (ExceptT e m) (ExceptT e m a) a
 inExceptT = arrM id -- extracts value from monadic action
 
@@ -107,6 +102,7 @@ tagged msf = MSF $ \(a, t) -> ExceptT $ do
     Left  e     -> _ return t
     Right bmsf' -> _ return bmsf'
     -}
+
 -- * Monad interface for Exception MSFs
 
 newtype MSFExcept m a b e = MSFExcept { runMSFExcept :: MSF (ExceptT e m) a b }
