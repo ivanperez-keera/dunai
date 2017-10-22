@@ -11,6 +11,7 @@ import qualified Control.Category as Category
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
   hiding (liftCallCC, liftListen, liftPass) -- Avoid conflicting exports
+import Control.Monad.Trans.Maybe
 
 -- Internal
 import Control.Monad.Trans.MSF.GenLift
@@ -51,6 +52,10 @@ throw = arrM_ . throwE
 
 pass :: Monad m => MSF (ExceptT e m) a a
 pass = Category.id
+
+-- | Whenever 'Nothing' is thrown, throw '()' instead.
+maybeToExceptS :: Monad m => MSF (MaybeT m) a b -> MSF (ExceptT () m) a b
+maybeToExceptS = liftMSFPurer (ExceptT . (maybe (Left ()) Right <$>) . runMaybeT)
 
 -- * Catching exceptions
 
