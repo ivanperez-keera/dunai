@@ -18,8 +18,22 @@ import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
 
+<<<<<<< HEAD
 
 -- * Throwing 'Nothing' as an exception ("exiting")
+=======
+runMaybeS'' :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
+runMaybeS'' = transG transformInput transformOutput
+  where
+    transformInput       = return
+    transformOutput _ m1 = do r <- runMaybeT m1
+                              case r of
+                                Nothing     -> return (Nothing, Nothing)
+                                Just (b, c) -> return (Just b,  Just c)
+
+
+-- * Throwing Nothing as an exception ("exiting")
+>>>>>>> develop
 
 -- | Throw the exception immediately.
 exit :: Monad m => MSF (MaybeT m) a b
@@ -27,11 +41,18 @@ exit = MSF $ const $ MaybeT $ return Nothing
 
 -- | Throw the exception when the condition becomes true on the input.
 exitWhen :: Monad m => (a -> Bool) -> MSF (MaybeT m) a a
+<<<<<<< HEAD
 exitWhen condition = go where
     go = MSF $ \a -> MaybeT $
       if condition a
         then return Nothing
         else return $ Just (a, go)
+=======
+exitWhen condition = go
+  where
+    go = MSF $ \a -> MaybeT $ return $
+                       if condition a then Nothing else Just (a, go)
+>>>>>>> develop
 
 -- | Exit when the incoming value is 'True'.
 exitIf :: Monad m => MSF (MaybeT m) Bool ()
@@ -63,11 +84,22 @@ catchMaybe msf1 msf2 = MSF $ \a -> do
     Just (b, msf1') -> return (b, msf1' `catchMaybe` msf2)
     Nothing         -> unMSF msf2 a
 
+-- * Converting to and from 'MaybeT'
 
+<<<<<<< HEAD
 
 -- * Running 'MaybeT'
 -- | Remove the 'MaybeT' layer by outputting 'Nothing' when the exception occurs.
 --   The continuation in which the exception occurred is then tested on the next input.
+=======
+-- | Converts a list to an 'MSF' in 'MaybeT',
+--   which outputs an element of the list at each step,
+--   throwing 'Nothing' when the list ends.
+listToMaybeS :: Monad m => [b] -> MSF (MaybeT m) a b
+listToMaybeS = foldr iPost exit
+
+-- * Running MaybeT
+>>>>>>> develop
 runMaybeS :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
 runMaybeS msf = go
   where
@@ -77,6 +109,7 @@ runMaybeS msf = go
              Just (b, msf') -> return (Just b, runMaybeS msf')
              Nothing        -> return (Nothing, go)
 
+<<<<<<< HEAD
 
 -- | Different implementation, to study performance.
 runMaybeS'' :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
@@ -88,6 +121,8 @@ runMaybeS'' = transG transformInput transformOutput
                                 Nothing     -> return (Nothing, Nothing)
                                 Just (b, c) -> return (Just b,  Just c)
 
+=======
+>>>>>>> develop
 -- mapMaybeS msf == runMaybeS (inMaybeT >>> lift mapMaybeS)
 
 {-

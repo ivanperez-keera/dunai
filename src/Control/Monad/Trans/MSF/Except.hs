@@ -14,9 +14,8 @@ import Control.Monad.Trans.Except
   hiding (liftCallCC, liftListen, liftPass) -- Avoid conflicting exports
 
 -- Internal
-import Control.Monad.Trans.MSF.GenLift
+-- import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
-
 
 -- * Throwing exceptions
 
@@ -27,6 +26,7 @@ throwOnCond cond e = proc a -> if cond a
   else returnA -< a
 
 -- | Variant of 'throwOnCond' for Kleisli arrows.
+-- | Throws the exception when the input is 'True'.
 throwOnCondM :: Monad m => (a -> m Bool) -> e -> MSF (ExceptT e m) a a
 throwOnCondM cond e = proc a -> do
   b <- arrM (lift . cond) -< a
@@ -34,7 +34,6 @@ throwOnCondM cond e = proc a -> do
     then throwS  -< e
     else returnA -< a
 
--- | Throw the exception when the input is 'True'.
 throwOn :: Monad m => e -> MSF (ExceptT e m) Bool ()
 throwOn e = proc b -> throwOn' -< (b, e)
 
@@ -60,6 +59,10 @@ throw = arrM_ . throwE
 -- | Do not throw an exception.
 pass :: Monad m => MSF (ExceptT e m) a a
 pass = Category.id
+
+-- | Whenever 'Nothing' is thrown, throw '()' instead.
+maybeToExceptS :: Monad m => MSF (MaybeT m) a b -> MSF (ExceptT () m) a b
+maybeToExceptS = liftMSFPurer (ExceptT . (maybe (Left ()) Right <$>) . runMaybeT)
 
 -- * Catching exceptions
 
@@ -114,16 +117,6 @@ exceptS msf = go
 inExceptT :: Monad m => MSF (ExceptT e m) (ExceptT e m a) a
 inExceptT = arrM id
 
--- | In case an exception occurs in the first argument,
---   replace the exception by the second component of the tuple.
-tagged :: Monad m => MSF (ExceptT e1 m) a b -> MSF (ExceptT e2 m) (a, e2) b
-tagged msf = MSF $ \(a, e2) -> ExceptT $ do
-  cont <- runExceptT $ unMSF msf a
-  case cont of
-    Left e1 -> return $ Left e2
-    Right (b, msf') -> return $ Right (b, tagged msf')
-
-
 -- * Monad interface for Exception MSFs
 
 newtype MSFExcept m a b e = MSFExcept { runMSFExcept :: MSF (ExceptT e m) a b }
@@ -131,6 +124,10 @@ newtype MSFExcept m a b e = MSFExcept { runMSFExcept :: MSF (ExceptT e m) a b }
 -- | The constructor. Execute an 'MSF' in 'ExceptT' until it raises an exception.
 try :: MSF (ExceptT e m) a b -> MSFExcept m a b e
 try = MSFExcept
+
+-- | Immediately throw the current input as an exception.
+currentInput :: Monad m => MSFExcept m e b e
+currentInput = try throwS
 
 instance Functor (MSFExcept m a b) where
   fmap = liftM
@@ -170,3 +167,21 @@ once f = try $ arrM (lift . f) >>> throwS
 -- | Variant of 'once' without input.
 once_ :: Monad m => m e -> MSFExcept m a b e
 once_ = once . const
+
+-- | Advances a single tick with the given Kleisli arrow,
+--   and then throws an exception.
+step :: Monad m => (a -> m (b, e)) -> MSFExcept m a b e
+step f = try $ proc a -> do
+  n      <- count           -< ()
+  (b, e) <- arrM (lift . f) -< a
+  _      <- throwOn'        -< (n > 1, e)
+  returnA                   -< b
+
+-- | In case an exception occurs in the first argument,
+--   replace the exception by the second component of the tuple.
+tagged :: Monad m => MSF (ExceptT e1 m) a b -> MSF (ExceptT e2 m) (a, e2) b
+tagged msf = MSF $ \(a, e2) -> ExceptT $ do
+  cont <- runExceptT $ unMSF msf a
+  case cont of
+    Left e1 -> return $ Left e2
+    Right (b, msf') -> return $ Right (b, tagged msf')
