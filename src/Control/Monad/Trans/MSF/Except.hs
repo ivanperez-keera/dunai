@@ -115,7 +115,7 @@ try = MSFExcept
 currentInput :: Monad m => MSFExcept m e b e
 currentInput = try throwS
 
-instance Functor (MSFExcept m a b) where
+instance Monad m => Functor (MSFExcept m a b) where
   fmap = liftM
 
 instance Monad m => Applicative (MSFExcept m a b) where
