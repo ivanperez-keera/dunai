@@ -77,7 +77,6 @@ library
                      Data.VectorSpace.Specific
 
   other-modules:     Control.Arrow.Util
-                     Data.Tuple.Util
 
   build-depends:     base >=4.6 && < 5,
                      transformers,
