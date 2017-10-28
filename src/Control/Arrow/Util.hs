@@ -26,3 +26,10 @@ infixr 4 >->
 
 -- sink :: Arrow a => a b c -> a c () -> a b c
 -- a1 `sink` a2 = a1 >>> (id &&& a2) >>> arr fst
+
+-- Apply functions at the end
+elementwise :: Arrow a => (c -> d) -> a b c -> a b d
+elementwise = (^<<)
+
+elementwise2 :: Arrow a => (c -> d -> e) -> a b c -> a b d -> a b e
+elementwise2 op a1 a2 = (a1 &&& a2) >>^ uncurry op
