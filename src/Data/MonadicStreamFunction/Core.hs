@@ -102,7 +102,7 @@ instance (Functor m, Monad m) => Applicative (MSF m a) where
 
 -- * Monadic computations and MSFs
 
--- ** Lifting
+-- ** Lifting point-wise computations
 
 -- | Apply a monadic transformation to every element of the input stream.
 --
@@ -117,7 +117,28 @@ arrM f = go
 liftS :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
 liftS = arrM . (liftBase .)
 
--- ** Purer monads
+-- ** Lifting MSFs
+
+-- *** Lifting across monad stacks
+
+-- | Lift inner monadic actions in monad stacks.
+
+-- TODO Should be able to express this in terms of MonadBase
+liftMSFTrans :: (MonadTrans t, Monad m, Monad (t m))
+             => MSF m a b
+             -> MSF (t m) a b
+liftMSFTrans sf = MSF $ \a -> do
+  (b, sf') <- lift $ unMSF sf a
+  return (b, liftMSFTrans sf')
+
+-- | Lift innermost monadic actions in a monad stacks (generalisation of
+-- 'liftIO').
+liftMSFBase :: (Monad m2, MonadBase m1 m2) => MSF m1 a b -> MSF m2 a b
+liftMSFBase sf = MSF $ \a -> do
+  (b, sf') <- liftBase $ unMSF sf a
+  b `seq` return (b, liftMSFBase sf')
+
+-- *** Generic MSF Lifting
 
 -- IPerez: There is an alternative signature for liftMStreamPurer that also
 -- works, and makes the code simpler:
@@ -141,25 +162,6 @@ liftMSFPurer :: (Monad m2, Monad m1) => (forall c . m1 c -> m2 c) -> MSF m1 a b 
 liftMSFPurer liftPurer sf = MSF $ \a -> do
   (b, sf') <- liftPurer $ unMSF sf a
   b `seq` return (b, liftMSFPurer liftPurer sf')
-
--- ** Monad stacks
-
--- | Lift inner monadic actions in monad stacks.
-
--- TODO Should be able to express this in terms of MonadBase
-liftMSFTrans :: (MonadTrans t, Monad m, Monad (t m))
-             => MSF m a b
-             -> MSF (t m) a b
-liftMSFTrans sf = MSF $ \a -> do
-  (b, sf') <- lift $ unMSF sf a
-  return (b, liftMSFTrans sf')
-
--- | Lift innermost monadic actions in a monad stacks (generalisation of
--- 'liftIO').
-liftMSFBase :: (Monad m2, MonadBase m1 m2) => MSF m1 a b -> MSF m2 a b
-liftMSFBase sf = MSF $ \a -> do
-  (b, sf') <- liftBase $ unMSF sf a
-  b `seq` return (b, liftMSFBase sf')
 
 -- ** MSFs within monadic actions
 
