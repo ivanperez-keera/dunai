@@ -56,7 +56,7 @@ reactimate $ concatS after3Empty  >>> arrM print
 concatS :: Monad m => MStream m [b] -> MStream m b
 concatS msf = MSF $ \_ -> tick msf []
   where
-    tick msf (b:bs) = return (b, MSF $ \_ -> tick msf bs)
-    tick msf []     = do
-      (bs, msf') <- unMSF msf ()
-      tick msf' bs
+    tick msf' (b:bs) = return (b, MSF $ \_ -> tick msf' bs)
+    tick msf' []     = do
+      (bs, msf'') <- unMSF msf' ()
+      tick msf'' bs
