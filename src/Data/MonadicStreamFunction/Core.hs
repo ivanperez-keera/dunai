@@ -174,7 +174,7 @@ liftMSFBase sf = MSF $ \a -> do
   (b, sf') <- liftBase $ unMSF sf a
   b `seq` return (b, liftMSFBase sf')
 
--- * Delays and signal overwriting
+-- * Delays
 
 -- | Delay a signal by one sample.
 iPre :: Monad m
