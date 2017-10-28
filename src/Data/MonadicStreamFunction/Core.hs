@@ -100,7 +100,9 @@ instance (Functor m, Monad m) => Applicative (MSF m a) where
   pure = arr . const
   fs <*> bs = (fs &&& bs) >>> arr (uncurry ($))
 
--- * Lifting
+-- * Monadic computations and MSFs
+
+-- ** Lifting
 
 -- | Apply the same monadic transformation to every element of the input stream.
 --
@@ -111,7 +113,19 @@ arrM f = go
                b <- f a
                return (b, go)
 
--- * Monadic lifting from one monad into another
+-- ** MSFs within monadic actions
+
+-- | Extract MSF from a monadic action.
+--
+-- Runs a monadic action that produces an MSF on the first iteration/step, and
+-- uses that MSF as the main signal function for all inputs (including the
+-- first one).
+performOnFirstSample :: Monad m => m (MSF m a b) -> MSF m a b
+performOnFirstSample sfaction = MSF $ \a -> do
+  sf <- sfaction
+  unMSF sf a
+
+-- ** Monadic lifting from one monad into another
 
 liftS :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
 liftS = arrM . (liftBase .)
@@ -160,19 +174,7 @@ liftMSFBase sf = MSF $ \a -> do
   (b, sf') <- liftBase $ unMSF sf a
   b `seq` return (b, liftMSFBase sf')
 
--- * MSFs within monadic actions
-
--- | Extract MSF from a monadic action.
---
--- Runs a monadic action that produces an MSF on the first iteration/step, and
--- uses that MSF as the main signal function for all inputs (including the
--- first one).
-performOnFirstSample :: Monad m => m (MSF m a b) -> MSF m a b
-performOnFirstSample sfaction = MSF $ \a -> do
-  sf <- sfaction
-  unMSF sf a
-
--- ** Delays and signal overwriting
+-- * Delays and signal overwriting
 
 -- | Delay a signal by one sample.
 iPre :: Monad m
@@ -190,7 +192,7 @@ iPre firsta = MSF $ \a -> return (firsta, delay a)
 delay :: Monad m => a -> MSF m a a
 delay = iPre
 
--- ** Switching
+-- * Switching
 
 -- | Switching applies one MSF until it produces a 'Just' output, and then
 -- "turns on" a continuation and runs it.
@@ -202,7 +204,7 @@ switch sf f = MSF $ \a -> do
   ((b, c), sf') <- unMSF sf a
   return (b, maybe (switch sf' f) f c)
 
--- ** Feedback loops
+-- * Feedback loops
 
 -- | Well-formed looped connection of an output component as a future input.
 feedback :: Monad m => c -> MSF m (a, c) (b, c) -> MSF m a b
