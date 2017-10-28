@@ -160,5 +160,5 @@ tagged :: Monad m => MSF (ExceptT e1 m) a b -> MSF (ExceptT e2 m) (a, e2) b
 tagged msf = MSF $ \(a, e2) -> ExceptT $ do
   cont <- runExceptT $ unMSF msf a
   case cont of
-    Left e1 -> return $ Left e2
+    Left  _e1       -> return $ Left e2
     Right (b, msf') -> return $ Right (b, tagged msf')
