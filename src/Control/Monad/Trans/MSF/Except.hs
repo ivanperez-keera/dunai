@@ -8,6 +8,7 @@ module Control.Monad.Trans.MSF.Except
 -- External
 import           Control.Applicative
 import qualified Control.Category           as Category
+import           Control.Monad              (liftM, ap)
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen, liftPass) -- Avoid conflicting exports
 import Control.Monad.Trans.Maybe
@@ -114,10 +115,12 @@ try = MSFExcept
 currentInput :: Monad m => MSFExcept m e b e
 currentInput = try throwS
 
-instance Functor (MSFExcept m a b) where
+instance Monad m => Functor (MSFExcept m a b) where
+  fmap = liftM
 
 instance Monad m => Applicative (MSFExcept m a b) where
   pure = MSFExcept . throw
+  (<*>) = ap
 
 instance Monad m => Monad (MSFExcept m a b) where
   MSFExcept msf >>= f = MSFExcept $ MSF $ \a -> do
