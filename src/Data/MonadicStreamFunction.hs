@@ -28,10 +28,17 @@
 --   For a very detailed introduction to MSFs, see:
 --   <http://dl.acm.org/citation.cfm?id=2976010>
 --   (mirror: <http://www.cs.nott.ac.uk/~psxip1/#FRPRefactored>).
+--
+--   Apart from the modules exported, this module exports instances from:
+--
+--   - "Data.MonadicStreamFunction.ArrowChoice"
+--   - "Data.MonadicStreamFunction.ArrowLoop"
+--   - "Data.MonadicStreamFunction.ArrowPlus"
 
 module Data.MonadicStreamFunction
   ( module Control.Arrow
-  , module X
+  , module Data.MonadicStreamFunction.Core
+  , module Data.MonadicStreamFunction.Util
   )
  where
 
@@ -41,8 +48,8 @@ import Control.Arrow
 
 -- Internal
 
-import Data.MonadicStreamFunction.Core        as X
-import Data.MonadicStreamFunction.Util        as X
+import Data.MonadicStreamFunction.Core
+import Data.MonadicStreamFunction.Util
 
 -- Internal (Instances)
 
