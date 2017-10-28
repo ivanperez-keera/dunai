@@ -104,29 +104,16 @@ instance (Functor m, Monad m) => Applicative (MSF m a) where
 
 -- ** Lifting
 
--- | Apply the same monadic transformation to every element of the input stream.
+-- | Apply a monadic transformation to every element of the input stream.
 --
--- Generalisation of arr from Arrow to stream functions with monads.
+-- Generalisation of 'arr' from 'Arrow' to monadic functions.
 arrM :: Monad m => (a -> m b) -> MSF m a b
 arrM f = go
   where go = MSF $ \a -> do
                b <- f a
                return (b, go)
 
--- ** MSFs within monadic actions
-
--- | Extract MSF from a monadic action.
---
--- Runs a monadic action that produces an MSF on the first iteration/step, and
--- uses that MSF as the main signal function for all inputs (including the
--- first one).
-performOnFirstSample :: Monad m => m (MSF m a b) -> MSF m a b
-performOnFirstSample sfaction = MSF $ \a -> do
-  sf <- sfaction
-  unMSF sf a
-
--- ** Monadic lifting from one monad into another
-
+-- | Monadic lifting from one monad into another
 liftS :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
 liftS = arrM . (liftBase .)
 
@@ -173,6 +160,18 @@ liftMSFBase :: (Monad m2, MonadBase m1 m2) => MSF m1 a b -> MSF m2 a b
 liftMSFBase sf = MSF $ \a -> do
   (b, sf') <- liftBase $ unMSF sf a
   b `seq` return (b, liftMSFBase sf')
+
+-- ** MSFs within monadic actions
+
+-- | Extract MSF from a monadic action.
+--
+-- Runs a monadic action that produces an MSF on the first iteration/step, and
+-- uses that MSF as the main signal function for all inputs (including the
+-- first one).
+performOnFirstSample :: Monad m => m (MSF m a b) -> MSF m a b
+performOnFirstSample sfaction = MSF $ \a -> do
+  sf <- sfaction
+  unMSF sf a
 
 -- * Delays
 
