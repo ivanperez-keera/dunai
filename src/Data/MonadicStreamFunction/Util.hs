@@ -112,6 +112,14 @@ insert = arrM id
 arrM_ :: Monad m => m b -> MSF m a b
 arrM_ = arrM . const
 
+
+-- Apply functions at the end
+elementwise :: Monad m => (b -> c) -> MSF m a b -> MSF m a c
+elementwise f msf = msf >>> arr f
+
+elementwise2 :: Monad m => (b -> c -> d) -> MSF m a b -> MSF m a c -> MSF m a d
+elementwise2 op msf1 msf2 = msf1 &&& msf2 >>> arr (uncurry op)
+
 -- * Lifting from one monad into another
 
 

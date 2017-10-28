@@ -64,7 +64,6 @@ library
                      Data.MonadicStreamFunction.ArrowLoop
                      Data.MonadicStreamFunction.ArrowPlus
                      Data.MonadicStreamFunction.Async
-                     Data.MonadicStreamFunction.Instances
                      Data.MonadicStreamFunction.Instances.Num
                      Data.MonadicStreamFunction.Instances.VectorSpace
                      Data.MonadicStreamFunction.Parallel

@@ -4,7 +4,7 @@ module Data.MonadicStreamFunction.Instances.Num where
 
 import Control.Arrow.Util
 import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.Instances
+import Data.MonadicStreamFunction.Util
 
 instance (Monad m, Num b) => Num (MSF m a b) where
   (+)         = elementwise2 (+)
