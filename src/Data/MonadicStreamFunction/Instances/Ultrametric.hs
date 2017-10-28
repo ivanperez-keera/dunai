@@ -1,4 +1,4 @@
-module Data.MonadicStreamFunction.Ultrametric where
+module Data.MonadicStreamFunction.Instances.Ultrametric where
 
 import Data.MonadicStreamFunction.Core
 

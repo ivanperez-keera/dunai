@@ -46,7 +46,19 @@ emosewa si lleksaH
 ^C
 ```
 
-# Structure, internals and current status.
+# Further reading
+
+The best introduction to the fundamentals of Monadic Stream Functions is:
+
+- [Functional Reactive Programming, Refactored](https://dl.acm.org/authorize?N34896) ([official ACM page](http://dl.acm.org/citation.cfm?id=2976010)) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
+
+The following papers are also related to MSFs:
+
+- [Back to the Future: time travel in FRP](http://dl.acm.org/citation.cfm?id=3122957) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
+
+- [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/citation.cfm?id=3110246)
+
+# Structure and internals.
 
 This project is split in three parts:
 
@@ -59,16 +71,7 @@ We need to add examples of apps written in classic FRP, reactive values, etc. A
 [new game](https://github.com/keera-studios/pang-a-lambda), in honor of Paul
 Hudak, has been designed to work best with this library.
 
-Dunai uses monad transformers. The syntax and behaviour are still experimental.
-If something breaks/sounds strange, please open an issue.
-
-## Futher reading
-
-The best introduction to the fundamentals of Monadic Stream Functions is:
-
-- [Functional Reactive Programming, Refactored](https://dl.acm.org/authorize?N34896) ([official ACM page](http://dl.acm.org/citation.cfm?id=2976010)) ([mirror](http://www.cs.nott.ac.uk/~psxip1/papers/2016-HaskellSymposium-Perez-Barenz-Nilsson-FRPRefactored-short.pdf))
-
-# Examples: Haskanoid
+# Performance
 
 Performance is ok, simpler games will be playable without further
 optimisations. This uses unaccelerated SDL 1.2. The speed is comparable to
@@ -111,14 +114,14 @@ dependencies.
 
 # Contributions
 
-We are following this guide:
+We follow: http://nvie.com/posts/a-successful-git-branching-model/
 
-http://nvie.com/posts/a-successful-git-branching-model/
-
-Please, feel free to open new issues. In particular, we are looking for:
+Feel free to open new issues. We are looking for:
 
 - Unexplored ways of using MSFs.
 - Other games or applications that use MSFs (including but not limited to Yampa games).
+- Fixes. The syntax and behaviour are still experimental. If something
+  breaks/sounds strange, please open an issue.
 
 # About the name
 

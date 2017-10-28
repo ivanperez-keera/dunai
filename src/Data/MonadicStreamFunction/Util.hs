@@ -56,7 +56,7 @@ repeatedly f = repeatedly'
  where repeatedly' a = MSF $ \() -> let a' = f a in a' `seq` return (a, repeatedly' a')
 -- repeatedly f x = feedback x (arr (f >>> \x -> (x,x)))
 
--- * Special cases of map
+-- * Analogues of map and fmap
 
 mapMSF :: Monad m => MSF m a b -> MSF m [a] [b]
 mapMSF = MSF . consume
