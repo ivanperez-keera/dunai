@@ -3,7 +3,7 @@
 -- | Instance of 'ArrowChoice' for Monadic Stream Functions ('MSF').
 --
 --   Import this module to include that (orphan) instance.
-module Data.MonadicStreamFunction.ArrowChoice where
+module Data.MonadicStreamFunction.Instances.ArrowChoice where
 
 import Control.Arrow
 

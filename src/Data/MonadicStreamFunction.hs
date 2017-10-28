@@ -31,9 +31,9 @@
 --
 --   Apart from the modules exported, this module exports instances from:
 --
---   - "Data.MonadicStreamFunction.ArrowChoice"
---   - "Data.MonadicStreamFunction.ArrowLoop"
---   - "Data.MonadicStreamFunction.ArrowPlus"
+--   - "Data.MonadicStreamFunction.Instances.ArrowChoice"
+--   - "Data.MonadicStreamFunction.Instances.ArrowLoop"
+--   - "Data.MonadicStreamFunction.Instances.ArrowPlus"
 
 module Data.MonadicStreamFunction
   ( module Control.Arrow
@@ -53,6 +53,6 @@ import Data.MonadicStreamFunction.Util
 
 -- Internal (Instances)
 
-import Data.MonadicStreamFunction.ArrowChoice ()
-import Data.MonadicStreamFunction.ArrowLoop   ()
-import Data.MonadicStreamFunction.ArrowPlus   ()
+import Data.MonadicStreamFunction.Instances.ArrowChoice ()
+import Data.MonadicStreamFunction.Instances.ArrowLoop   ()
+import Data.MonadicStreamFunction.Instances.ArrowPlus   ()

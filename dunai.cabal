@@ -60,10 +60,10 @@ library
                      Control.Monad.Trans.MSF.Writer
                      Data.MonadicStreamFunction
                      Data.MonadicStreamFunction.Core
-                     Data.MonadicStreamFunction.ArrowChoice
-                     Data.MonadicStreamFunction.ArrowLoop
-                     Data.MonadicStreamFunction.ArrowPlus
                      Data.MonadicStreamFunction.Async
+                     Data.MonadicStreamFunction.Instances.ArrowChoice
+                     Data.MonadicStreamFunction.Instances.ArrowLoop
+                     Data.MonadicStreamFunction.Instances.ArrowPlus
                      Data.MonadicStreamFunction.Instances.Num
                      Data.MonadicStreamFunction.Instances.VectorSpace
                      Data.MonadicStreamFunction.Parallel
