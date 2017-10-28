@@ -1,5 +1,5 @@
 name:                dunai
-version:             0.1.1.0
+version:             0.2.0.0
 synopsis:            Generalised reactive framework supporting classic, arrowized and monadic FRP.
 description:
   Dunai is DSL for strongly-typed CPS-based composable transformations.
@@ -60,10 +60,10 @@ library
                      Control.Monad.Trans.MSF.Writer
                      Data.MonadicStreamFunction
                      Data.MonadicStreamFunction.Core
-                     Data.MonadicStreamFunction.ArrowChoice
-                     Data.MonadicStreamFunction.ArrowLoop
-                     Data.MonadicStreamFunction.ArrowPlus
-                     Data.MonadicStreamFunction.Instances
+                     Data.MonadicStreamFunction.Async
+                     Data.MonadicStreamFunction.Instances.ArrowChoice
+                     Data.MonadicStreamFunction.Instances.ArrowLoop
+                     Data.MonadicStreamFunction.Instances.ArrowPlus
                      Data.MonadicStreamFunction.Instances.Num
                      Data.MonadicStreamFunction.Instances.VectorSpace
                      Data.MonadicStreamFunction.Parallel
@@ -77,7 +77,6 @@ library
                      Data.VectorSpace.Specific
 
   other-modules:     Control.Arrow.Util
-                     Data.Tuple.Util
 
   build-depends:     base >=4.6 && < 5,
                      transformers,
