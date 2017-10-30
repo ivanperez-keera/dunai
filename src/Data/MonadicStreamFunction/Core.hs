@@ -100,23 +100,45 @@ instance (Functor m, Monad m) => Applicative (MSF m a) where
   pure = arr . const
   fs <*> bs = (fs &&& bs) >>> arr (uncurry ($))
 
--- * Lifting
+-- * Monadic computations and MSFs
 
--- | Apply the same monadic transformation to every element of the input stream.
+-- ** Lifting point-wise computations
+
+-- | Apply a monadic transformation to every element of the input stream.
 --
--- Generalisation of 'arr' from 'Arrow' to stream functions with monads.
+-- Generalisation of 'arr' from 'Arrow' to monadic functions.
 arrM :: Monad m => (a -> m b) -> MSF m a b
 arrM f = go
   where go = MSF $ \a -> do
                b <- f a
                return (b, go)
 
--- * Monadic lifting from one monad into another
-
+-- | Monadic lifting from one monad into another
 liftS :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
 liftS = arrM . (liftBase .)
 
--- ** Purer monads
+-- ** Lifting MSFs
+
+-- *** Lifting across monad stacks
+
+-- | Lift inner monadic actions in monad stacks.
+
+-- TODO Should be able to express this in terms of MonadBase
+liftMSFTrans :: (MonadTrans t, Monad m, Monad (t m))
+             => MSF m a b
+             -> MSF (t m) a b
+liftMSFTrans sf = MSF $ \a -> do
+  (b, sf') <- lift $ unMSF sf a
+  return (b, liftMSFTrans sf')
+
+-- | Lift innermost monadic actions in a monad stacks (generalisation of
+-- 'liftIO').
+liftMSFBase :: (Monad m2, MonadBase m1 m2) => MSF m1 a b -> MSF m2 a b
+liftMSFBase sf = MSF $ \a -> do
+  (b, sf') <- liftBase $ unMSF sf a
+  b `seq` return (b, liftMSFBase sf')
+
+-- *** Generic MSF Lifting
 
 -- IPerez: There is an alternative signature for liftMStreamPurer that also
 -- works, and makes the code simpler:
@@ -141,26 +163,7 @@ liftMSFPurer liftPurer sf = MSF $ \a -> do
   (b, sf') <- liftPurer $ unMSF sf a
   b `seq` return (b, liftMSFPurer liftPurer sf')
 
--- ** Monad stacks
-
--- | Lift inner monadic actions in monad stacks.
-
--- TODO Should be able to express this in terms of MonadBase
-liftMSFTrans :: (MonadTrans t, Monad m, Monad (t m))
-             => MSF m a b
-             -> MSF (t m) a b
-liftMSFTrans sf = MSF $ \a -> do
-  (b, sf') <- lift $ unMSF sf a
-  return (b, liftMSFTrans sf')
-
--- | Lift innermost monadic actions in a monad stacks (generalisation of
--- 'liftIO').
-liftMSFBase :: (Monad m2, MonadBase m1 m2) => MSF m1 a b -> MSF m2 a b
-liftMSFBase sf = MSF $ \a -> do
-  (b, sf') <- liftBase $ unMSF sf a
-  b `seq` return (b, liftMSFBase sf')
-
--- * MSFs within monadic actions
+-- ** MSFs within monadic actions
 
 -- | Extract MSF from a monadic action.
 --
@@ -172,7 +175,7 @@ performOnFirstSample sfaction = MSF $ \a -> do
   sf <- sfaction
   unMSF sf a
 
--- ** Delays and signal overwriting
+-- * Delays
 
 -- | Delay a signal by one sample.
 iPre :: Monad m
@@ -190,7 +193,7 @@ iPre firsta = MSF $ \a -> return (firsta, delay a)
 delay :: Monad m => a -> MSF m a a
 delay = iPre
 
--- ** Switching
+-- * Switching
 
 -- | Switching applies one MSF until it produces a 'Just' output, and then
 -- "turns on" a continuation and runs it.
@@ -202,7 +205,7 @@ switch sf f = MSF $ \a -> do
   ((b, c), sf') <- unMSF sf a
   return (b, maybe (switch sf' f) f c)
 
--- ** Feedback loops
+-- * Feedback loops
 
 -- | Well-formed looped connection of an output component as a future input.
 feedback :: Monad m => c -> MSF m (a, c) (b, c) -> MSF m a b
@@ -241,6 +244,10 @@ reactimate sf = do
 -- | Run an 'MSF' indefinitely passing a unit-carrying input stream.
 -- A more high-level approach to this would be the use of 'MaybeT'
 -- in 'Control.Monad.Trans.MSF.Maybe'.
+-- | Run an MSF indefinitely passing a unit-carrying input stream.
+
+-- TODO: A more high-level approach to this would be the use of MaybeT in
+-- Control.Monad.Trans.MSF.Maybe
 reactimateB :: Monad m => MSF m () Bool -> m ()
 reactimateB sf = do
   (b, sf') <- unMSF sf ()

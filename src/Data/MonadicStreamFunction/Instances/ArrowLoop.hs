@@ -6,7 +6,7 @@
 --   Import this module to include that (orphan) instance.
 --
 --   This is only defined for monads that are instances of 'MonadFix'.
-module Data.MonadicStreamFunction.ArrowLoop where
+module Data.MonadicStreamFunction.Instances.ArrowLoop where
 
 import Data.MonadicStreamFunction.Core
 

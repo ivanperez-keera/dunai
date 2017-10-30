@@ -56,13 +56,7 @@ reactimate $ concatS after3Empty  >>> arrM print
 concatS :: Monad m => MStream m [b] -> MStream m b
 concatS msf = MSF $ \_ -> tick msf []
   where
-    tick msf (b:bs) = return (b, MSF $ \_ -> tick msf bs)
-    tick msf []     = do
-      (bs, msf') <- unMSF msf ()
-      tick msf' bs
-<<<<<<< HEAD
--- TODO Maybe this can be written more nicely with exceptions?
--- Similarly takeS :: Int -> MSF m a b -> MSFExcept m a b () throws an exception after n ticks
--- Or with merge?
-=======
->>>>>>> develop
+    tick msf' (b:bs) = return (b, MSF $ \_ -> tick msf' bs)
+    tick msf' []     = do
+      (bs, msf'') <- unMSF msf' ()
+      tick msf'' bs
