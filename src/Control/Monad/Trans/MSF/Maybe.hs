@@ -18,16 +18,6 @@ import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
 
-runMaybeS'' :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
-runMaybeS'' = transG transformInput transformOutput
-  where
-    transformInput       = return
-    transformOutput _ m1 = do r <- runMaybeT m1
-                              case r of
-                                Nothing     -> return (Nothing, Nothing)
-                                Just (b, c) -> return (Just b,  Just c)
-
-
 -- * Throwing 'Nothing' as an exception ("exiting")
 
 -- | Throw the exception immediately.
