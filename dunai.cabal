@@ -43,11 +43,13 @@ cabal-version:       >=1.10
 
 -- You can disable the hlint test suite with -f-test-hlint
 flag test-hlint
+  description: Enable hlint test suite
   default: False
   manual: True
 
 -- You can disable the haddock coverage test suite with -f-test-doc-coverage
 flag test-doc-coverage
+  description: Enable haddock coverage test suite
   default: False
   manual: True
 
