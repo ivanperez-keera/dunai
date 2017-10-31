@@ -4,6 +4,7 @@ module Control.Monad.Trans.MSF.List
   ) where
 
 -- External
+import Control.Applicative
 import Control.Monad.Trans.List
   hiding (liftCallCC, liftCatch) -- Avoid conflicting exports
 

@@ -20,6 +20,7 @@ module Control.Monad.Trans.MSF.Reader
   ) where
 
 -- External
+import Control.Applicative
 import Control.Monad.Trans.Reader
   hiding (liftCallCC, liftCatch) -- Avoid conflicting exports
 
