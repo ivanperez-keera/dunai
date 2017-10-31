@@ -50,7 +50,7 @@ runStateS msf = MSF $ \(s, a) -> do
 -- an MSF in the 'State' monad, and outputs the new state with every
 -- transformation step.
 --
--- This sould be always equal to:
+-- This should be always equal to:
 --
 -- @
 -- runStateS_ msf s = feedback s $ runStateS msf >>> arr (\(s,b) -> ((s,b), s))
@@ -67,7 +67,7 @@ runStateS_ msf s = MSF $ \a -> do
 -- | Build an MSF /function/ that takes a fixed state as additional
 -- input, from an MSF in the 'State' monad.
 --
--- This sould be always equal to:
+-- This should be always equal to:
 --
 -- @
 -- runStateS__ msf s = feedback s $ runStateS msf >>> arr (\(s,b) -> (b, s))
