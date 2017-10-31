@@ -209,7 +209,7 @@ iterFrom f b = MSF $ \a -> do
   let b' = f a a dt b
   return (b, iterFrom f b')
 
-reactimate :: IO a -> (Bool -> IO (DTime, Maybe a)) -> (Bool -> b -> IO Bool) -> SF Identity a b -> IO ()
+reactimate :: Monad m => m a -> (Bool -> m (DTime, Maybe a)) -> (Bool -> b -> m Bool) -> SF Identity a b -> m ()
 reactimate senseI sense actuate sf = do
   -- runMaybeT $ MSF.reactimate $ liftMSFTrans (senseSF >>> sfIO) >>> actuateSF
   MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
