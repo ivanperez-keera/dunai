@@ -29,7 +29,7 @@ import Data.MonadicStreamFunction
 
 -- * Reader MSF wrapping/unwrapping
 
--- | Build an MSF in the reader monad from one that takes the reader
+-- | Build an MSF in the 'Reader' monad from one that takes the reader
 -- environment as an extra input. This is the opposite of 'runReaderS'.
 readerS :: Monad m => MSF m (s, a) b -> MSF (ReaderT s m) a b
 readerS msf = MSF $ \a -> do
@@ -37,7 +37,7 @@ readerS msf = MSF $ \a -> do
   return (b, readerS msf')
 
 -- | Build an MSF that takes an environment as an extra input from one on the
--- reader monad. This is the opposite of 'readerS'.
+-- 'Reader' monad. This is the opposite of 'readerS'.
 runReaderS :: Monad m => MSF (ReaderT s m) a b -> MSF m (s, a) b
 runReaderS msf = MSF $ \(s,a) -> do
   (b, msf') <- runReaderT (unMSF msf a) s
@@ -45,7 +45,7 @@ runReaderS msf = MSF $ \(s,a) -> do
 
 
 -- | Build an MSF /function/ that takes a fixed environment as additional
--- input, from an MSF in the reader monad.
+-- input, from an MSF in the 'Reader' monad.
 --
 -- This sould be always equal to:
 --
