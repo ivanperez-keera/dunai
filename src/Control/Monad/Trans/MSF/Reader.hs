@@ -47,7 +47,7 @@ runReaderS msf = MSF $ \(s,a) -> do
 -- | Build an MSF /function/ that takes a fixed environment as additional
 -- input, from an MSF in the 'Reader' monad.
 --
--- This sould be always equal to:
+-- This should be always equal to:
 --
 -- @
 -- runReaderS_ msf s = arr (\a -> (s,a)) >>> runReaderS msf
