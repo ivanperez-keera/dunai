@@ -71,6 +71,7 @@ data MSF m a b = MSF { unMSF :: a -> m (b, MSF m a b) }
 
 -- Instances
 
+-- | Instance definition for 'Category'. Defines 'id' and '.'.
 instance Monad m => Category (MSF m) where
   id = go
     where go = MSF $ \a -> return (a, go)
@@ -80,6 +81,7 @@ instance Monad m => Category (MSF m) where
     let sf' = sf2' . sf1'
     c `seq` return (c, sf')
 
+-- | 'Arrow' instance for MSFs.
 instance Monad m => Arrow (MSF m) where
 
   arr f = go
@@ -89,12 +91,14 @@ instance Monad m => Arrow (MSF m) where
     (b, sf') <- unMSF sf a
     b `seq` return ((b, c), first sf')
 
+-- | Functor instance for MSFs.
 instance Functor m => Functor (MSF m a) where
   -- fmap f msf == msf >>> arr f
   fmap f msf = MSF $ fmap fS . unMSF msf
     where
       fS (b, cont) = (f b, fmap f cont)
 
+-- | Applicative instance for MSFs.
 instance (Functor m, Monad m) => Applicative (MSF m a) where
   -- It is possible to define this instance with only Applicative m
   pure = arr . const
@@ -198,8 +202,8 @@ delay = iPre
 -- | Switching applies one MSF until it produces a 'Just' output, and then
 -- "turns on" a continuation and runs it.
 --
--- A more advanced and comfortable approach to switching is givin by Exceptions
--- in "Control.Monad.Trans.MSF.Except"
+-- A more advanced and comfortable approach to switching is given by Exceptions
+-- in 'Control.Monad.Trans.MSF.Except'
 switch :: Monad m => MSF m a (b, Maybe c) -> (c -> MSF m a b) -> MSF m a b
 switch sf f = MSF $ \a -> do
   ((b, c), sf') <- unMSF sf a
@@ -223,10 +227,10 @@ feedback c sf = MSF $ \a -> do
 -- if the MSF produces Nothing at any point, so the output stream cannot
 -- consumed progressively.
 --
--- To explore the output progressively, use liftMSF and (>>>), together
+-- To explore the output progressively, use 'liftMSF' and '(>>>)'', together
 -- with some action that consumes/actuates on the output.
 --
--- This is called "runSF" in Liu, Cheng, Hudak, "Causal Commutative Arrows and
+-- This is called 'runSF' in Liu, Cheng, Hudak, "Causal Commutative Arrows and
 -- Their Optimization"
 embed :: Monad m => MSF m a b -> [a] -> m [b]
 embed _  []     = return []
@@ -235,12 +239,15 @@ embed sf (a:as) = do
   bs       <- embed sf' as
   return (b:bs)
 
--- | Run an MSF indefinitely passing a unit-carrying input stream.
+-- | Run an 'MSF' indefinitely passing a unit-carrying input stream.
 reactimate :: Monad m => MSF m () () -> m ()
 reactimate sf = do
   (_, sf') <- unMSF sf ()
   reactimate sf'
 
+-- | Run an 'MSF' indefinitely passing a unit-carrying input stream.
+-- A more high-level approach to this would be the use of 'MaybeT'
+-- in 'Control.Monad.Trans.MSF.Maybe'.
 -- | Run an MSF indefinitely passing a unit-carrying input stream.
 
 -- TODO: A more high-level approach to this would be the use of MaybeT in
