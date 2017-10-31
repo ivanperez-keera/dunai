@@ -234,6 +234,4 @@ reactimate senseI sense actuate sf = do
 -- * Auxiliary
 
 -- ** Tuples
-
 dup  x     = (x,x)
-swap (x,y) = (y,x)
