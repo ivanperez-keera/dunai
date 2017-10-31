@@ -78,6 +78,12 @@ class (Fractional (Groundring v), RModule v) => VectorSpace v where
     v ^/ a = (1/a) *^ v
 
 -- TODO Why is this not a type synonym?
+-- | The ground ring of a vector space is required to be commutative
+--   and to possess inverses.
+--   It is then called the "ground field".
+--   Commutativity amounts to the law @a * b = b * a@,
+--   and the existence of inverses is given
+--   by the requirement of the 'Fractional' type class.
 type family Groundfield v :: *
 type instance Groundfield v = Groundring v
 
