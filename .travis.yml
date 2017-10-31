@@ -24,8 +24,3 @@ script:
 
 notifications:
  email: true
-
-branches:
- only:
-  - master
-  - develop
