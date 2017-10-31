@@ -25,6 +25,7 @@ module Data.MonadicStreamFunction.Instances.Num where
 import Control.Arrow.Util
 import Data.MonadicStreamFunction.Core
 
+-- | 'Num' instance for MSFs.
 instance (Monad m, Num b) => Num (MSF m a b) where
   (+)         = elementwise2 (+)
   (-)         = elementwise2 (-)
@@ -34,11 +35,13 @@ instance (Monad m, Num b) => Num (MSF m a b) where
   negate      = elementwise negate
   fromInteger = constantly . fromInteger
 
+-- | 'Fractional' instance for MSFs.
 instance (Monad m, Fractional b) => Fractional (MSF m a b) where
   fromRational = constantly . fromRational
   (/)          = elementwise2 (/)
   recip        = elementwise recip
 
+-- | 'Floating' instance for MSFs.
 instance (Monad m, Floating b) => Floating (MSF m a b) where
   pi      = constantly   pi
   exp     = elementwise  exp
