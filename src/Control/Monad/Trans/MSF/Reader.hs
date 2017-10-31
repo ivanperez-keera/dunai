@@ -74,12 +74,6 @@ readerS' = lifterS wrapReaderT
 runReaderS' :: Monad m => MSF (ReaderT s m) a b -> MSF m (s, a) b
 runReaderS' = lifterS unwrapReaderT
 
-type ReaderWrapper   s m = Wrapper   (ReaderT s m) m ((,) s) Id
-type ReaderUnwrapper s m = Unwrapper (ReaderT s m) m ((,) s) Id
--- and use the types:
--- wrapReaderT   :: ReaderWrapper s m
--- unwrapReaderT :: ReaderUnwrapper s m
-
 wrapReaderT :: ((s, a) -> m b) -> a -> ReaderT s m b
 wrapReaderT g i = ReaderT $ g . flip (,) i
 
@@ -104,3 +98,14 @@ readerS'' = transS transformInput transformOutput
     transformInput a = (,) <$> asks <*> pure a
     transformOutput _ = lift
 -}
+
+
+-- Another alternative:
+--
+-- type ReaderWrapper   s m = Wrapper   (ReaderT s m) m ((,) s) Id
+-- type ReaderUnwrapper s m = Unwrapper (ReaderT s m) m ((,) s) Id
+--
+-- and use the types:
+--
+-- wrapReaderT   :: ReaderWrapper s m
+-- unwrapReaderT :: ReaderUnwrapper s m
