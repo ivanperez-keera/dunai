@@ -2,10 +2,16 @@
 {-# LANGUAGE TypeFamilies           #-}
 {-# LANGUAGE UndecidableInstances   #-}
 {-# OPTIONS_GHC -fno-warn-orphans   #-}
+-- | VectorSpace instances for Num/Fractional types.
+--
+-- This module includes instances for:
+--
+--    * 'InnerProductSpace' and 'RModule' for 'Num'
+--
+--    * 'VectorSpace' for 'Fractional's
 module Data.VectorSpace.Fractional where
 
--- VectorSpace instances for Num/Fractional types. These sometimes clash with
--- user-defined instances.
+-- These sometimes clash with user-defined instances.
 -- (See https://github.com/ivanperez-keera/dunai/issues/11, where this
 -- module used to be called Data.VectorSpace.Instances)
 
