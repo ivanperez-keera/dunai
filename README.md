@@ -1,6 +1,6 @@
 # Dunai
 
-[![Build Status](https://travis-ci.org/ivanperez-keera/dunai.svg?branch=master)](https://travis-ci.org/ivanperez-keera/dunai)
+[![Build Status](https://travis-ci.org/ivanperez-keera/dunai.svg?branch=develop)](https://travis-ci.org/ivanperez-keera/dunai)
 [![Version on Hackage](https://img.shields.io/hackage/v/dunai.svg)](https://hackage.haskell.org/package/dunai)
 
 This repository implements a generalized version of reactive programming, on
