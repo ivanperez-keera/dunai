@@ -24,14 +24,15 @@ infixl 6 ^/
 infix 6 `dot`
 infixl 5 ^+^, ^-^
 
--- TODO Add laws this should satisfy
-
-
--- | A module @v@ over a ring @Groundring v@
+-- | R-modules.
+--   A module @v@ over a ring @Groundring v@
 --   is an abelian group with a linear multiplication.
 --   The hat @^@ denotes the side of an operation
 --   on which the vector stands,
 --   i.e. @a *^ v@ for @v@ a vector.
+--
+-- A minimal definition should include the type 'Groundring' and the
+-- implementations of 'zeroVector', '^+^', and one of '*^' or '^*'.
 --
 --   The following laws must be satisfied:
 --
@@ -46,10 +47,10 @@ class Num (Groundring v) => RModule v where
     zeroVector   :: v
 
     (*^)         :: Groundring v -> v -> v
-    (*^) = flip (^*)
+    (*^)         = flip (^*)
 
     (^*)         :: v -> Groundring v -> v
-    (^*) = flip (*^)
+    (^*)         = flip (*^)
 
     negateVector :: v -> v
     negateVector v = (-1) *^ v
@@ -58,7 +59,6 @@ class Num (Groundring v) => RModule v where
 
     (^-^)        :: v -> v -> v
     v1 ^-^ v2     = v1 ^+^ negateVector v2
-
 
 -- Maybe norm and normalize should not be class methods, in which case
 -- the constraint on the coefficient space (a) should (or, at least, could)
