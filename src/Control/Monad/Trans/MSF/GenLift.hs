@@ -1,10 +1,21 @@
 {-# LANGUAGE Rank2Types          #-}
+
+-- | More generic lifting combinators.
+--
+-- This module contains more generic lifting combinators. It includes several
+-- implementations, and obviously should be considered work in progress.  The
+-- goal is to make this both simple and conceptually understandable.
 module Control.Monad.Trans.MSF.GenLift where
 
 import Control.Applicative
 import Data.MonadicStreamFunction
 
--- * Attempt at writing a more generic MSF lifting combinator.  This is
+-- | Lifting combinator to move from one monad to another, if one has a
+-- function to run computations in one monad into another. Note that, unlike a
+-- polymorphic lifting function @forall a . m a -> m1 a@, this auxiliary
+-- function needs to be a bit more structured.
+
+-- Attempt at writing a more generic MSF lifting combinator.  This is
 -- here only to make it easier to find, in a perfect world we'd move
 -- this to a different module/branch, or at least to the bottom of the
 -- file.
@@ -57,7 +68,12 @@ lifterS f msf = MSF $ \a -> do
   (b, msf') <- f (unMSF msf) a
   return (b, lifterS f msf')
 
--- ** Another wrapper idea
+-- | Lifting combinator to move from one monad to another, if one has a
+-- function to run computations in one monad into another. Note that, unlike a
+-- polymorphic lifting function @forall a . m a -> m1 a@, this auxiliary
+-- function needs to be a bit more structured, although less structured than
+-- 'lifterS'.
+
 transS :: (Monad m1, Monad m2)
        => (a2 -> m1 a1)
        -> (forall c. a2 -> m1 (b1, c) -> m2 (b2, c))
@@ -66,7 +82,11 @@ transS transformInput transformOutput msf = MSF $ \a2 -> do
     (b2, msf') <- transformOutput a2 $ unMSF msf =<< transformInput a2
     return (b2, transS transformInput transformOutput msf')
 
--- ** A more general lifting mechanism that enables recovery.
+-- | Lifting combinator to move from one monad to another, if one has a
+-- function to run computations in one monad into another. Note that, unlike a
+-- polymorphic lifting function @forall a . m a -> m1 a@, this auxiliary
+-- function needs to be a bit more structured, although less structured than
+-- 'lifterS'.
 transG1 :: (Monad m1, Functor m2, Monad m2)
         => (a2 -> m1 a1)
         -> (forall c. a2 -> m1 (b1, c) -> m2 (b2, c))
@@ -77,6 +97,10 @@ transG1 transformInput transformOutput msf =
       -- transformOutput' :: forall c. a2 -> m1 (b1, c) -> m2 (b2, Maybe c)
       transformOutput' a b = second Just <$> transformOutput a b
 
+-- | More general lifting combinator that enables recovery. Note that, unlike a
+-- polymorphic lifting function @forall a . m a -> m1 a@, this auxiliary
+-- function needs to be a bit more structured, and produces a Maybe value. The
+-- previous MSF is used if a new one is not produced.
 transG :: (Monad m1, Monad m2)
        => (a2 -> m1 a1)
        -> (forall c. a2 -> m1 (b1, c) -> m2 (b2, Maybe c))
@@ -100,17 +124,15 @@ transG transformInput transformOutput msf = go
 --                  [msf''] -> return (b2, transGN transformInput transformOutput msf'')
 --                  ms      ->
 
--- ** Wrapping/unwrapping
---
 -- IP: Alternative formulation (typechecks just fine):
 --
 -- FIXME: The foralls may get in the way. They may not be necessary.  MB
 -- raised the issue already for similar code in Core.
 --
-type Wrapper   m1 m2 t1 t2 = forall a b . (t1 a -> m2 b     ) -> (a    -> m1 (t2 b))
-type Unwrapper m1 m2 t1 t2 = forall a b . (a    -> m1 (t2 b)) -> (t1 a -> m2 b     )
+-- type Wrapper   m1 m2 t1 t2 = forall a b . (t1 a -> m2 b     ) -> (a    -> m1 (t2 b))
+-- type Unwrapper m1 m2 t1 t2 = forall a b . (a    -> m1 (t2 b)) -> (t1 a -> m2 b     )
 --
 -- Helper type, for when we need some identity * -> * type constructor that
 -- does not get in the way.
 --
-type Id a = a
+-- type Id a = a
