@@ -6,12 +6,13 @@ module Control.Monad.Trans.MSF.Except
   ) where
 
 -- External
+
 import           Control.Applicative
 import qualified Control.Category           as Category
 import           Control.Monad              (liftM, ap)
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen, liftPass) -- Avoid conflicting exports
-import Control.Monad.Trans.Maybe
+import           Control.Monad.Trans.Maybe
 
 -- Internal
 -- import Control.Monad.Trans.MSF.GenLift
@@ -19,35 +20,45 @@ import Data.MonadicStreamFunction
 
 -- * Throwing exceptions
 
+-- | Throw the exception 'e' whenever the function evaluates to 'True'.
 throwOnCond :: Monad m => (a -> Bool) -> e -> MSF (ExceptT e m) a a
 throwOnCond cond e = proc a -> if cond a
-    then arrM throwE -< e
-    else returnA -< a
+  then throwS  -< e
+  else returnA -< a
 
+-- | Variant of 'throwOnCond' for Kleisli arrows.
+-- | Throws the exception when the input is 'True'.
 throwOnCondM :: Monad m => (a -> m Bool) -> e -> MSF (ExceptT e m) a a
 throwOnCondM cond e = proc a -> do
-    b <- arrM (lift . cond) -< a
-    if b
-      then arrM throwE -< e
-      else returnA -< a
+  b <- arrM (lift . cond) -< a
+  if b
+    then throwS  -< e
+    else returnA -< a
 
+-- | Throw the exception when the input is 'True'.
 throwOn :: Monad m => e -> MSF (ExceptT e m) Bool ()
 throwOn e = proc b -> throwOn' -< (b, e)
 
+-- | Variant of 'throwOn', where the exception may change every tick.
 throwOn' :: Monad m => MSF (ExceptT e m) (Bool, e) ()
 throwOn' = proc (b, e) -> if b
-    then arrM throwE -< e
-    else returnA -< ()
+  then throwS  -< e
+  else returnA -< ()
 
+-- | When the input is 'Just e', throw the exception 'e'.
+--   (Does not output any actual data.)
 throwMaybe :: Monad m => MSF (ExceptT e m) (Maybe e) (Maybe a)
-throwMaybe = mapMaybeS $ arrM throwE
+throwMaybe = mapMaybeS throwS
 
+-- | Immediately throw the incoming exception.
 throwS :: Monad m => MSF (ExceptT e m) e a
 throwS = arrM throwE
 
+-- | Immediately throw the given exception.
 throw :: Monad m => e -> MSF (ExceptT e m) a b
 throw = arrM_ . throwE
 
+-- | Do not throw an exception.
 pass :: Monad m => MSF (ExceptT e m) a a
 pass = Category.id
 
@@ -57,32 +68,29 @@ maybeToExceptS = liftMSFPurer (ExceptT . (maybe (Left ()) Right <$>) . runMaybeT
 
 -- * Catching exceptions
 
-{-
-catchS' :: Monad m => MSF (ExceptT e m) a b -> (e -> m (b, MSF m a b)) -> MSF m a b
-catchS' msf f = MSF $ \a -> (unMSF msf a) f `catchFinal` f
--}
+-- | Catch an exception in an 'MSF'. As soon as an exception occurs,
+--   the current continuation is replaced by a new 'MSF', the exception handler,
+--   based on the exception value.
+--   For exception catching where the handler can throw further exceptions,
+--   see 'MSFExcept' further below.
 catchS :: Monad m => MSF (ExceptT e m) a b -> (e -> MSF m a b) -> MSF m a b
 catchS msf f = MSF $ \a -> do
-    cont <- runExceptT $ unMSF msf a
-    case cont of
-        Left e          -> unMSF (f e) a
-        Right (b, msf') -> return (b, msf' `catchS` f)
+  cont <- runExceptT $ unMSF msf a
+  case cont of
+    Left e          -> unMSF (f e) a
+    Right (b, msf') -> return (b, msf' `catchS` f)
 
--- catchFinal :: Monad m => ExceptT e m a -> (e -> m a) -> m a
--- catchFinal action f = do
---     ea <- runExceptT action
---     case ea of
---         Left  e -> f e
---         Right a -> return a
-
--- Similar to delayed switching. Looses a b in case of exception
+-- | Similar to Yampa's delayed switching. Looses a 'b' in case of an exception.
 untilE :: Monad m => MSF m a b -> MSF m b (Maybe e)
        -> MSF (ExceptT e m) a b
 untilE msf msfe = proc a -> do
-    b <- liftMSFTrans msf -< a
-    me <- liftMSFTrans msfe -< b
-    inExceptT -< (ExceptT . return) (maybe (Right b) Left me)
+  b  <- liftMSFTrans msf  -< a
+  me <- liftMSFTrans msfe -< b
+  inExceptT -< ExceptT $ return $ maybe (Right b) Left me
 
+-- | Escape an 'ExceptT' layer by outputting the exception whenever it occurs.
+--   If an exception occurs, the current 'MSF' continuation is tested again
+--   on the next input.
 exceptS :: Monad m => MSF (ExceptT e m) a b -> MSF m a (Either e b)
 exceptS msf = go
  where
@@ -92,22 +100,38 @@ exceptS msf = go
             Left e          -> return (Left e,  go)
             Right (b, msf') -> return (Right b, exceptS msf')
 
+-- | Embed an 'ExceptT' value inside the 'MSF'.
+--   Whenever the input value is an ordinary value,
+--   it is passed on. If it is an exception, it is raised.
 inExceptT :: Monad m => MSF (ExceptT e m) (ExceptT e m a) a
-inExceptT = arrM id -- extracts value from monadic action
+inExceptT = arrM id
 
-{-
-tagged :: MSF (ExceptT e m) a b -> MSF (ExceptT t m) (a, t) b
-tagged msf = MSF $ \(a, t) -> ExceptT $ do
+-- | In case an exception occurs in the first argument,
+--   replace the exception by the second component of the tuple.
+tagged :: Monad m => MSF (ExceptT e1 m) a b -> MSF (ExceptT e2 m) (a, e2) b
+tagged msf = MSF $ \(a, e2) -> ExceptT $ do
   cont <- runExceptT $ unMSF msf a
   case cont of
-    Left  e     -> _ return t
-    Right bmsf' -> _ return bmsf'
-    -}
+    Left e1 -> return $ Left e2
+    Right (b, msf') -> return $ Right (b, tagged msf')
+
 
 -- * Monad interface for Exception MSFs
 
+-- | 'MSF's with an 'ExceptT' transformer layer
+--   are in fact monads /in the exception type/.
+--
+--   * 'return' corresponds to throwing an exception immediately.
+--   * '(>>=)' is exception handling:
+--     The first value throws an exception,
+--     while the Kleisli arrow handles the exception
+--     and produces a new signal function,
+--     which can throw exceptions in a different type.
 newtype MSFExcept m a b e = MSFExcept { runMSFExcept :: MSF (ExceptT e m) a b }
 
+-- | An alias for the |MSFExcept| constructor,
+-- used to enter the |MSFExcept| monad context.
+-- Execute an 'MSF' in 'ExceptT' until it raises an exception.
 try :: MSF (ExceptT e m) a b -> MSFExcept m a b e
 try = MSFExcept
 
@@ -129,8 +153,10 @@ instance Monad m => Monad (MSFExcept m a b) where
       Left e          -> unMSF (runMSFExcept $ f e) a
       Right (b, msf') -> return (b, runMSFExcept $ try msf' >>= f)
 
+-- | The empty type. As an exception type, it encodes "no exception possible".
 data Empty
 
+-- | If no exception can occur, the 'MSF' can be executed without the 'ExceptT' layer.
 safely :: Monad m => MSFExcept m a b Empty -> MSF m a b
 safely (MSFExcept msf) = safely' msf
   where
@@ -138,12 +164,18 @@ safely (MSFExcept msf) = safely' msf
       Right (b, msf') <- runExceptT $ unMSF msf a
       return (b, safely' msf')
 
+-- | An 'MSF' without an 'ExceptT' layer never throws an exception,
+--   and can thus have an arbitrary exception type.
 safe :: Monad m => MSF m a b -> MSFExcept m a b e
 safe = try . liftMSFTrans
 
+-- | Inside the 'MSFExcept' monad, execute an action of the wrapped monad.
+--   This passes the last input value to the action,
+--   but doesn't advance a tick.
 once :: Monad m => (a -> m e) -> MSFExcept m a b e
 once f = try $ arrM (lift . f) >>> throwS
 
+-- | Variant of 'once' without input.
 once_ :: Monad m => m e -> MSFExcept m a b e
 once_ = once . const
 
@@ -155,10 +187,3 @@ step f = try $ proc a -> do
   (b, e) <- arrM (lift . f) -< a
   _      <- throwOn'        -< (n > (1 :: Int), e)
   returnA                   -< b
-
-tagged :: Monad m => MSF (ExceptT e1 m) a b -> MSF (ExceptT e2 m) (a, e2) b
-tagged msf = MSF $ \(a, e2) -> ExceptT $ do
-  cont <- runExceptT $ unMSF msf a
-  case cont of
-    Left  _e1       -> return $ Left e2
-    Right (b, msf') -> return $ Right (b, tagged msf')

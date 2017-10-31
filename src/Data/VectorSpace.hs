@@ -52,6 +52,7 @@ class (Fractional (Groundring v), RModule v) => VectorSpace v where
     (^/)         :: v -> Groundfield v -> v
     v ^/ a = (1/a) *^ v
 
+-- TODO Why is this not a type synonym?
 type family Groundfield v :: *
 type instance Groundfield v = Groundring v
 
