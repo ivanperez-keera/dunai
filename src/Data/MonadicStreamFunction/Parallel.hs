@@ -10,13 +10,6 @@ import Data.MonadicStreamFunction
 -- | Run two MSFs in parallel, taking advantage of parallelism if
 --   possible. This is the parallel version of '(***)'.
 
--- IPerez: This should be similar to the following:
--- (msf1 *** msf2) >>> parS
--- where parS             = arr parTuple
---       parTuple p@(a,b) = (a `par` b `pseq` p)
--- Manuel: but we added strictness annotations to first
--- and so (***) might be strict in both arguments and not take
--- full advantage of parallelism.
 
 (*|*) :: Monad m => MSF m a b -> MSF m c d -> MSF m (a, c) (b, d)
 msf1 *|* msf2 = MSF $ \(a, c) -> do

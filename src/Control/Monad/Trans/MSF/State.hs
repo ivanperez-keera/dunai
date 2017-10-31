@@ -58,7 +58,7 @@ runStateS msf = MSF $ \(s, a) -> do
 --
 -- although possibly more efficient.
 
--- IP: Is runStateS_ msf s = feedback s $ runStateS msf >>> arr (\(s,b) -> ((s,b), s)) ?
+
 runStateS_ :: Monad m => MSF (StateT s m) a b -> s -> MSF m a (s, b)
 runStateS_ msf s = MSF $ \a -> do
     ((b, msf'), s') <- runStateT (unMSF msf a) s
@@ -75,7 +75,7 @@ runStateS_ msf s = MSF $ \a -> do
 --
 -- although possibly more efficient.
 
--- IP: Is runStateS__ msf s = feedback s $ runStateS msf >>> arr (\(s,b) -> (b, s)) ?
+
 runStateS__ :: Monad m => MSF (StateT s m) a b -> s -> MSF m a b
 runStateS__ msf s = MSF $ \a -> do
     ((b, msf'), s') <- runStateT (unMSF msf a) s

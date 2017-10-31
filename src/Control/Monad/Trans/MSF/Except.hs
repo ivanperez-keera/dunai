@@ -68,18 +68,6 @@ maybeToExceptS = liftMSFPurer (ExceptT . (maybe (Left ()) Right <$>) . runMaybeT
 
 -- * Catching exceptions
 
-{-
-catchS' :: Monad m => MSF (ExceptT e m) a b -> (e -> m (b, MSF m a b)) -> MSF m a b
-catchS' msf f = MSF $ \a -> (unMSF msf a) f `catchFinal` f
--}
-
--- catchFinal :: Monad m => ExceptT e m a -> (e -> m a) -> m a
--- catchFinal action f = do
---     ea <- runExceptT action
---     case ea of
---         Left  e -> f e
---         Right a -> return a
-
 -- | Catch an exception in an 'MSF'. As soon as an exception occurs,
 --   the current continuation is replaced by a new 'MSF', the exception handler,
 --   based on the exception value.

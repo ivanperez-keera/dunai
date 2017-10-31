@@ -94,33 +94,6 @@ runMaybeS'' = transG transformInput transformOutput
 -- mapMaybeS msf == runMaybeS (inMaybeT >>> lift mapMaybeS)
 
 {-
-maybeS :: Monad m => MSF m a (Maybe b) -> MSF (MaybeT m) a b
-maybeS msf = MSF $ \a -> MaybeT $ return $ unMSF msf a
--- maybeS msf == lift msf >>> inMaybeT
--}
-
-{-
--- MB: Doesn't typecheck, I don't know why
---
--- IP: Because of the forall in runTS.
---
--- From the action runMaybeT msfaction it does not know that
--- the second element of the pair in 'thing' will be a continuation.
---
--- The first branch of the case works because you are passing the
--- msf' as is.
---
--- In the second one, you are passing msf, which has the specific type
--- MSF (MaybeT m) a b.
---
--- Two things you can try (to help you see that this is indeed why GHC is
--- complaining):
---   - Make the second continuation undefined. Then it typechecks.
---   - Use ScopedTypeVariables and a let binding to type msf' in the
---   first branch of the case selector. It'll complain about the type
---   of msf' if you say it's forcibly a MSF (MaybeT m) a b.
---
-
 runMaybeS'' :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
 runMaybeS'' msf = transS transformInput transformOutput msf
   where

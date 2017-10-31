@@ -55,8 +55,6 @@ runReaderS msf = MSF $ \(s,a) -> do
 --
 -- although possibly more efficient.
 
--- IP: Is runReaderS_ msf s = arr (\a -> (s,a)) >>> runReaderS msf ?
--- MB: Yes, but possibly more efficient.
 runReaderS_ :: Monad m => MSF (ReaderT s m) a b -> s -> MSF m a b
 runReaderS_ msf s = MSF $ \a -> do
   (b, msf') <- runReaderT (unMSF msf a) s
