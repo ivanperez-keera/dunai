@@ -130,9 +130,20 @@ tagged msf = MSF $ \(a, e2) -> ExceptT $ do
 
 -- * Monad interface for Exception MSFs
 
+-- | 'MSF's with an 'ExceptT' transformer layer
+--   are in fact monads /in the exception type/.
+--
+--   * 'return' corresponds to throwing an exception immediately.
+--   * '(>>=)' is exception handling:
+--     The first value throws an exception,
+--     while the Kleisli arrow handles the exception
+--     and produces a new signal function,
+--     which can throw exceptions in a different type.
 newtype MSFExcept m a b e = MSFExcept { runMSFExcept :: MSF (ExceptT e m) a b }
 
--- | The constructor. Execute an 'MSF' in 'ExceptT' until it raises an exception.
+-- | An alias for the |MSFExcept| constructor,
+-- used to enter the |MSFExcept| monad context.
+-- Execute an 'MSF' in 'ExceptT' until it raises an exception.
 try :: MSF (ExceptT e m) a b -> MSFExcept m a b e
 try = MSFExcept
 
@@ -165,7 +176,8 @@ safely (MSFExcept msf) = safely' msf
       Right (b, msf') <- runExceptT $ unMSF msf a
       return (b, safely' msf')
 
--- | An 'MSF' without an 'ExceptT' layer never throws an exception.
+-- | An 'MSF' without an 'ExceptT' layer never throws an exception,
+--   and can thus have an arbitrary exception type.
 safe :: Monad m => MSF m a b -> MSFExcept m a b e
 safe = try . liftMSFTrans
 
