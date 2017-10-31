@@ -4,7 +4,6 @@ module Control.Monad.Trans.MSF.RWS
   ) where
 
 -- External
-import Control.Applicative
 import Control.Monad.Trans.RWS.Strict
   hiding (liftCallCC, liftCatch) -- Avoid conflicting exports
 
