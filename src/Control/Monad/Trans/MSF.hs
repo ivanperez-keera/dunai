@@ -10,8 +10,8 @@ module Control.Monad.Trans.MSF
     )
   where
 
--- Caution: RWS is not exported since names collide with Reader, State and
--- Writer
+-- | This module reexports nearly all submodules.
+--   RWS is not exported since names collide with Reader, State and Writer.
 
 import Control.Monad.Trans.MSF.GenLift
 import Control.Monad.Trans.MSF.Except
