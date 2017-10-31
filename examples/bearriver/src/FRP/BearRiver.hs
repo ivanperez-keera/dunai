@@ -23,7 +23,7 @@ import           Data.Functor.Identity
 import           Data.Maybe
 import           Data.MonadicStreamFunction   as X hiding (reactimate, switch, sum, trace)
 import qualified Data.MonadicStreamFunction   as MSF
-import           Data.MonadicStreamFunction.ArrowLoop
+import           Data.MonadicStreamFunction.Instances.ArrowLoop
 import           FRP.Yampa.VectorSpace        as X
 
 type Time  = Double
