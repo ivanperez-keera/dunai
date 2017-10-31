@@ -23,15 +23,21 @@ infixl 6 ^/
 infix 6 `dot`
 infixl 5 ^+^, ^-^
 
--- TODO Add laws this should satisfy
+-- | R-modules.
+--
+-- A minimal definition should include the type 'Groundring' and the
+-- implementations of 'zeroVector', '^+^', and one of '*^' or '^*'.
 
+-- TODO Add laws this should satisfy
 class Num (Groundring v) => RModule v where
     type Groundring v
     zeroVector   :: v
+
     (*^)         :: Groundring v -> v -> v
+    (*^)         = flip (^*)
+
     (^*)         :: v -> Groundring v -> v
-    (^*) = flip (*^)
-    (*^) = flip (^*)
+    (^*)         = flip (*^)
 
     negateVector :: v -> v
     negateVector v = (-1) *^ v
@@ -40,7 +46,6 @@ class Num (Groundring v) => RModule v where
 
     (^-^)        :: v -> v -> v
     v1 ^-^ v2     = v1 ^+^ negateVector v2
-
 
 -- Maybe norm and normalize should not be class methods, in which case
 -- the constraint on the coefficient space (a) should (or, at least, could)
