@@ -8,6 +8,7 @@ The latter viewpoint is most natural in the context of 'MSF's.
 module Control.Monad.Trans.MSF.Maybe
   ( module Control.Monad.Trans.MSF.Maybe
   , module Control.Monad.Trans.Maybe
+  , maybeToExceptS
   ) where
 
 -- External
@@ -15,6 +16,7 @@ import Control.Monad.Trans.Maybe
   hiding (liftCallCC, liftCatch, liftListen, liftPass) -- Avoid conflicting exports
 
 -- Internal
+import Control.Monad.Trans.MSF.Except
 import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
 
@@ -56,11 +58,9 @@ untilMaybe msf cond = proc a -> do
 
 -- | When an exception occurs in the first 'msf', the second 'msf' is executed from there.
 catchMaybe :: Monad m => MSF (MaybeT m) a b -> MSF m a b -> MSF m a b
-catchMaybe msf1 msf2 = MSF $ \a -> do
-  cont <- runMaybeT $ unMSF msf1 a
-  case cont of
-    Just (b, msf1') -> return (b, msf1' `catchMaybe` msf2)
-    Nothing         -> unMSF msf2 a
+catchMaybe msf1 msf2 = safely $ do
+  _ <- try $ maybeToExceptS msf1
+  safe msf2
 
 -- * Converting to and from 'MaybeT'
 
