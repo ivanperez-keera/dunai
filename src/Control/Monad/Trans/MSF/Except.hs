@@ -187,8 +187,8 @@ step f = try $ proc a -> do
 
 -- * Utilities definable in terms of 'MSFExcept'
 
--- TODO This is possibly not the best location for this function,
--- but moving it back to Data.MonadicStreamFunction.Util would form an import cycle
+-- TODO This is possibly not the best location for these functions,
+-- but moving them to Data.MonadicStreamFunction.Util would form an import cycle
 -- that could only be broken by moving a few things to Data.MonadicStreamFunction.Core
 -- (that probably belong there anyways).
 
@@ -201,3 +201,13 @@ performOnFirstSample :: Monad m => m (MSF m a b) -> MSF m a b
 performOnFirstSample sfaction = safely $ do
   msf <- once_ sfaction
   safe msf
+
+-- | Reactimates an 'MSFExcept' until it throws an exception.
+reactimateExcept :: Monad m => MSFExcept m () () e -> m e
+reactimateExcept msfe = do
+  Left e <- runExceptT $ reactimate $ runMSFExcept msfe
+  return e
+
+-- | Reactimates an 'MSF' until it returns 'True'.
+reactimateB :: Monad m => MSF m () Bool -> m ()
+reactimateB sf = reactimateExcept $ try $ liftMSFTrans sf >>> throwOn ()

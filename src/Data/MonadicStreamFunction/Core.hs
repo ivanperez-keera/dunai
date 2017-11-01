@@ -223,15 +223,3 @@ reactimate :: Monad m => MSF m () () -> m ()
 reactimate sf = do
   (_, sf') <- unMSF sf ()
   reactimate sf'
-
--- | Run an 'MSF' indefinitely passing a unit-carrying input stream.
--- A more high-level approach to this would be the use of 'MaybeT'
--- in 'Control.Monad.Trans.MSF.Maybe'.
--- | Run an MSF indefinitely passing a unit-carrying input stream.
-
--- TODO: A more high-level approach to this would be the use of MaybeT in
--- Control.Monad.Trans.MSF.Maybe
-reactimateB :: Monad m => MSF m () Bool -> m ()
-reactimateB sf = do
-  (b, sf') <- unMSF sf ()
-  unless b $ reactimateB sf'
