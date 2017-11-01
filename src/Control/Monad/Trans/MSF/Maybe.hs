@@ -22,18 +22,19 @@ import Data.MonadicStreamFunction
 
 -- | Throw the exception immediately.
 exit :: Monad m => MSF (MaybeT m) a b
-exit = MSF $ const $ MaybeT $ return Nothing
+exit = arrM_ $ MaybeT $ return Nothing
 
 -- | Throw the exception when the condition becomes true on the input.
 exitWhen :: Monad m => (a -> Bool) -> MSF (MaybeT m) a a
-exitWhen condition = go
-  where
-    go = MSF $ \a -> MaybeT $ return $
-                       if condition a then Nothing else Just (a, go)
+exitWhen condition = proc a -> do
+  _ <- exitIf -< condition a
+  returnA     -< a
 
 -- | Exit when the incoming value is 'True'.
 exitIf :: Monad m => MSF (MaybeT m) Bool ()
-exitIf = MSF $ \b -> MaybeT $ return $ if b then Nothing else Just ((), exitIf)
+exitIf = proc condition -> if condition
+  then exit    -< ()
+  else returnA -< ()
 
 -- | @Just a@ is passed along, 'Nothing' causes the whole 'MSF' to exit.
 maybeExit :: Monad m => MSF (MaybeT m) (Maybe a) a
