@@ -1,3 +1,4 @@
+{-# LANGUAGE Arrows #-}
 -- | Useful auxiliary functions and definitions.
 module Data.MonadicStreamFunction.Util where
 
@@ -97,6 +98,14 @@ next b sf = MSF $ \a -> do
 -- rather, once delay is tested:
 -- next b sf = sf >>> delay b
 
+-- | Buffers and returns the elements in FIFO order,
+--   returning 'Nothing' whenever the buffer is empty.
+fifo :: Monad m => MSF m [a] (Maybe a)
+fifo = feedback [] $ proc (as, accum) -> do
+  let accum' = accum ++ as
+  returnA -< case accum' of
+    []       -> (Nothing, [])
+    (a : as) -> (Just a , as)
 
 -- * Folding
 
