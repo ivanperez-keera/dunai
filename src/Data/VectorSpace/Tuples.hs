@@ -1,15 +1,14 @@
 {-# LANGUAGE FlexibleInstances      #-}
 {-# LANGUAGE TypeFamilies           #-}
 {-# OPTIONS_GHC -fno-warn-orphans   #-}
+-- | Vector space instances for small tuples of 'Fractional'.
+--
+-- This module contains 'RModule', 'VectorSpace' and 'InnerProductSpace' for
+-- tuples of up to five elements.
+
 module Data.VectorSpace.Tuples where
 
 import Data.VectorSpace
-
-------------------------------------------------------------------------------
--- Vector space instances for small tuples of Fractional
-------------------------------------------------------------------------------
-
-
 
 instance (Groundring a ~ Groundring b, RModule a, RModule b) => RModule (a, b) where
     type Groundring (a, b) = Groundring a
