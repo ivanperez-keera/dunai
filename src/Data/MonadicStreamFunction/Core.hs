@@ -123,20 +123,15 @@ liftS = arrM . (liftBase .)
 
 -- | Lift inner monadic actions in monad stacks.
 
--- TODO Should be able to express this in terms of MonadBase
 liftMSFTrans :: (MonadTrans t, Monad m, Monad (t m))
              => MSF m a b
              -> MSF (t m) a b
-liftMSFTrans sf = MSF $ \a -> do
-  (b, sf') <- lift $ unMSF sf a
-  return (b, liftMSFTrans sf')
+liftMSFTrans = liftMSFPurer lift
 
 -- | Lift innermost monadic actions in a monad stacks (generalisation of
 -- 'liftIO').
 liftMSFBase :: (Monad m2, MonadBase m1 m2) => MSF m1 a b -> MSF m2 a b
-liftMSFBase sf = MSF $ \a -> do
-  (b, sf') <- liftBase $ unMSF sf a
-  b `seq` return (b, liftMSFBase sf')
+liftMSFBase = liftMSFPurer liftBase
 
 -- *** Generic MSF Lifting
 
