@@ -1,5 +1,10 @@
 {-# LANGUAGE Arrows              #-}
 {-# LANGUAGE Rank2Types          #-}
+-- | 'MSF's in the 'ExceptT' monad are monadic stream functions
+--   that can throw exceptions,
+--   i.e. return an exception value instead of a continuation.
+--   This module gives ways to throw exceptions in various ways,
+--   and to handle them through a monadic interface.
 module Control.Monad.Trans.MSF.Except
   ( module Control.Monad.Trans.MSF.Except
   , module Control.Monad.Trans.Except
@@ -139,13 +144,19 @@ try = MSFExcept
 currentInput :: Monad m => MSFExcept m e b e
 currentInput = try throwS
 
+-- | Functor instance for MSFs on the 'Either' monad. Fmapping is the same as
+-- applying a transformation to the 'Left' values.
 instance Monad m => Functor (MSFExcept m a b) where
   fmap = liftM
 
+-- | Applicative instance for MSFs on the 'Either' monad. The function 'pure'
+-- throws an exception.
 instance Monad m => Applicative (MSFExcept m a b) where
   pure = MSFExcept . throw
   (<*>) = ap
 
+-- | Monad instance for 'MSFExcept'. Bind uses the exception as the "return"
+-- value in the monad.
 instance Monad m => Monad (MSFExcept m a b) where
   MSFExcept msf >>= f = MSFExcept $ MSF $ \a -> do
     cont <- lift $ runExceptT $ unMSF msf a

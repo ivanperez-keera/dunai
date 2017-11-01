@@ -9,6 +9,7 @@ import Control.Arrow
 
 import Data.MonadicStreamFunction.Core
 
+-- | 'ArrowChoice' instance for MSFs.
 instance Monad m => ArrowChoice (MSF m) where
   left :: MSF m a b -> MSF m (Either a c) (Either b c)
   left sf = MSF f

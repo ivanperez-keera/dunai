@@ -14,6 +14,8 @@ import Data.MonadicStreamFunction.Core
 import Control.Arrow
 import Control.Monad.Fix
 
+-- | 'ArrowLoop' instance for MSFs. The monad must be an instance of
+-- 'MonadFix'.
 instance (Monad m, MonadFix m) => ArrowLoop (MSF m) where
   loop :: MSF m (b, d) (c, d) -> MSF m b c
   loop sf = MSF $ \a -> do

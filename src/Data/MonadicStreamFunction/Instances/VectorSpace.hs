@@ -27,6 +27,8 @@ import Data.MonadicStreamFunction.Core
 import Data.VectorSpace
 
 -- These conflict with Data.VectorSpace.Instances
+
+-- | R-module instance for MSFs.
 instance (Monad m, RModule v) => RModule (MSF m a v) where
   type Groundring (MSF m a v) = Groundring v
   zeroVector   = constantly zeroVector
@@ -35,5 +37,6 @@ instance (Monad m, RModule v) => RModule (MSF m a v) where
   (^+^)        = elementwise2 (^+^)
   (^-^)        = elementwise2 (^-^)
 
+-- | Vector-space instance for MSFs.
 instance (Monad m, VectorSpace v) => VectorSpace (MSF m a v) where
   msf ^/ r = msf >>^ (^/ r)

@@ -17,6 +17,8 @@ module Data.VectorSpace.Fractional where
 
 import Data.VectorSpace
 
+-- | R-module instance for any number, where '^+^ is '+' and multiplication is
+-- normal multiplication.
 instance Num a => RModule a where
     type Groundring a = a
     zeroVector     = 0
@@ -25,8 +27,11 @@ instance Num a => RModule a where
     x1 ^+^ x2      = x1 + x2
     x1 ^-^ x2      = x1 - x2
 
+-- | Vector-space instance for any fractional, where vectorial division is
+-- normal number division.
 instance Fractional a => VectorSpace a where
     a ^/ x = a / x
 
+-- | Inner-product instance for any number.
 instance Num a => InnerProductSpace a where
     x1 `dot` x2 = x1 * x2
