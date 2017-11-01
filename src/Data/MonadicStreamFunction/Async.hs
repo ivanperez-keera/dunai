@@ -13,7 +13,7 @@ The stream of lists will be called exactly when new data is needed.
 
 Example:
 
->>> let intstream = concatS $ arrM_ $ putStrLn "Enter a list of Ints:" >> readLn :: MStream IO Int
+>>> let intstream = arrM_ $ putStrLn "Enter a list of Ints:" >> readLn :: MStream IO [Int]
 >>> reactimate $ concatS intstream >>> arrM print
 Enter a list of Ints:
 [1,2,33]
@@ -47,7 +47,7 @@ This is ok:
 But this will be caught in a loop:
 
 >>> let after3Empty = count >>> arr ((<= 3) >>> boolToList)
-reactimate $ concatS after3Empty  >>> arrM print
+>>> reactimate $ concatS after3Empty  >>> arrM print
 "Yes"
 "Yes"
 "Yes"
