@@ -158,18 +158,6 @@ liftMSFPurer liftPurer sf = MSF $ \a -> do
   (b, sf') <- liftPurer $ unMSF sf a
   b `seq` return (b, liftMSFPurer liftPurer sf')
 
--- ** MSFs within monadic actions
-
--- | Extract MSF from a monadic action.
---
--- Runs a monadic action that produces an MSF on the first iteration/step, and
--- uses that MSF as the main signal function for all inputs (including the
--- first one).
-performOnFirstSample :: Monad m => m (MSF m a b) -> MSF m a b
-performOnFirstSample sfaction = MSF $ \a -> do
-  sf <- sfaction
-  unMSF sf a
-
 -- * Delays
 
 -- | Delay a signal by one sample.

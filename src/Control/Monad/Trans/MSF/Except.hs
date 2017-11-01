@@ -184,3 +184,20 @@ step f = try $ proc a -> do
   (b, e) <- arrM (lift . f) -< a
   _      <- throwOn'        -< (n > (1 :: Int), e)
   returnA                   -< b
+
+-- * Utilities definable in terms of 'MSFExcept'
+
+-- TODO This is possibly not the best location for this function,
+-- but moving it back to Data.MonadicStreamFunction.Util would form an import cycle
+-- that could only be broken by moving a few things to Data.MonadicStreamFunction.Core
+-- (that probably belong there anyways).
+
+-- | Extract MSF from a monadic action.
+--
+-- Runs a monadic action that produces an MSF on the first iteration/step, and
+-- uses that MSF as the main signal function for all inputs (including the
+-- first one).
+performOnFirstSample :: Monad m => m (MSF m a b) -> MSF m a b
+performOnFirstSample sfaction = safely $ do
+  msf <- once_ sfaction
+  safe msf
