@@ -74,11 +74,9 @@ maybeToExceptS = liftMSFPurer (ExceptT . (maybe (Left ()) Right <$>) . runMaybeT
 --   For exception catching where the handler can throw further exceptions,
 --   see 'MSFExcept' further below.
 catchS :: Monad m => MSF (ExceptT e m) a b -> (e -> MSF m a b) -> MSF m a b
-catchS msf f = MSF $ \a -> do
-  cont <- runExceptT $ unMSF msf a
-  case cont of
-    Left e          -> unMSF (f e) a
-    Right (b, msf') -> return (b, msf' `catchS` f)
+catchS msf f = safely $ do
+  e <- try msf
+  safe $ f e
 
 -- | Similar to Yampa's delayed switching. Looses a 'b' in case of an exception.
 untilE :: Monad m => MSF m a b -> MSF m b (Maybe e)
@@ -109,11 +107,10 @@ inExceptT = arrM id
 -- | In case an exception occurs in the first argument,
 --   replace the exception by the second component of the tuple.
 tagged :: Monad m => MSF (ExceptT e1 m) a b -> MSF (ExceptT e2 m) (a, e2) b
-tagged msf = MSF $ \(a, e2) -> ExceptT $ do
-  cont <- runExceptT $ unMSF msf a
-  case cont of
-    Left e1 -> return $ Left e2
-    Right (b, msf') -> return $ Right (b, tagged msf')
+tagged msf = runMSFExcept $ do
+  e1      <- try $ msf <<< arr fst
+  (_, e2) <- currentInput
+  return e2
 
 
 -- * Monad interface for Exception MSFs
