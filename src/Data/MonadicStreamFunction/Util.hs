@@ -1,3 +1,4 @@
+{-# LANGUAGE Arrows #-}
 -- | Useful auxiliary functions and definitions.
 module Data.MonadicStreamFunction.Util where
 
@@ -104,7 +105,7 @@ fifo = feedback [] $ proc (as, accum) -> do
   let accum' = accum ++ as
   returnA -< case accum' of
     []       -> (Nothing, [])
-    (a : as) -> (a      , as)
+    (a : as) -> (Just a , as)
 
 -- * Folding
 
