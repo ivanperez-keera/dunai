@@ -105,3 +105,13 @@ runMaybeS'' msf = transS transformInput transformOutput msf
         Just (b, msf') -> return (Just b, msf')
         Nothing        -> return (Nothing, msf)
 -}
+
+-- | Reactimates an 'MSF' in the 'MaybeT' monad until it throws 'Nothing'.
+reactimateMaybe :: Monad m => MSF (MaybeT m) () () -> m ()
+reactimateMaybe msf = reactimateExcept $ try $ maybeToExceptS msf
+
+-- | Run an MSF fed from a list, discarding results. Useful when one needs to
+-- combine effects and streams (i.e., for testing purposes).
+embed_ :: (Functor m, Monad m) => MSF m a () -> [a] -> m ()
+
+embed_ msf as = reactimateMaybe $ listToMaybeS as >>> liftMSFTrans msf

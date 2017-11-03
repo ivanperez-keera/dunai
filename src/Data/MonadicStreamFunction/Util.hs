@@ -92,11 +92,7 @@ iPost b sf = MSF $ \_ -> return (b, sf)
 
 -- | Preprends a fixed output to an MSF, shifting the output.
 next :: Monad m => b -> MSF m a b -> MSF m a b
-next b sf = MSF $ \a -> do
-  (b', sf') <- unMSF sf a
-  return (b, next b' sf')
--- rather, once delay is tested:
--- next b sf = sf >>> delay b
+next b sf = sf >>> delay b
 
 -- | Buffers and returns the elements in FIFO order,
 --   returning 'Nothing' whenever the buffer is empty.
@@ -147,27 +143,17 @@ accumulateWith f s0 = feedback s0 $ arr g
 
 -- | Generate outputs using a step-wise generation function and an initial
 -- value.
-unfold :: Monad m => (a -> (b,a)) -> a -> MSF m () b
-unfold f a = MSF $ \_ -> let (b,a') = f a in b `seq` return (b, unfold f a')
--- unfold f x = feedback x (arr (snd >>> f))
+unfold :: Monad m => (a -> (b, a)) -> a -> MSF m () b
+unfold f a = feedback a (arr (snd >>> f))
 
 -- | Generate outputs using a step-wise generation function and an initial
 -- value. Version of 'unfold' in which the output and the new accumulator
 -- are the same. Should be equal to @\f a -> unfold (f >>> dup) a@.
 repeatedly :: Monad m => (a -> a) -> a -> MSF m () a
-repeatedly f = repeatedly'
- where repeatedly' a = MSF $ \() -> let a' = f a in a' `seq` return (a, repeatedly' a')
--- repeatedly f x = feedback x (arr (f >>> \x -> (x,x)))
+repeatedly f = unfold $ f >>> dup
+  where
+    dup a = (a, a)
 
--- * Running functions
-
--- | Run an MSF fed from a list, discarding results. Useful when one needs to
--- combine effects and streams (i.e., for testing purposes).
-
--- TODO: This is not elementary, it can probably be built using other
--- construts. Move to a non-core module?
-embed_ :: (Functor m, Monad m) => MSF m a () -> [a] -> m ()
-embed_ msf as = void $ foldM (\sf a -> snd <$> unMSF sf a) msf as
 
 -- * Debugging
 
