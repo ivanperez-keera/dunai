@@ -13,6 +13,7 @@ import Prelude hiding (id, (.))
 
 -- Internal
 import Data.MonadicStreamFunction.Core
+import Data.MonadicStreamFunction.Instances.ArrowChoice
 import Data.VectorSpace
 
 -- * Streams and sinks
@@ -62,13 +63,9 @@ mapMSF = MSF . consume
 -- | Apply an MSF to every input. Freezes temporarily if the input is
 -- 'Nothing', and continues as soon as a 'Just' is received.
 mapMaybeS :: Monad m => MSF m a b -> MSF m (Maybe a) (Maybe b)
-mapMaybeS msf = go
-  where
-    go = MSF $ \maybeA -> case maybeA of
-      Just a -> do
-        (b, msf') <- unMSF msf a
-        return (Just b, mapMaybeS msf')
-      Nothing -> return (Nothing, go)
+mapMaybeS msf = proc maybeA -> case maybeA of
+  Just a  -> arr Just <<< msf -< a
+  Nothing -> returnA          -< Nothing
 
 -- * Adding side effects
 
