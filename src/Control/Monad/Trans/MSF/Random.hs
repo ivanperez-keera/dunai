@@ -7,7 +7,9 @@ module Control.Monad.Trans.MSF.Random
   , getRandomS
   , getRandomsS
   , getRandomRS
+  , getRandomRS_
   , getRandomsRS
+  , getRandomsRS_
   ) where
 
 -- External
@@ -44,7 +46,17 @@ getRandomRS range = proc _ -> do
   r <- arrM_ $ getRandomR range -< ()
   returnA -< r 
 
+getRandomRS_ :: (MonadRandom m, Random b) => MSF m (b, b) b
+getRandomRS_  = proc range -> do
+  r <- arrM (\range -> getRandomR range) -< range
+  returnA -< r 
+    
 getRandomsRS :: (MonadRandom m, Random b) => (b, b) -> MSF m a [b]
 getRandomsRS range = proc _ -> do
   r <- arrM_ $ getRandomRs range -< ()
+  returnA -< r 
+
+getRandomsRS_ :: (MonadRandom m, Random b) => MSF m (b, b) [b]
+getRandomsRS_ = proc range -> do
+  r <- arrM (\range -> getRandomRs range) -< range
   returnA -< r 
