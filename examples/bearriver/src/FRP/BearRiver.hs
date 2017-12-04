@@ -143,6 +143,24 @@ hold a = feedback a $ arr $ \(e,a') ->
 loopPre :: Monad m => c -> SF m (a, c) (b, c) -> SF m a b
 loopPre = feedback
 
+-- | Event source that never occurs.
+never :: Monad m => SF m a (Event b)
+never = MSF $ \_ -> return (NoEvent, never)
+
+-- | Event source with a single occurrence at time 0. The value of the event
+-- is given by the function argument.
+now :: Monad m => b -> SF m a (Event b)
+now b0 = Event b0 --> never
+
+-- | Suppress all but the first event.
+once :: Monad m => SF m (Event a) (Event a)
+once = takeEvents 1
+
+-- | Suppress all but the first n events.
+takeEvents :: Monad m => Int -> SF m (Event a) (Event a)
+takeEvents n | n <= 0 = never
+takeEvents n = dSwitch (arr dup) (const (NoEvent >-- takeEvents (n - 1)))
+
 after :: Monad m
       => Time -- ^ The time /q/ after which the event should be produced
       -> b    -- ^ Value to produce at that time
@@ -170,11 +188,26 @@ occasionally tAvg b
   timeDelta :: Monad m => SF m a DTime
   timeDelta = arrM_ ask
 
+-- | Initialization operator (cf. Lustre/Lucid Synchrone).
+--
+-- The output at time zero is the first argument, and from
+-- that point on it behaves like the signal function passed as
+-- second argument.
 (-->) :: Monad m => b -> SF m a b -> SF m a b
 b0 --> sf = MSF $ \a -> do
   (_, ct) <- unMSF sf a
   return (b0, ct)
 
+-- | Input initialization operator.
+--
+-- The input at time zero is the first argument, and from
+-- that point on it behaves like the signal function passed as
+-- second argument.
+(>--) :: Monad m => a -> SF m a b -> SF m a b
+a0 >-- sf = MSF $ \_ -> do
+  (b, ct) <- unMSF sf a0
+  return (b, ct)
+  
 accumHoldBy :: Monad m => (b -> a -> b) -> b -> SF m (Event a) b
 accumHoldBy f b = feedback b $ arr $ \(a, b') ->
   let b'' = event b' (f b') a
