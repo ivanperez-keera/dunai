@@ -127,20 +127,15 @@ liftS = arrM . (liftBase .)
 
 -- | Lift inner monadic actions in monad stacks.
 
--- TODO Should be able to express this in terms of MonadBase
 liftMSFTrans :: (MonadTrans t, Monad m, Monad (t m))
              => MSF m a b
              -> MSF (t m) a b
-liftMSFTrans sf = MSF $ \a -> do
-  (b, sf') <- lift $ unMSF sf a
-  return (b, liftMSFTrans sf')
+liftMSFTrans = liftMSFPurer lift
 
 -- | Lift innermost monadic actions in a monad stacks (generalisation of
 -- 'liftIO').
 liftMSFBase :: (Monad m2, MonadBase m1 m2) => MSF m1 a b -> MSF m2 a b
-liftMSFBase sf = MSF $ \a -> do
-  (b, sf') <- liftBase $ unMSF sf a
-  b `seq` return (b, liftMSFBase sf')
+liftMSFBase = liftMSFPurer liftBase
 
 -- *** Generic MSF Lifting
 
@@ -166,18 +161,6 @@ liftMSFPurer :: (Monad m2, Monad m1) => (forall c . m1 c -> m2 c) -> MSF m1 a b 
 liftMSFPurer liftPurer sf = MSF $ \a -> do
   (b, sf') <- liftPurer $ unMSF sf a
   b `seq` return (b, liftMSFPurer liftPurer sf')
-
--- ** MSFs within monadic actions
-
--- | Extract MSF from a monadic action.
---
--- Runs a monadic action that produces an MSF on the first iteration/step, and
--- uses that MSF as the main signal function for all inputs (including the
--- first one).
-performOnFirstSample :: Monad m => m (MSF m a b) -> MSF m a b
-performOnFirstSample sfaction = MSF $ \a -> do
-  sf <- sfaction
-  unMSF sf a
 
 -- * Delays
 
@@ -244,15 +227,3 @@ reactimate :: Monad m => MSF m () () -> m ()
 reactimate sf = do
   (_, sf') <- unMSF sf ()
   reactimate sf'
-
--- | Run an 'MSF' indefinitely passing a unit-carrying input stream.
--- A more high-level approach to this would be the use of 'MaybeT'
--- in 'Control.Monad.Trans.MSF.Maybe'.
--- | Run an MSF indefinitely passing a unit-carrying input stream.
-
--- TODO: A more high-level approach to this would be the use of MaybeT in
--- Control.Monad.Trans.MSF.Maybe
-reactimateB :: Monad m => MSF m () Bool -> m ()
-reactimateB sf = do
-  (b, sf') <- unMSF sf ()
-  unless b $ reactimateB sf'

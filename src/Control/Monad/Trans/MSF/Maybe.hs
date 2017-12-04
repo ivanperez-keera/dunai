@@ -8,6 +8,7 @@ The latter viewpoint is most natural in the context of 'MSF's.
 module Control.Monad.Trans.MSF.Maybe
   ( module Control.Monad.Trans.MSF.Maybe
   , module Control.Monad.Trans.Maybe
+  , maybeToExceptS
   ) where
 
 -- External
@@ -15,6 +16,7 @@ import Control.Monad.Trans.Maybe
   hiding (liftCallCC, liftCatch, liftListen, liftPass) -- Avoid conflicting exports
 
 -- Internal
+import Control.Monad.Trans.MSF.Except
 import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
 
@@ -22,18 +24,19 @@ import Data.MonadicStreamFunction
 
 -- | Throw the exception immediately.
 exit :: Monad m => MSF (MaybeT m) a b
-exit = MSF $ const $ MaybeT $ return Nothing
+exit = arrM_ $ MaybeT $ return Nothing
 
 -- | Throw the exception when the condition becomes true on the input.
 exitWhen :: Monad m => (a -> Bool) -> MSF (MaybeT m) a a
-exitWhen condition = go
-  where
-    go = MSF $ \a -> MaybeT $ return $
-                       if condition a then Nothing else Just (a, go)
+exitWhen condition = proc a -> do
+  _ <- exitIf -< condition a
+  returnA     -< a
 
 -- | Exit when the incoming value is 'True'.
 exitIf :: Monad m => MSF (MaybeT m) Bool ()
-exitIf = MSF $ \b -> MaybeT $ return $ if b then Nothing else Just ((), exitIf)
+exitIf = proc condition -> if condition
+  then exit    -< ()
+  else returnA -< ()
 
 -- | @Just a@ is passed along, 'Nothing' causes the whole 'MSF' to exit.
 maybeExit :: Monad m => MSF (MaybeT m) (Maybe a) a
@@ -54,12 +57,12 @@ untilMaybe msf cond = proc a -> do
   inMaybeT -< if c then Nothing else Just b
 
 -- | When an exception occurs in the first 'msf', the second 'msf' is executed from there.
-catchMaybe :: Monad m => MSF (MaybeT m) a b -> MSF m a b -> MSF m a b
-catchMaybe msf1 msf2 = MSF $ \a -> do
-  cont <- runMaybeT $ unMSF msf1 a
-  case cont of
-    Just (b, msf1') -> return (b, msf1' `catchMaybe` msf2)
-    Nothing         -> unMSF msf2 a
+catchMaybe
+  :: (Functor m, Monad m)
+  => MSF (MaybeT m) a b -> MSF m a b -> MSF m a b
+catchMaybe msf1 msf2 = safely $ do
+  _ <- try $ maybeToExceptS msf1
+  safe msf2
 
 -- * Converting to and from 'MaybeT'
 
@@ -104,3 +107,15 @@ runMaybeS'' msf = transS transformInput transformOutput msf
         Just (b, msf') -> return (Just b, msf')
         Nothing        -> return (Nothing, msf)
 -}
+
+-- | Reactimates an 'MSF' in the 'MaybeT' monad until it throws 'Nothing'.
+reactimateMaybe
+  :: (Functor m, Monad m)
+  => MSF (MaybeT m) () () -> m ()
+reactimateMaybe msf = reactimateExcept $ try $ maybeToExceptS msf
+
+-- | Run an MSF fed from a list, discarding results. Useful when one needs to
+-- combine effects and streams (i.e., for testing purposes).
+embed_ :: (Functor m, Monad m) => MSF m a () -> [a] -> m ()
+
+embed_ msf as = reactimateMaybe $ listToMaybeS as >>> liftMSFTrans msf

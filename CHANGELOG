@@ -1,3 +1,13 @@
+2017-12-05 Ivan Perez <ivan.perez@keera.co.uk>
+        * Adds support for random numbers using MonadRandom
+          (thanks Jonathan Thaler -- @thalerjonathan).
+        * Removes MSF constructor from many definitions
+          (by Manuel Bärenz -- @turion).
+        * Adds support for older GHC versions.
+        * Moves some definitions/modules around.
+        * dunai.cabal: Version bump (0.4).
+        * examples/: Changes licenses, updates examples to use new API.
+
 2017-10-31 Ivan Perez <ivan.perez@keera.co.uk>
         * src/: Re-structure modules, completes documentation.
         * stack.yaml: New stack configuration.

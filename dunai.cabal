@@ -1,5 +1,5 @@
 name:                dunai
-version:             0.3.0.0
+version:             0.4.0.0
 synopsis:            Generalised reactive framework supporting classic, arrowized and monadic FRP.
 homepage:            https://github.com/ivanperez-keera/dunai
 description:
@@ -58,6 +58,7 @@ library
                      Control.Monad.Trans.MSF.Except
                      Control.Monad.Trans.MSF.GenLift
                      Control.Monad.Trans.MSF.Maybe
+                     Control.Monad.Trans.MSF.Random
                      Control.Monad.Trans.MSF.Reader
                      Control.Monad.Trans.MSF.State
                      Control.Monad.Trans.MSF.Writer
@@ -83,7 +84,8 @@ library
 
   build-depends:     base >=4.6 && < 5,
                      transformers,
-                     transformers-base
+                     transformers-base,
+                     MonadRandom
   hs-source-dirs:    src
   default-language:  Haskell2010
   ghc-options:       -Wall -fno-warn-unused-do-bind
