@@ -79,11 +79,9 @@ maybeToExceptS = liftMSFPurer (ExceptT . (maybe (Left ()) Right <$>) . runMaybeT
 --   For exception catching where the handler can throw further exceptions,
 --   see 'MSFExcept' further below.
 catchS :: Monad m => MSF (ExceptT e m) a b -> (e -> MSF m a b) -> MSF m a b
-catchS msf f = MSF $ \a -> do
-  cont <- runExceptT $ unMSF msf a
-  case cont of
-    Left e          -> unMSF (f e) a
-    Right (b, msf') -> return (b, msf' `catchS` f)
+catchS msf f = safely $ do
+  e <- try msf
+  safe $ f e
 
 -- | Similar to Yampa's delayed switching. Looses a 'b' in case of an exception.
 untilE :: Monad m => MSF m a b -> MSF m b (Maybe e)
@@ -114,11 +112,10 @@ inExceptT = arrM id
 -- | In case an exception occurs in the first argument,
 --   replace the exception by the second component of the tuple.
 tagged :: Monad m => MSF (ExceptT e1 m) a b -> MSF (ExceptT e2 m) (a, e2) b
-tagged msf = MSF $ \(a, e2) -> ExceptT $ do
-  cont <- runExceptT $ unMSF msf a
-  case cont of
-    Left e1 -> return $ Left e2
-    Right (b, msf') -> return $ Right (b, tagged msf')
+tagged msf = runMSFExcept $ do
+  e1      <- try $ msf <<< arr fst
+  (_, e2) <- currentInput
+  return e2
 
 
 -- * Monad interface for Exception MSFs
@@ -198,3 +195,30 @@ step f = try $ proc a -> do
   (b, e) <- arrM (lift . f) -< a
   _      <- throwOn'        -< (n > (1 :: Int), e)
   returnA                   -< b
+
+-- * Utilities definable in terms of 'MSFExcept'
+
+-- TODO This is possibly not the best location for these functions,
+-- but moving them to Data.MonadicStreamFunction.Util would form an import cycle
+-- that could only be broken by moving a few things to Data.MonadicStreamFunction.Core
+-- (that probably belong there anyways).
+
+-- | Extract MSF from a monadic action.
+--
+-- Runs a monadic action that produces an MSF on the first iteration/step, and
+-- uses that MSF as the main signal function for all inputs (including the
+-- first one).
+performOnFirstSample :: Monad m => m (MSF m a b) -> MSF m a b
+performOnFirstSample sfaction = safely $ do
+  msf <- once_ sfaction
+  safe msf
+
+-- | Reactimates an 'MSFExcept' until it throws an exception.
+reactimateExcept :: Monad m => MSFExcept m () () e -> m e
+reactimateExcept msfe = do
+  Left e <- runExceptT $ reactimate $ runMSFExcept msfe
+  return e
+
+-- | Reactimates an 'MSF' until it returns 'True'.
+reactimateB :: Monad m => MSF m () Bool -> m ()
+reactimateB sf = reactimateExcept $ try $ liftMSFTrans sf >>> throwOn ()

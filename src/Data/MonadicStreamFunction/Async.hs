@@ -60,3 +60,6 @@ concatS msf = MSF $ \_ -> tick msf []
     tick msf' []     = do
       (bs, msf'') <- unMSF msf' ()
       tick msf'' bs
+-- TODO Maybe this can be written more nicely with exceptions?
+-- Similarly takeS :: Int -> MSF m a b -> MSFExcept m a b () throws an exception after n ticks
+-- Or with merge?
