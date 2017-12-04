@@ -12,21 +12,24 @@ module FRP.BearRiver
 -- there do not seem to exist any obvious limitations.
 
 import           Control.Applicative
-import           Control.Arrow                as X
-import qualified Control.Category             as Category
-import           Control.Monad                (mapM)
---import           Control.Monad.Reader
+import           Control.Arrow                                  as X
+import qualified Control.Category                               as Category
+import           Control.Monad                                  (mapM)
 import           Control.Monad.Random
 import           Control.Monad.Trans.Maybe
 import           Control.Monad.Trans.MSF
+import           Control.Monad.Trans.MSF.Except                 as MSF
 import           Control.Monad.Trans.MSF.Random
-import           Data.Traversable             as T
 import           Data.Functor.Identity
 import           Data.Maybe
-import           Data.MonadicStreamFunction   as X hiding (reactimate, switch, sum, trace)
-import qualified Data.MonadicStreamFunction   as MSF
+import           Data.MonadicStreamFunction                     as X hiding (reactimate,
+                                                                      sum,
+                                                                      switch,
+                                                                      trace)
+import qualified Data.MonadicStreamFunction                     as MSF
 import           Data.MonadicStreamFunction.Instances.ArrowLoop
-import           FRP.Yampa.VectorSpace        as X
+import           Data.Traversable                               as T
+import           FRP.Yampa.VectorSpace                          as X
 
 type Time  = Double
 type DTime = Double
