@@ -191,11 +191,19 @@ occasionally tAvg b
 -- | Performs uniform super sampling on the provided signal-function with n samples
 -- 
 -- This is done by dividing the current time-delta into N equally spaced samples 
+<<<<<<< HEAD
 -- and evalutating the signal function with these subsamples and always the same input. 
 superSamplingUniform :: Monad m 
                      => Int          -- ^ Number of samples into which the current time-delta is being uniformly subdivided. If LT 0, exactly 1 sample will be generated
                      -> SF m a b     -- ^ The signal-function to sample
                      -> SF m a [b]   -- ^ The new signal-function which performs the super sampling, length of [b] is number of samples (except in case of LT 0, then its 1).
+=======
+-- and evaluating the signal function with these subsamples and always the same input. 
+-- The first argument is the number of samples - if LT 0 exactly 1 sample is calculated
+-- The second argument is the signal-function to sample
+-- Returns a new signal-function which returns a list of the super-samples
+superSamplingUniform :: Monad m => Int -> SF m a b -> SF m a [b]
+>>>>>>> eeab6df8f1883f45dcb3d6be46cb5c1554ff8e2d
 superSamplingUniform n sf = MSF $ \a -> do
   dt        <- ask
   (sf', bs) <- superSampleRun n dt sf a
