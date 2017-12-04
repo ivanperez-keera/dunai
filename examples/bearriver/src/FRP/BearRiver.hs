@@ -191,47 +191,19 @@ occasionally tAvg b
 -- | Performs uniform super sampling on the provided signal-function with n samples
 -- 
 -- This is done by dividing the current time-delta into N equally spaced samples 
-<<<<<<< HEAD
 -- and evalutating the signal function with these subsamples and always the same input. 
 superSamplingUniform :: Monad m 
                      => Int          -- ^ Number of samples into which the current time-delta is being uniformly subdivided. If LT 0, exactly 1 sample will be generated
                      -> SF m a b     -- ^ The signal-function to sample
                      -> SF m a [b]   -- ^ The new signal-function which performs the super sampling, length of [b] is number of samples (except in case of LT 0, then its 1).
-=======
--- and evaluating the signal function with these subsamples and always the same input. 
--- The first argument is the number of samples - if LT 0 exactly 1 sample is calculated
--- The second argument is the signal-function to sample
--- Returns a new signal-function which returns a list of the super-samples
-superSamplingUniform :: Monad m => Int -> SF m a b -> SF m a [b]
->>>>>>> eeab6df8f1883f45dcb3d6be46cb5c1554ff8e2d
-superSamplingUniform n sf = MSF $ \a -> do
-  dt        <- ask
-  (sf', bs) <- superSampleRun n dt sf a
-  return (reverse bs, superSamplingUniform n sf') -- reverse because of accumulator
- where
-  superSampleRun :: Monad m 
-                 => Int 
-                 -> DTime 
-                 -> SF m a b 
-                 -> a 
-                 -> ReaderT DTime m (SF m a b, [b])
-  superSampleRun n dt sf a 
-      | n <= 1 = superSampleMulti 1 dt sf a []
-      | otherwise = superSampleMulti n superDt sf a []  
-    where
-      superDt = dt / fromIntegral n
-
-  superSampleMulti :: Monad m 
-                   => Int 
-                   -> DTime 
-                   -> SF m a b 
-                   -> a 
-                   -> [b]
-                   -> ReaderT DTime m (SF m a b, [b])
-  superSampleMulti 0 _ sf _ acc = return (sf, acc)
-  superSampleMulti n superDt sf a acc = do
-    (b, sf') <- unMSF sf a
-    superSampleMulti (n-1) superDt sf' a (b:acc) 
+superSamplingUniform n sf 
+  | n <= 1    = proc a -> do
+    b <- sf -< a
+    returnA -< [b]
+  | otherwise = readerS (proc (dt, a) -> do
+    let superDt = dt / fromIntegral n
+        dtas    = replicate n (superDt, a)
+    mapMSF (runReaderS sf) -< dtas)
 
 -- | Initialization operator (cf. Lustre/Lucid Synchrone).
 --
@@ -250,7 +222,7 @@ b0 --> sf = sf >>> replaceOnce b0
 a0 >-- sf = replaceOnce a0 >>> sf
 
 replaceOnce :: Monad m => a -> SF m a a
-replaceOnce a = dSwitch (arr $ const (a, Event ())) (const $ arr id)
+replaceOnce a = dSwitch (constant (a, Event ())) (const $ arr id)
 
 accumHoldBy :: Monad m => (b -> a -> b) -> b -> SF m (Event a) b
 accumHoldBy f b = feedback b $ arr $ \(a, b') ->
