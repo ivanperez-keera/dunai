@@ -145,7 +145,7 @@ loopPre = feedback
 
 -- | Event source that never occurs.
 never :: Monad m => SF m a (Event b)
-never = MSF $ \_ -> return (NoEvent, never)
+never = constant NoEvent
 
 -- | Event source with a single occurrence at time 0. The value of the event
 -- is given by the function argument.
@@ -194,9 +194,7 @@ occasionally tAvg b
 -- that point on it behaves like the signal function passed as
 -- second argument.
 (-->) :: Monad m => b -> SF m a b -> SF m a b
-b0 --> sf = MSF $ \a -> do
-  (_, ct) <- unMSF sf a
-  return (b0, ct)
+b0 --> sf = sf >>> replaceOnce b0
 
 -- | Input initialization operator.
 --
@@ -204,10 +202,11 @@ b0 --> sf = MSF $ \a -> do
 -- that point on it behaves like the signal function passed as
 -- second argument.
 (>--) :: Monad m => a -> SF m a b -> SF m a b
-a0 >-- sf = MSF $ \_ -> do
-  (b, ct) <- unMSF sf a0
-  return (b, ct)
-  
+a0 >-- sf = replaceOnce a0 >>> sf
+
+replaceOnce :: Monad m => a -> SF m a a
+replaceOnce a = dSwitch (arr $ const (a, Event ())) (const $ arr id)
+
 accumHoldBy :: Monad m => (b -> a -> b) -> b -> SF m (Event a) b
 accumHoldBy f b = feedback b $ arr $ \(a, b') ->
   let b'' = event b' (f b') a
