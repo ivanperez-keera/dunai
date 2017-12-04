@@ -1,5 +1,5 @@
 name:                bearriver
-version:             0.10.4
+version:             0.10.4.1
 synopsis:            A replacement of Yampa based on Monadic Stream Functions.
 description:         A Yampa replacement built using Dunai.
 homepage:            keera.co.uk
