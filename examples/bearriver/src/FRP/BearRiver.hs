@@ -156,16 +156,16 @@ after q x = feedback q go
               return ((e, t'), ct)
 
 occasionally :: MonadRandom m 
-            => Time -- ^ The time /q/ after which the event should be produced on average
-            -> b    -- ^ Value to produce at time of event
-            -> SF m a (Event b)
+             => Time -- ^ The time /q/ after which the event should be produced on average
+             -> b    -- ^ Value to produce at time of event
+             -> SF m a (Event b)
 occasionally tAvg b
   | tAvg <= 0 = error "dunai: Non-positive average interval in occasionally."
   | otherwise = proc _ -> do
-    r <- getRandomRS (0, 1) -< ()
-    dt <- timeDelta         -< ()
-    let p = 1 - exp (-(dt / tAvg))
-    returnA -< if r < p then Event b else NoEvent
+      r   <- getRandomRS (0, 1) -< ()
+      dt  <- timeDelta          -< ()
+      let p = 1 - exp (-(dt / tAvg))
+      returnA -< if r < p then Event b else NoEvent
  where
   timeDelta :: Monad m => SF m a DTime
   timeDelta = arrM_ ask

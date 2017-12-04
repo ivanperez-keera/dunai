@@ -20,9 +20,9 @@ import Data.MonadicStreamFunction
 
 -- | Updates the generator every step
 runRandS :: (RandomGen g, Monad m) 
-        => MSF (RandT g m) a b 
-        -> g 
-        -> MSF m a (g, b)
+         => MSF (RandT g m) a b 
+         -> g 
+         -> MSF m a (g, b)
 runRandS msf g = MSF $ \a -> do
   ((b, msf'), g') <- runRandT (unMSF msf a) g
   return ((g', b), runRandS msf' g')
@@ -32,31 +32,19 @@ evalRandS  :: (RandomGen g, Monad m) => MSF (RandT g m) a b -> g -> MSF m a b
 evalRandS msf g = runRandS msf g >>> arr snd
 
 getRandomS :: (MonadRandom m, Random b) => MSF m a b
-getRandomS = proc _ -> do
-  r <- arrM_ $ getRandom -< ()
-  returnA -< r
+getRandomS = arrM_ getRandom
 
 getRandomsS :: (MonadRandom m, Random b) => MSF m a [b]
-getRandomsS = proc _ -> do
-  r <- arrM_ $ getRandoms -< ()
-  returnA -< r
+getRandomsS = arrM_ getRandoms 
 
 getRandomRS :: (MonadRandom m, Random b) => (b, b) -> MSF m a b
-getRandomRS range = proc _ -> do
-  r <- arrM_ $ getRandomR range -< ()
-  returnA -< r 
+getRandomRS range = arrM_ $ getRandomR range
 
 getRandomRS_ :: (MonadRandom m, Random b) => MSF m (b, b) b
-getRandomRS_  = proc range -> do
-  r <- arrM (\range -> getRandomR range) -< range
-  returnA -< r 
+getRandomRS_  = arrM getRandomR
     
 getRandomsRS :: (MonadRandom m, Random b) => (b, b) -> MSF m a [b]
-getRandomsRS range = proc _ -> do
-  r <- arrM_ $ getRandomRs range -< ()
-  returnA -< r 
+getRandomsRS range = arrM_ $ getRandomRs range 
 
 getRandomsRS_ :: (MonadRandom m, Random b) => MSF m (b, b) [b]
-getRandomsRS_ = proc range -> do
-  r <- arrM (\range -> getRandomRs range) -< range
-  returnA -< r 
+getRandomsRS_ = arrM getRandomRs
