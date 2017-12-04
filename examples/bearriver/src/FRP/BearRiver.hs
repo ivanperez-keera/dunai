@@ -191,7 +191,7 @@ occasionally tAvg b
 -- | Performs uniform super sampling on the provided signal-function with n samples
 -- 
 -- This is done by dividing the current time-delta into N equally spaced samples 
--- and evalutating the signal function with these subsamples and always the same input. 
+-- and evaluating the signal function with these subsamples and always the same input. 
 -- The first argument is the number of samples - if LT 0 exactly 1 sample is calculated
 -- The second argument is the signal-function to sample
 -- Returns a new signal-function which returns a list of the super-samples
