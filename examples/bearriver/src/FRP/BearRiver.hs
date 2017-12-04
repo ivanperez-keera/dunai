@@ -188,6 +188,43 @@ occasionally tAvg b
   timeDelta :: Monad m => SF m a DTime
   timeDelta = arrM_ ask
 
+-- | Performs uniform super sampling on the provided signal-function with n samples
+-- 
+-- This is done by dividing the current time-delta into N equally spaced samples 
+-- and evalutating the signal function with these subsamples and always the same input. 
+-- The first argument is the number of samples - if LT 0 exactly 1 sample is calculated
+-- The second argument is the signal-function to sample
+-- Returns a new signal-function which returns a list of the super-samples
+superSamplingUniform :: Monad m => Int -> SF m a b -> SF m a [b]
+superSamplingUniform n sf = MSF $ \a -> do
+  dt        <- ask
+  (sf', bs) <- superSampleRun n dt sf a
+  return (reverse bs, superSamplingUniform n sf') -- reverse because of accumulator
+ where
+  superSampleRun :: Monad m 
+                 => Int 
+                 -> DTime 
+                 -> SF m a b 
+                 -> a 
+                 -> ReaderT DTime m (SF m a b, [b])
+  superSampleRun n dt sf a 
+      | n <= 1 = superSampleMulti 1 dt sf a []
+      | otherwise = superSampleMulti n superDt sf a []  
+    where
+      superDt = dt / fromIntegral n
+
+  superSampleMulti :: Monad m 
+                   => Int 
+                   -> DTime 
+                   -> SF m a b 
+                   -> a 
+                   -> [b]
+                   -> ReaderT DTime m (SF m a b, [b])
+  superSampleMulti 0 _ sf _ acc = return (sf, acc)
+  superSampleMulti n superDt sf a acc = do
+    (b, sf') <- unMSF sf a
+    superSampleMulti (n-1) superDt sf' a (b:acc) 
+
 -- | Initialization operator (cf. Lustre/Lucid Synchrone).
 --
 -- The output at time zero is the first argument, and from
