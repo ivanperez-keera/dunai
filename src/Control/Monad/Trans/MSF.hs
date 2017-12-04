@@ -1,12 +1,20 @@
-{-# LANGUAGE Rank2Types          #-}
+{-# LANGUAGE Rank2Types #-}
 
-module Control.Monad.Trans.MSF ( module X ) where
--- Caution, RWS is not exported since names collide with Reader, State and Writer
+-- | This module reexports nearly all submodules. RWS is not exported since
+-- names collide with Reader, State and Writer.
+module Control.Monad.Trans.MSF
+    ( module Control.Monad.Trans.MSF.GenLift
+    , module Control.Monad.Trans.MSF.Except
+    , module Control.Monad.Trans.MSF.Maybe
+    , module Control.Monad.Trans.MSF.Reader
+    , module Control.Monad.Trans.MSF.State
+    , module Control.Monad.Trans.MSF.Writer
+    )
+  where
 
-import Control.Monad.Trans.MSF.GenLift as X
-
-import Control.Monad.Trans.MSF.Except as X
-import Control.Monad.Trans.MSF.Maybe as X
-import Control.Monad.Trans.MSF.Reader as X
-import Control.Monad.Trans.MSF.State as X
-import Control.Monad.Trans.MSF.Writer as X
+import Control.Monad.Trans.MSF.GenLift
+import Control.Monad.Trans.MSF.Except
+import Control.Monad.Trans.MSF.Maybe
+import Control.Monad.Trans.MSF.Reader
+import Control.Monad.Trans.MSF.State
+import Control.Monad.Trans.MSF.Writer

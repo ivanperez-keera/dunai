@@ -1,0 +1,9 @@
+2017-10-31 Ivan Perez <ivan.perez@keera.co.uk>
+        * src/: Re-structure modules, completes documentation.
+        * stack.yaml: New stack configuration.
+        * Fixes compilation errors with older versions of GHC.
+        * dunai.cabal: Version bump (0.3), adds repo URL, documentation.
+        * examples/: Updates examples to use new API.
+
+Copyright (c) 2016, Ivan Perez and Manuel Bärenz.
+All rights reserved.

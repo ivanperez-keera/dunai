@@ -31,7 +31,8 @@ bouncingBalls = proc (mp@(mx, my, ml, mr)) -> do
 
 fireballs :: SF (Bool, (Float, Float)) [(Float, Float)]
 fireballs = switch
-  (arr (const []) &&& arr (\(mp, pos) -> if mp then Just pos else Nothing))
+  (arr (const []) &&& arr (\(mp, pos) -> if mp then Event pos else Yampa.NoEvent))
+
   (\(p, v) -> let oldfb = voidI $ runListMSF (liftMSFTrans (bouncingBall p v))
                   newfb = fireballs
               in (oldfb &&& newfb) >>> arr2 (++)
