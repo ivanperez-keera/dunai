@@ -197,9 +197,7 @@ superSamplingUniform :: Monad m
                      -> SF m a b     -- ^ The signal-function to sample
                      -> SF m a [b]   -- ^ The new signal-function which performs the super sampling, length of [b] is number of samples (except in case of LT 0, then its 1).
 superSamplingUniform n sf 
-  | n <= 1    = proc a -> do
-    b <- sf -< a
-    returnA -< [b]
+  | n <= 1    = sf >>> arr return
   | otherwise = readerS (proc (dt, a) -> do
     let superDt = dt / fromIntegral n
         dtas    = replicate n (superDt, a)
