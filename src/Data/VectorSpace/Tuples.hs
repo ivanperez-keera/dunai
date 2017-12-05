@@ -25,6 +25,9 @@ instance (Groundfield a ~ Groundfield b, VectorSpace a, VectorSpace b) => Vector
 instance (Groundfield a ~ Groundfield b, InnerProductSpace a, InnerProductSpace b) => InnerProductSpace (a, b) where
     (a1, b1) `dot` (a2, b2) = (a1 `dot` a2) + (b1 `dot` b2)
 
+instance (Groundfield a ~ Groundfield b, NormedSpace a, NormedSpace b) => NormedSpace (a, b) where
+
+
 {-
 instance Num a => RModule (a,a) where
     type Groundring (a,a) = a
@@ -60,6 +63,8 @@ instance Fractional a => VectorSpace (a,a,a) where
 instance Num a => InnerProductSpace (a,a,a) where
     (x1,y1,z1) `dot` (x2,y2,z2) = x1 * x2 + y1 * y2 + z1 * z2
 
+instance Floating a => NormedSpace (a, a, a) where
+
 
 -- | R-module instance for tuples with 4 elements.
 instance Num a => RModule (a,a,a,a) where
@@ -77,6 +82,8 @@ instance Fractional a => VectorSpace (a,a,a,a) where
 -- | Inner Product Space instance for tuples with 4 elements.
 instance Num a => InnerProductSpace (a,a,a,a) where
     (x1,y1,z1,u1) `dot` (x2,y2,z2,u2) = x1 * x2 + y1 * y2 + z1 * z2 + u1 * u2
+
+instance Floating a => NormedSpace (a, a, a, a) where
 
 
 -- | R-module instance for tuples with 5 elements.
@@ -96,3 +103,5 @@ instance Fractional a => VectorSpace (a,a,a,a,a) where
 instance Num a => InnerProductSpace (a,a,a,a,a) where
     (x1,y1,z1,u1,v1) `dot` (x2,y2,z2,u2,v2) =
         x1 * x2 + y1 * y2 + z1 * z2 + u1 * u2 + v1 * v2
+
+instance Floating a => NormedSpace (a, a, a, a, a) where

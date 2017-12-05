@@ -1,6 +1,6 @@
-{-# LANGUAGE TypeFamilies           #-}
-{-# LANGUAGE FlexibleContexts       #-}
-{-# LANGUAGE UndecidableInstances   #-}
+{-# LANGUAGE TypeFamilies      #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts  #-}
 -- |
 -- Module      :  Data.VectorSpace
 -- Copyright   :  (c) Ivan Perez and Manuel Bärenz
@@ -77,15 +77,13 @@ class (Fractional (Groundring v), RModule v) => VectorSpace v where
     (^/) :: v -> Groundfield v -> v
     v ^/ a = (1/a) *^ v
 
--- TODO Why is this not a type synonym?
 -- | The ground ring of a vector space is required to be commutative
 --   and to possess inverses.
 --   It is then called the "ground field".
 --   Commutativity amounts to the law @a * b = b * a@,
 --   and the existence of inverses is given
 --   by the requirement of the 'Fractional' type class.
-type family Groundfield v :: *
-type instance Groundfield v = Groundring v
+type Groundfield v = Groundring v
 
 -- | An inner product space is a module with an inner product,
 --   i.e. a map @dot@ satisfying
@@ -105,15 +103,10 @@ class RModule v => InnerProductSpace v where
 --
 --   A typical example is @sqrt (v `dot` v)@,
 --   for an inner product space.
-class RModule v => NormedSpace v  where
+class (Floating (Groundfield v), InnerProductSpace v, VectorSpace v) => NormedSpace v  where
   norm :: v -> Groundfield v
+  norm v = sqrt $ v `dot` v
 
-{-
-instance (Floating (Groundfield v), VectorSpace v, InnerProductSpace v) => NormedSpace v where
-    norm v = sqrt (v `dot` v)
--}
-{- I'd like to know why this won't work
-normalize :: (Eq a, NormedSpace v a) => v -> v
+normalize :: (Eq (Groundfield v), NormedSpace v) => v -> v
 normalize v = if nv /= 0 then v ^/ nv else error "normalize: zero vector"
-    where nv = norm v
-    -}
+  where nv = norm v
