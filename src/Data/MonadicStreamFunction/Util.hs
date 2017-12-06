@@ -136,6 +136,11 @@ accumulateWith f s0 = feedback s0 $ arr g
   where
     g (a, s) = let s' = f a s in (s', s')
 
+-- | Applies a transfer function to the input and an accumulator,
+-- returning the updated accumulator and output.
+mealy :: Monad m => (a -> s -> (b, s)) -> s -> MSF m a b
+mealy f s0 = feedback s0 $ arr $ uncurry f
+
 -- * Unfolding
 
 -- | Generate outputs using a step-wise generation function and an initial
