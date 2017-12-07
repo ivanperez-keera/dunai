@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeFamilies         #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
--- | Vector space instances for concrete/specific types.
+-- | Vector space instances for primitive Haskell types.
 --
 -- This module contains:
 --
@@ -8,7 +8,7 @@
 --
 --     * 'VectorSpace' for 'Double' and 'Float'.
 
-module Data.VectorSpace.Specific where
+module Data.VectorSpace.Primitive where
 
 import Data.VectorSpace
 

@@ -78,7 +78,7 @@ library
                      Data.VectorSpace
                      Data.VectorSpace.Fractional
                      Data.VectorSpace.Tuples
-                     Data.VectorSpace.Specific
+                     Data.VectorSpace.Primitive
 
   other-modules:     Control.Arrow.Util
 
