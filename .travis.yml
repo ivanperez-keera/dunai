@@ -10,6 +10,12 @@ ghc:
   - "8.0.2"
   - "8.2.1"
 
+env:
+  - PACKAGEDIR="."
+  - PACKAGEDIR="examples/bearriver"
+
+before_install:
+  - cd ${PACKAGEDIR}
 
 deploy:
   provider: hackage
