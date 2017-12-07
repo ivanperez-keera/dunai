@@ -4,14 +4,12 @@
 language: haskell
 
 ghc:
- - "7.6.3"
- - "7.8.4"
- - "7.10.3"
- - "8.0.2"
- - "8.2.1"
+  - "7.6.3"
+  - "7.8.4"
+  - "7.10.3"
+  - "8.0.2"
+  - "8.2.1"
 
-script:
- - travis_retry cabal install --run-tests -v -j1
 
 deploy:
   provider: hackage
