@@ -113,7 +113,7 @@ inExceptT = arrM id
 --   replace the exception by the second component of the tuple.
 tagged :: Monad m => MSF (ExceptT e1 m) a b -> MSF (ExceptT e2 m) (a, e2) b
 tagged msf = runMSFExcept $ do
-  e1      <- try $ msf <<< arr fst
+  _       <- try $ msf <<< arr fst
   (_, e2) <- currentInput
   return e2
 
