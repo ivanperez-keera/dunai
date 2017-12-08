@@ -1,5 +1,1 @@
-resolver: ghc-8.0.2
-extra-deps:
-  - transformers-base-0.4.4
-  - transformers-compat-0.5.1.4
-  - stm-2.4.4.1
+resolver: lts-9.17
