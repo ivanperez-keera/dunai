@@ -60,6 +60,7 @@ library
                      Control.Monad.Trans.MSF.Maybe
                      Control.Monad.Trans.MSF.Random
                      Control.Monad.Trans.MSF.Reader
+                     Control.Monad.Trans.MSF.RWS
                      Control.Monad.Trans.MSF.State
                      Control.Monad.Trans.MSF.Writer
                      Data.MonadicStreamFunction
