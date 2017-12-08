@@ -50,7 +50,7 @@ throwOn' = proc (b, e) -> if b
   then throwS  -< e
   else returnA -< ()
 
--- | When the input is 'Just e', throw the exception 'e'.
+-- | When the input is @Just e@, throw the exception @e@.
 --   (Does not output any actual data.)
 throwMaybe :: Monad m => MSF (ExceptT e m) (Maybe e) (Maybe a)
 throwMaybe = mapMaybeS throwS
@@ -67,7 +67,7 @@ throw = arrM_ . throwE
 pass :: Monad m => MSF (ExceptT e m) a a
 pass = Category.id
 
--- | Whenever 'Nothing' is thrown, throw '()' instead.
+-- | Whenever 'Nothing' is thrown, throw @()@ instead.
 maybeToExceptS :: (Functor m, Monad m) => MSF (MaybeT m) a b -> MSF (ExceptT () m) a b
 maybeToExceptS = liftMSFPurer (ExceptT . (maybe (Left ()) Right <$>) . runMaybeT)
 
@@ -83,7 +83,7 @@ catchS msf f = safely $ do
   e <- try msf
   safe $ f e
 
--- | Similar to Yampa's delayed switching. Looses a 'b' in case of an exception.
+-- | Similar to Yampa's delayed switching. Looses a @b@ in case of an exception.
 untilE :: Monad m => MSF m a b -> MSF m b (Maybe e)
        -> MSF (ExceptT e m) a b
 untilE msf msfe = proc a -> do
@@ -124,15 +124,15 @@ tagged msf = runMSFExcept $ do
 --   are in fact monads /in the exception type/.
 --
 --   * 'return' corresponds to throwing an exception immediately.
---   * '(>>=)' is exception handling:
+--   * '>>=' is exception handling:
 --     The first value throws an exception,
 --     while the Kleisli arrow handles the exception
 --     and produces a new signal function,
 --     which can throw exceptions in a different type.
 newtype MSFExcept m a b e = MSFExcept { runMSFExcept :: MSF (ExceptT e m) a b }
 
--- | An alias for the |MSFExcept| constructor,
--- used to enter the |MSFExcept| monad context.
+-- | An alias for the 'MSFExcept' constructor,
+-- used to enter the 'MSFExcept' monad context.
 -- Execute an 'MSF' in 'ExceptT' until it raises an exception.
 try :: MSF (ExceptT e m) a b -> MSFExcept m a b e
 try = MSFExcept
@@ -152,7 +152,7 @@ instance Monad m => Applicative (MSFExcept m a b) where
   pure = MSFExcept . throw
   (<*>) = ap
 
--- | Monad instance for 'MSFExcept'. Bind uses the exception as the "return"
+-- | Monad instance for 'MSFExcept'. Bind uses the exception as the 'return'
 -- value in the monad.
 instance Monad m => Monad (MSFExcept m a b) where
   MSFExcept msf >>= f = MSFExcept $ MSF $ \a -> do
@@ -203,10 +203,10 @@ step f = try $ proc a -> do
 -- that could only be broken by moving a few things to Data.MonadicStreamFunction.Core
 -- (that probably belong there anyways).
 
--- | Extract MSF from a monadic action.
+-- | Extract an 'MSF' from a monadic action.
 --
--- Runs a monadic action that produces an MSF on the first iteration/step, and
--- uses that MSF as the main signal function for all inputs (including the
+-- Runs a monadic action that produces an 'MSF' on the first iteration/step, and
+-- uses that 'MSF' as the main signal function for all inputs (including the
 -- first one).
 performOnFirstSample :: Monad m => m (MSF m a b) -> MSF m a b
 performOnFirstSample sfaction = safely $ do

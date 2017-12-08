@@ -100,7 +100,7 @@ transG1 transformInput transformOutput msf =
 -- | More general lifting combinator that enables recovery. Note that, unlike a
 -- polymorphic lifting function @forall a . m a -> m1 a@, this auxiliary
 -- function needs to be a bit more structured, and produces a Maybe value. The
--- previous MSF is used if a new one is not produced.
+-- previous 'MSF' is used if a new one is not produced.
 transG :: (Monad m1, Monad m2)
        => (a2 -> m1 a1)
        -> (forall c. a2 -> m1 (b1, c) -> m2 (b2, Maybe c))

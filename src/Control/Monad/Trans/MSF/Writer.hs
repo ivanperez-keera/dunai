@@ -1,12 +1,12 @@
--- | MSFs with a Writer monadic layer.
+-- | 'MSF's with a 'Writer' monadic layer.
 --
--- This module contains functions to work with MSFs that include a 'Writer'
--- monadic layer. This includes functions to create new MSFs that include an
--- additional layer, and functions to flatten that layer out of the MSF's
+-- This module contains functions to work with 'MSF's that include a 'Writer'
+-- monadic layer. This includes functions to create new 'MSF's that include an
+-- additional layer, and functions to flatten that layer out of the 'MSF''s
 -- transformer stack.
 module Control.Monad.Trans.MSF.Writer
   ( module Control.Monad.Trans.Writer.Strict
-  -- * Writer MSF running \/ wrapping \/ unwrapping
+  -- * 'Writer' 'MSF' running and wrapping
   , writerS
   , runWriterS
 
@@ -30,9 +30,9 @@ import Data.Monoid
 import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
 
--- * Writer MSF running/wrapping/unwrapping
+-- * 'Writer' 'MSF' running and wrapping
 
--- | Build an MSF in the 'Writer' monad from one that produces the log as an
+-- | Build an 'MSF' in the 'Writer' monad from one that produces the log as an
 -- extra output. This is the opposite of 'runWriterS'.
 writerS :: (Monad m, Monoid s) => MSF m a (s, b) -> MSF (WriterT s m) a b
 writerS msf = MSF $ \a -> do
@@ -40,14 +40,14 @@ writerS msf = MSF $ \a -> do
     tell s
     return (b, writerS msf')
 
--- | Build an MSF that produces the log as an extra output from one on the
+-- | Build an 'MSF' that produces the log as an extra output from one on the
 -- 'Writer' monad. This is the opposite of 'writerS'.
 runWriterS :: Monad m => MSF (WriterT s m) a b -> MSF m a (s, b)
 runWriterS msf = MSF $ \a -> do
     ((b, msf'), s') <- runWriterT $ unMSF msf a
     return ((s', b), runWriterS msf')
 
--- * Alternative running/wrapping MSF combinators
+-- * Alternative running/wrapping 'MSF' combinators
 
 -- ** Alternative implementation using 'lifterS'
 
