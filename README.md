@@ -15,6 +15,10 @@ $ cabal update
 $ cabal install dunai
 ```
 
+## Dependencies
+
+Dunai currently support GHC versions 7.6.3 to 8.2.1.
+
 # Examples
 
 To test Dunai:
