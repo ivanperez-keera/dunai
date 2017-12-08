@@ -9,6 +9,7 @@ module Control.Monad.Trans.MSF.RWS
 import Control.Monad.Trans.RWS.Strict
   hiding (liftCallCC, liftCatch) -- Avoid conflicting exports
 import Data.Monoid
+import Data.Functor ((<$>))
 
 -- Internal
 import Control.Monad.Trans.MSF.GenLift
