@@ -27,6 +27,7 @@ import Control.Monad.Random
 
 -- Internal
 import Data.MonadicStreamFunction
+import Control.Monad.Trans.MSF.State
 
 -- | Run an 'MSF' in the 'RandT' random number monad transformer
 --   by supplying an initial random generator.
@@ -35,9 +36,7 @@ runRandS :: (RandomGen g, Monad m)
          => MSF (RandT g m) a b
          -> g -- ^ The initial random number generator.
          -> MSF m a (g, b)
-runRandS msf g = MSF $ \a -> do
-  ((b, msf'), g') <- runRandT (unMSF msf a) g
-  return ((g', b), runRandS msf' g')
+runRandS = runStateS_ . liftMSFPurer (StateT . runRandT)
 
 -- | Evaluate an 'MSF' in the 'RandT' transformer,
 --   i.e. extract possibly random values
