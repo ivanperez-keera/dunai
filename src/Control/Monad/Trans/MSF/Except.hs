@@ -20,7 +20,7 @@ import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen, lift
 import           Control.Monad.Trans.Maybe
 
 -- Internal
--- import Control.Monad.Trans.MSF.GenLift
+import Control.Monad.Trans.MSF.GenLift (transG)
 import Data.MonadicStreamFunction
 
 -- * Throwing exceptions
@@ -91,17 +91,16 @@ untilE msf msfe = proc a -> do
   me <- liftMSFTrans msfe -< b
   inExceptT -< ExceptT $ return $ maybe (Right b) Left me
 
+-- TODO This needs to be renamed as 'runExceptS'!
+-- 'exceptS' would have type @MSF m a (Either e b) -> MSF (ExceptT e m) a b@
 -- | Escape an 'ExceptT' layer by outputting the exception whenever it occurs.
 --   If an exception occurs, the current 'MSF' continuation is tested again
 --   on the next input.
 exceptS :: Monad m => MSF (ExceptT e m) a b -> MSF m a (Either e b)
-exceptS msf = go
- where
-   go = MSF $ \a -> do
-          cont <- runExceptT $ unMSF msf a
-          case cont of
-            Left e          -> return (Left e,  go)
-            Right (b, msf') -> return (Right b, exceptS msf')
+exceptS = transG return $ const $ fmap f . runExceptT
+  where
+    f (Left e)       = (Left e , Nothing)
+    f (Right (b, c)) = (Right b, Just c )
 
 -- | Embed an 'ExceptT' value inside the 'MSF'.
 --   Whenever the input value is an ordinary value,
