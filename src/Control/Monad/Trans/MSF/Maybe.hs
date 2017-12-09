@@ -17,7 +17,6 @@ import Control.Monad.Trans.Maybe
 
 -- Internal
 import Control.Monad.Trans.MSF.Except
-import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
 
 -- * Throwing 'Nothing' as an exception ("exiting")

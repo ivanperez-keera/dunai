@@ -21,7 +21,6 @@ import Control.Monad.Trans.State.Strict
 import Data.Tuple (swap)
 
 -- Internal
-import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
 
 -- * State MSF running/wrapping/unwrapping

@@ -7,7 +7,6 @@
 -- goal is to make this both simple and conceptually understandable.
 module Control.Monad.Trans.MSF.GenLift where
 
-import Control.Applicative
 import Data.MonadicStreamFunction
 
 -- | Lifting combinator to move from one monad to another, if one has a
