@@ -67,8 +67,10 @@ throw = arrM_ . throwE
 pass :: Monad m => MSF (ExceptT e m) a a
 pass = Category.id
 
--- | Whenever 'Nothing' is thrown, throw '()' instead.
-maybeToExceptS :: (Functor m, Monad m) => MSF (MaybeT m) a b -> MSF (ExceptT () m) a b
+-- | Converts an 'MSF' in 'MaybeT' to an 'MSF' in 'ExceptT'.
+--   Whenever 'Nothing' is thrown, throw @()@ instead.
+maybeToExceptS :: (Functor m, Monad m)
+               => MSF (MaybeT m) a b -> MSF (ExceptT () m) a b
 maybeToExceptS = liftMSFPurer (ExceptT . (maybe (Left ()) Right <$>) . runMaybeT)
 
 -- * Catching exceptions
