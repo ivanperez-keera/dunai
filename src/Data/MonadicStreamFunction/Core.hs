@@ -148,6 +148,12 @@ liftMSFBase = liftMSFPurer liftBase
 -- Taking a fixpoint is functorial itself, meaning that a morphism
 -- (a natural transformation) of two such functors gives a morphism
 -- (an ordinary function) of their fixpoints.
+--
+-- This is in a sense the most general "abstract" hoisting/lifting function,
+-- i.e. the most general one that only changes input, output and side effect
+-- types, and doesn't influence control flow.
+-- Other handling functions like exception handling or 'ListT' broadcasting
+-- necessarily change control flow.
 hoistGen :: Monad m2
          => (forall c . (a1 -> m1 (b1, c)) -> (a2 -> m2 (b2, c)))
            -- ^ The natural transformation. @mi@, @ai@ and @bi@ for @i = 1, 2@
