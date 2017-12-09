@@ -177,10 +177,9 @@ hoistGen morph msf = MSF $ \a2 -> do
 -- and leave liftMSFPurer as a lazy version (by default).
 
 -- | Lifting purer monadic actions (in an arbitrary way)
-liftMSFPurer :: (Monad m2, Monad m1) => (forall c . m1 c -> m2 c) -> MSF m1 a b -> MSF m2 a b
-liftMSFPurer liftPurer sf = MSF $ \a -> do
-  (b, sf') <- liftPurer $ unMSF sf a
-  b `seq` return (b, liftMSFPurer liftPurer sf')
+liftMSFPurer :: (Monad m2, Monad m1)
+             => (forall c . m1 c -> m2 c) -> MSF m1 a b -> MSF m2 a b
+liftMSFPurer morph = hoistGen (morph .)
 
 -- * Delays
 
