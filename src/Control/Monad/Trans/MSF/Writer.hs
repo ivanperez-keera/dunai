@@ -14,6 +14,7 @@ module Control.Monad.Trans.MSF.Writer
 -- External
 import Control.Monad.Trans.Writer.Strict
   hiding (liftCallCC, liftCatch, pass) -- Avoid conflicting exports
+import Data.Functor ((<$>))
 import Data.Monoid
 
 -- Internal
