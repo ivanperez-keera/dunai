@@ -78,9 +78,9 @@ transS :: (Monad m1, Monad m2)
        => (a2 -> m1 a1)
        -> (forall c. a2 -> m1 (b1, c) -> m2 (b2, c))
        -> MSF m1 a1 b1 -> MSF m2 a2 b2
-transS transformInput transformOutput msf = MSF $ \a2 -> do
-    (b2, msf') <- transformOutput a2 $ unMSF msf =<< transformInput a2
-    return (b2, transS transformInput transformOutput msf')
+transS transInput transOutput = hoistGen $ \f a2 -> transOutput a2 $ do
+  a1 <- transInput a2
+  f a1
 
 -- | Lifting combinator to move from one monad to another, if one has a
 -- function to run computations in one monad into another. Note that, unlike a
@@ -91,11 +91,7 @@ transG1 :: (Monad m1, Functor m2, Monad m2)
         => (a2 -> m1 a1)
         -> (forall c. a2 -> m1 (b1, c) -> m2 (b2, c))
         -> MSF m1 a1 b1 -> MSF m2 a2 b2
-transG1 transformInput transformOutput msf =
-  transG transformInput transformOutput' msf
-    where
-      -- transformOutput' :: forall c. a2 -> m1 (b1, c) -> m2 (b2, Maybe c)
-      transformOutput' a b = second Just <$> transformOutput a b
+transG1 = transS
 
 -- | More general lifting combinator that enables recovery. Note that, unlike a
 -- polymorphic lifting function @forall a . m a -> m1 a@, this auxiliary
