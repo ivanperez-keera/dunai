@@ -76,37 +76,11 @@ listToMaybeS = foldr iPost exit
 -- | Remove the 'MaybeT' layer by outputting 'Nothing' when the exception occurs.
 --   The continuation in which the exception occurred is then tested on the next input.
 runMaybeS :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
-runMaybeS msf = go
+runMaybeS msf = exceptS (maybeToExceptS msf) >>> arr eitherToMaybe
   where
-    go = MSF $ \a -> do
-           bmsf <- runMaybeT $ unMSF msf a
-           case bmsf of
-             Just (b, msf') -> return (Just b, runMaybeS msf')
-             Nothing        -> return (Nothing, go)
+    eitherToMaybe (Left ()) = Nothing
+    eitherToMaybe (Right b) = Just b
 
--- | Different implementation, to study performance.
-runMaybeS'' :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
-runMaybeS'' = transG transformInput transformOutput
-  where
-    transformInput       = return
-    transformOutput _ m1 = do r <- runMaybeT m1
-                              case r of
-                                Nothing     -> return (Nothing, Nothing)
-                                Just (b, c) -> return (Just b,  Just c)
-
--- mapMaybeS msf == runMaybeS (inMaybeT >>> lift mapMaybeS)
-
-{-
-runMaybeS'' :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
-runMaybeS'' msf = transS transformInput transformOutput msf
-  where
-    transformInput  = return
-    transformOutput _ msfaction = do
-      thing <- runMaybeT msfaction
-      case thing of
-        Just (b, msf') -> return (Just b, msf')
-        Nothing        -> return (Nothing, msf)
--}
 
 -- | Reactimates an 'MSF' in the 'MaybeT' monad until it throws 'Nothing'.
 reactimateMaybe
