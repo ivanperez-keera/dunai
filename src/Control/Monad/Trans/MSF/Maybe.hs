@@ -75,7 +75,7 @@ listToMaybeS = foldr iPost exit
 -- * Running 'MaybeT'
 -- | Remove the 'MaybeT' layer by outputting 'Nothing' when the exception occurs.
 --   The continuation in which the exception occurred is then tested on the next input.
-runMaybeS :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
+runMaybeS :: (Functor m, Monad m) => MSF (MaybeT m) a b -> MSF m a (Maybe b)
 runMaybeS msf = exceptS (maybeToExceptS msf) >>> arr eitherToMaybe
   where
     eitherToMaybe (Left ()) = Nothing

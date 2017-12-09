@@ -24,11 +24,13 @@ import Data.MonadicStreamFunction
 
 -- | Build an MSF in the 'Writer' monad from one that produces the log as an
 -- extra output. This is the opposite of 'runWriterS'.
-writerS :: (Monad m, Monoid w) => MSF m a (w, b) -> MSF (WriterT w m) a b
+writerS :: (Functor m, Monad m, Monoid w)
+        => MSF m a (w, b) -> MSF (WriterT w m) a b
 writerS = hoistGen $ \f a -> WriterT $ (\((w, b), c) -> ((b, c), w)) <$> f a
 
 -- | Build an MSF that produces the log as an extra output from one on the
 -- 'Writer' monad. This is the opposite of 'writerS'.
-runWriterS :: Monad m => MSF (WriterT s m) a b -> MSF m a (s, b)
+runWriterS :: (Functor m, Monad m)
+           => MSF (WriterT s m) a b -> MSF m a (s, b)
 runWriterS = hoistGen $ \f a -> (\((b, c), s) -> ((s, b), c))
          <$> runWriterT (f a)

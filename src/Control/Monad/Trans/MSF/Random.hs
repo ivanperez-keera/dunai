@@ -32,7 +32,7 @@ import Control.Monad.Trans.MSF.State
 -- | Run an 'MSF' in the 'RandT' random number monad transformer
 --   by supplying an initial random generator.
 --   Updates the generator every step.
-runRandS :: (RandomGen g, Monad m)
+runRandS :: (RandomGen g, Functor m, Monad m)
          => MSF (RandT g m) a b
          -> g -- ^ The initial random number generator.
          -> MSF m a (g, b)
@@ -42,7 +42,8 @@ runRandS = runStateS_ . liftMSFPurer (StateT . runRandT)
 --   i.e. extract possibly random values
 --   by supplying an initial random generator.
 --   Updates the generator every step but discharges the generator.
-evalRandS  :: (RandomGen g, Monad m) => MSF (RandT g m) a b -> g -> MSF m a b
+evalRandS :: (RandomGen g, Functor m, Monad m)
+          => MSF (RandT g m) a b -> g -> MSF m a b
 evalRandS msf g = runRandS msf g >>> arr snd
 
 -- | Create a stream of random values.

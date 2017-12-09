@@ -96,7 +96,7 @@ untilE msf msfe = proc a -> do
 -- | Escape an 'ExceptT' layer by outputting the exception whenever it occurs.
 --   If an exception occurs, the current 'MSF' continuation is tested again
 --   on the next input.
-exceptS :: Monad m => MSF (ExceptT e m) a b -> MSF m a (Either e b)
+exceptS :: (Functor m, Monad m) => MSF (ExceptT e m) a b -> MSF m a (Either e b)
 exceptS = transG return $ const $ fmap f . runExceptT
   where
     f (Left e)       = (Left e , Nothing)
