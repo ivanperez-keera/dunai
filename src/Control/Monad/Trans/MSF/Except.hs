@@ -67,8 +67,10 @@ throw = arrM_ . throwE
 pass :: Monad m => MSF (ExceptT e m) a a
 pass = Category.id
 
--- | Whenever 'Nothing' is thrown, throw @()@ instead.
-maybeToExceptS :: (Functor m, Monad m) => MSF (MaybeT m) a b -> MSF (ExceptT () m) a b
+-- | Converts an 'MSF' in 'MaybeT' to an 'MSF' in 'ExceptT'.
+--   Whenever 'Nothing' is thrown, throw @()@ instead.
+maybeToExceptS :: (Functor m, Monad m)
+               => MSF (MaybeT m) a b -> MSF (ExceptT () m) a b
 maybeToExceptS = liftMSFPurer (ExceptT . (maybe (Left ()) Right <$>) . runMaybeT)
 
 -- * Catching exceptions
@@ -129,6 +131,10 @@ tagged msf = runMSFExcept $ do
 --     while the Kleisli arrow handles the exception
 --     and produces a new signal function,
 --     which can throw exceptions in a different type.
+--   * @m@: The monad that the 'MSF' may take side effects in.
+--   * @a@: The input type
+--   * @b@: The output type
+--   * @e@: The type of exceptions that can be thrown
 newtype MSFExcept m a b e = MSFExcept { runMSFExcept :: MSF (ExceptT e m) a b }
 
 -- | An alias for the 'MSFExcept' constructor,

@@ -3,7 +3,6 @@
 module Data.MonadicStreamFunction.Util where
 
 -- External
-import Control.Applicative
 import Control.Arrow
 import Control.Category
 import Control.Monad
@@ -13,7 +12,7 @@ import Prelude hiding (id, (.))
 
 -- Internal
 import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.Instances.ArrowChoice
+import Data.MonadicStreamFunction.Instances.ArrowChoice ()
 import Data.VectorSpace
 
 -- * Streams and sinks
