@@ -3,7 +3,7 @@
 --
 -- This module contains functions to work with 'MSF's that include a 'State'
 -- monadic layer. This includes functions to create new 'MSF's that include an
--- additional layer, and functions to flatten that layer out of the 'MSF''s
+-- additional layer, and functions to flatten that layer out of the 'MSF`'s
 -- transformer stack.
 module Control.Monad.Trans.MSF.State
   ( module Control.Monad.Trans.State.Strict
