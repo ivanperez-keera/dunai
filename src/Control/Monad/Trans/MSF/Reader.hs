@@ -1,14 +1,14 @@
 {-# LANGUAGE Rank2Types          #-}
 
--- | MSFs with a Reader monadic layer.
+-- | 'MSF's with a 'Reader' monadic layer.
 --
--- This module contains functions to work with MSFs that include a 'Reader'
--- monadic layer. This includes functions to create new MSFs that include an
--- additional layer, and functions to flatten that layer out of the MSF's
+-- This module contains functions to work with 'MSF's that include a 'Reader'
+-- monadic layer. This includes functions to create new 'MSF's that include an
+-- additional layer, and functions to flatten that layer out of the 'MSF`'s
 -- transformer stack.
 module Control.Monad.Trans.MSF.Reader
   ( module Control.Monad.Trans.Reader
-  -- * Reader MSF wrapping/unwrapping.
+  -- * 'Reader' 'MSF' running and wrapping.
   , readerS
   , runReaderS
   , runReaderS_
@@ -27,16 +27,16 @@ import Control.Monad.Trans.Reader
 import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
 
--- * Reader MSF wrapping/unwrapping
+-- * Reader 'MSF' running and wrapping
 
--- | Build an MSF in the 'Reader' monad from one that takes the reader
+-- | Build an 'MSF' in the 'Reader' monad from one that takes the reader
 -- environment as an extra input. This is the opposite of 'runReaderS'.
 readerS :: Monad m => MSF m (s, a) b -> MSF (ReaderT s m) a b
 readerS msf = MSF $ \a -> do
   (b, msf') <- ReaderT $ \s -> unMSF msf (s, a)
   return (b, readerS msf')
 
--- | Build an MSF that takes an environment as an extra input from one on the
+-- | Build an 'MSF' that takes an environment as an extra input from one on the
 -- 'Reader' monad. This is the opposite of 'readerS'.
 runReaderS :: Monad m => MSF (ReaderT s m) a b -> MSF m (s, a) b
 runReaderS msf = MSF $ \(s,a) -> do
@@ -44,8 +44,8 @@ runReaderS msf = MSF $ \(s,a) -> do
   return (b, runReaderS msf')
 
 
--- | Build an MSF /function/ that takes a fixed environment as additional
--- input, from an MSF in the 'Reader' monad.
+-- | Build an 'MSF' /function/ that takes a fixed environment as additional
+-- input, from an 'MSF' in the 'Reader' monad.
 --
 -- This should be always equal to:
 --

@@ -1,13 +1,13 @@
 {-# LANGUAGE Rank2Types #-}
--- | MSFs with a State monadic layer.
+-- | 'MSF's with a 'State' monadic layer.
 --
--- This module contains functions to work with MSFs that include a 'State'
--- monadic layer. This includes functions to create new MSFs that include an
--- additional layer, and functions to flatten that layer out of the MSF's
+-- This module contains functions to work with 'MSF's that include a 'State'
+-- monadic layer. This includes functions to create new 'MSF's that include an
+-- additional layer, and functions to flatten that layer out of the 'MSF`'s
 -- transformer stack.
 module Control.Monad.Trans.MSF.State
   ( module Control.Monad.Trans.State.Strict
-  -- * State MSF running/wrapping/unwrapping
+  -- * 'State' 'MSF' running and wrapping
   , stateS
   , runStateS
   , runStateS_
@@ -30,24 +30,24 @@ import Control.Monad.Trans.State.Strict
 import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
 
--- * State MSF running/wrapping/unwrapping
+-- * 'State' 'MSF' running and wrapping
 
--- | Build an MSF in the 'State' monad from one that takes the state as an
+-- | Build an 'MSF' in the 'State' monad from one that takes the state as an
 -- extra input. This is the opposite of 'runStateS'.
 stateS :: Monad m => MSF m (s, a) (s, b) -> MSF (StateT s m) a b
 stateS msf = MSF $ \a -> StateT $ \s -> do
     ((s', b), msf') <- unMSF msf (s, a)
     return ((b, stateS msf'), s')
 
--- | Build an MSF that takes a state as an extra input from one on the
+-- | Build an 'MSF' that takes a state as an extra input from one on the
 -- 'State' monad. This is the opposite of 'stateS'.
 runStateS :: Monad m => MSF (StateT s m) a b -> MSF m (s, a) (s, b)
 runStateS msf = MSF $ \(s, a) -> do
     ((b, msf'), s') <- runStateT (unMSF msf a) s
     return ((s', b), runStateS msf')
 
--- | Build an MSF /function/ that takes a fixed state as additional input, from
--- an MSF in the 'State' monad, and outputs the new state with every
+-- | Build an 'MSF' /function/ that takes a fixed state as additional input,
+-- from an 'MSF' in the 'State' monad, and outputs the new state with every
 -- transformation step.
 --
 -- This should be always equal to:
@@ -64,8 +64,8 @@ runStateS_ msf s = MSF $ \a -> do
     ((b, msf'), s') <- runStateT (unMSF msf a) s
     return ((s', b), runStateS_ msf' s')
 
--- | Build an MSF /function/ that takes a fixed state as additional
--- input, from an MSF in the 'State' monad.
+-- | Build an 'MSF' /function/ that takes a fixed state as additional
+-- input, from an 'MSF' in the 'State' monad.
 --
 -- This should be always equal to:
 --
@@ -83,7 +83,7 @@ runStateS__ msf s = MSF $ \a -> do
 
 -- * Alternative implementations
 --
--- ** Alternative using running/wrapping MSF combinators using generic lifting
+-- ** Alternative using running/wrapping 'MSF' combinators using generic lifting
 
 -- ** Alternative using 'lifterS'.
 

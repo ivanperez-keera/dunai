@@ -2,7 +2,7 @@
 {-# LANGUAGE TypeFamilies           #-}
 {-# LANGUAGE UndecidableInstances   #-}
 {-# OPTIONS_GHC -fno-warn-orphans   #-}
--- | VectorSpace instances for Num/Fractional types.
+-- | 'VectorSpace' instances for 'Num'/'Fractional' types.
 --
 -- This module includes instances for:
 --
@@ -17,7 +17,7 @@ module Data.VectorSpace.Fractional where
 
 import Data.VectorSpace
 
--- | R-module instance for any number, where '^+^ is '+' and multiplication is
+-- | 'RModule' instance for any number, where '^+^' is '+' and multiplication is
 -- normal multiplication.
 instance Num a => RModule a where
     type Groundring a = a
@@ -27,7 +27,7 @@ instance Num a => RModule a where
     x1 ^+^ x2      = x1 + x2
     x1 ^-^ x2      = x1 - x2
 
--- | Vector-space instance for any fractional, where vectorial division is
+-- | 'VectorSpace' instance for any 'Fractional', where vectorial division is
 -- normal number division.
 instance Fractional a => VectorSpace a where
     a ^/ x = a / x

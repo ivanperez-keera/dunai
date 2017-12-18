@@ -12,14 +12,14 @@ module Data.VectorSpace.Primitive where
 
 import Data.VectorSpace
 
--- | R-mobule instance for 'Int's.
+-- | 'RModule' instance for 'Int's.
 instance RModule Int where
     type Groundring Int = Int
     (^+^) = (+)
     (^*) = (*)
     zeroVector = 0
 
--- | R-mobule instance for 'Integer's.
+-- | 'RModule' instance for 'Integer's.
 instance RModule Integer where
     type Groundring Integer = Integer
     (^+^) = (+)
@@ -27,22 +27,22 @@ instance RModule Integer where
     zeroVector = 0
 
 
--- | R-mobule instance for 'Double's.
+-- | 'RModule' instance for 'Double's.
 instance RModule Double where
     type Groundring Double = Double
     (^+^) = (+)
     (^*) = (*)
     zeroVector = 0
 
--- | R-mobule instance for 'Floating's.
+-- | 'RModule' instance for 'Float's.
 instance RModule Float where
     type Groundring Float = Float
     (^+^) = (+)
     (^*) = (*)
     zeroVector = 0
 
--- | Vector-space instance for 'Double'.
+-- | 'VectorSpace' instance for 'Double'.
 instance VectorSpace Double where
 
--- | Vector-space instance for 'Floating's.
+-- | 'VectorSpace' instance for 'Float's.
 instance VectorSpace Float where

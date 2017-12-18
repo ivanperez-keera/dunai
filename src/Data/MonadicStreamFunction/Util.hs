@@ -17,12 +17,12 @@ import Data.VectorSpace
 
 -- * Streams and sinks
 
--- | A stream is an MSF that produces outputs ignoring the input. It can
--- obtain the values from a monadic context.
+-- | A stream is an 'MSF' that produces outputs, while ignoring the input.
+-- It can obtain the values from a monadic context.
 type MStream m a = MSF m () a
 
--- | A stream is an MSF that produces outputs producing no output. It can
--- consume the values with side effects.
+-- | A sink is an 'MSF' that consumes inputs, while producing no output.
+-- It can consume the values with side effects.
 type MSink   m a = MSF m a ()
 
 -- * Lifting
@@ -36,19 +36,19 @@ insert = arrM id
 arrM_ :: Monad m => m b -> MSF m a b
 arrM_ = arrM . const
 
--- | Lift the first MSF into the monad of the second.
+-- | Lift the first 'MSF' into the monad of the second.
 (^>>>) :: MonadBase m1 m2 => MSF m1 a b -> MSF m2 b c -> MSF m2 a c
 sf1 ^>>> sf2 = liftMSFBase sf1 >>> sf2
 {-# INLINE (^>>>) #-}
 
--- | Lift the second MSF into the monad of the first.
+-- | Lift the second 'MSF' into the monad of the first.
 (>>>^) :: MonadBase m1 m2 => MSF m2 a b -> MSF m1 b c -> MSF m2 a c
 sf1 >>>^ sf2 = sf1 >>> liftMSFBase sf2
 {-# INLINE (>>>^) #-}
 
--- * Analogues of map and fmap
+-- * Analogues of 'map' and 'fmap'
 
--- | Apply an MSF to every input.
+-- | Apply an 'MSF' to every input.
 mapMSF :: Monad m => MSF m a b -> MSF m [a] [b]
 mapMSF = MSF . consume
   where
@@ -59,7 +59,7 @@ mapMSF = MSF . consume
       (bs, sf'') <- consume sf' as
       b `seq` return (b:bs, sf'')
 
--- | Apply an MSF to every input. Freezes temporarily if the input is
+-- | Apply an 'MSF' to every input. Freezes temporarily if the input is
 -- 'Nothing', and continues as soon as a 'Just' is received.
 mapMaybeS :: Monad m => MSF m a b -> MSF m (Maybe a) (Maybe b)
 mapMaybeS msf = proc maybeA -> case maybeA of
@@ -81,12 +81,12 @@ withSideEffect_ method = withSideEffect $ const method
 
 -- See also: 'iPre'
 
--- | Preprends a fixed output to an MSF. The first input is completely
+-- | Preprends a fixed output to an 'MSF'. The first input is completely
 -- ignored.
 iPost :: Monad m => b -> MSF m a b -> MSF m a b
 iPost b sf = MSF $ \_ -> return (b, sf)
 
--- | Preprends a fixed output to an MSF, shifting the output.
+-- | Preprends a fixed output to an 'MSF', shifting the output.
 next :: Monad m => b -> MSF m a b -> MSF m a b
 next b sf = sf >>> delay b
 
@@ -101,7 +101,7 @@ fifo = feedback [] $ proc (as, accum) -> do
 
 -- * Folding
 
--- ** Folding for VectorSpace instances
+-- ** Folding for 'VectorSpace' instances
 
 -- | Count the number of simulation steps. Produces 1, 2, 3,...
 count :: (Num n, Monad m) => MSF m a n

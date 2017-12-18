@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeFamilies         #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
--- | 'VectorSpace' instances for MSFs that produce vector spaces. This allows
--- you to use vector operators with MSFs that output vectors, for example, you
+-- | 'VectorSpace' instances for 'MSF's that produce vector spaces. This allows
+-- you to use vector operators with 'MSF's that output vectors, for example, you
 -- can write:
 --
 -- @
@@ -28,7 +28,7 @@ import Data.VectorSpace
 
 -- These conflict with Data.VectorSpace.Instances
 
--- | R-module instance for MSFs.
+-- | R-module instance for 'MSF's.
 instance (Monad m, RModule v) => RModule (MSF m a v) where
   type Groundring (MSF m a v) = Groundring v
   zeroVector   = constantly zeroVector
@@ -37,6 +37,6 @@ instance (Monad m, RModule v) => RModule (MSF m a v) where
   (^+^)        = elementwise2 (^+^)
   (^-^)        = elementwise2 (^-^)
 
--- | Vector-space instance for MSFs.
+-- | Vector-space instance for 'MSF's.
 instance (Monad m, VectorSpace v) => VectorSpace (MSF m a v) where
   msf ^/ r = msf >>^ (^/ r)

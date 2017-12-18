@@ -114,7 +114,7 @@ reactimateMaybe
   => MSF (MaybeT m) () () -> m ()
 reactimateMaybe msf = reactimateExcept $ try $ maybeToExceptS msf
 
--- | Run an MSF fed from a list, discarding results. Useful when one needs to
+-- | Run an 'MSF' fed from a list, discarding results. Useful when one needs to
 -- combine effects and streams (i.e., for testing purposes).
 embed_ :: (Functor m, Monad m) => MSF m a () -> [a] -> m ()
 
