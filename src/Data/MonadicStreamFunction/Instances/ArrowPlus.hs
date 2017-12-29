@@ -24,6 +24,6 @@ instance (Monad m, MonadPlus m) => ArrowZero (MSF m) where
 instance (Monad m, MonadPlus m) => ArrowPlus (MSF m) where
   sf1 <+> sf2 = MSF $ \a -> unMSF sf1 a `mplus` unMSF sf2 a
 
-instance (Monad m, MonadPlus m) => Alternative (MSF m a) where
+instance (Functor m, Monad m, MonadPlus m) => Alternative (MSF m a) where
   empty = zeroArrow
   (<|>) = (<+>)
