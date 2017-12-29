@@ -30,6 +30,7 @@ module Control.Monad.Trans.MSF.List
 
 -- base
 import Control.Arrow
+import Data.Functor
 
 -- list-t
 import ListT
@@ -76,5 +77,5 @@ collect msf = collect' [msf] where
 -- * Utilities implemented in terms of 'ListT'
 
 -- | Run several 'MSF's jointly and collect the results.
-sequenceS :: Monad m => [MSF m a b] -> MSF m a [b]
+sequenceS :: (Functor m, Monad m) => [MSF m a b] -> MSF m a [b]
 sequenceS = collect . jointly
