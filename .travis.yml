@@ -23,6 +23,8 @@ env:
 
 before_install:
   - cd ${PACKAGEDIR}
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libsdl-gfx libwxgtk-dev
 
 deploy:
   provider: hackage
