@@ -13,6 +13,13 @@ ghc:
 env:
   - PACKAGEDIR="."
   - PACKAGEDIR="examples/bearriver"
+  - PACKAGEDIR="examples/basic-examples"
+  - PACKAGEDIR="examples/bouncingball"
+  - PACKAGEDIR="examples/discrete"
+  - PACKAGEDIR="examples/haskanoid"
+  - PACKAGEDIR="examples/keerahails"
+  - PACKAGEDIR="examples/list"
+  - PACKAGEDIR="examples/taggingmonad"
 
 before_install:
   - cd ${PACKAGEDIR}
@@ -25,3 +32,4 @@ deploy:
   on:
     branch: master
     condition: ${TRAVIS_HASKELL_VERSION}=8.2.1
+    condition: ""${PACKAGEDIR} =~ ^(\.|examples/bearriver)$"
