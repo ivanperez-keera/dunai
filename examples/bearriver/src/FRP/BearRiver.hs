@@ -262,6 +262,23 @@ dpSwitchB sfs sfF sfCs = MSF $ \a -> do
              NoEvent -> dpSwitchB sfs' sfF' sfCs
   return (bs, ct)
 
+dpSwitch :: (Monad m, Traversable col)
+         => (forall sf. (a -> col sf -> col (b, sf)))
+         -> col (SF m b c) 
+         -> SF m (a, col c) (Event d) 
+         -> (col (SF m b c) -> d -> SF m a (col c))
+         -> SF m a (col c)
+dpSwitch rf sfs sfF sfCs = MSF $ \a -> do
+  let bsfs = rf a sfs
+  res <- T.mapM (\(b, sf) -> unMSF sf b) bsfs
+  let cs   = fmap fst res
+      sfs' = fmap snd res
+  (e,sfF') <- unMSF sfF (a, cs)
+  let ct = case e of
+            Event d -> sfCs sfs' d
+            NoEvent -> dpSwitch rf sfs' sfF' sfCs
+  return (cs, ct)
+
 dSwitch ::  Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
 dSwitch sf sfC = MSF $ \a -> do
   (o, ct) <- unMSF sf a
