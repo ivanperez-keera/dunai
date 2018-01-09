@@ -1,3 +1,4 @@
+{-# LANGUAGE Arrows     #-}
 {-# LANGUAGE RankNTypes #-}
 module FRP.BearRiver
   (module FRP.BearRiver, module X)
@@ -11,18 +12,24 @@ module FRP.BearRiver
 -- there do not seem to exist any obvious limitations.
 
 import           Control.Applicative
-import           Control.Arrow                as X
-import           Control.Monad                (mapM)
---import           Control.Monad.Reader
+import           Control.Arrow                                  as X
+import qualified Control.Category                               as Category
+import           Control.Monad                                  (mapM)
+import           Control.Monad.Random
 import           Control.Monad.Trans.Maybe
 import           Control.Monad.Trans.MSF
-import           Data.Traversable             as T
+import           Control.Monad.Trans.MSF.Except                 as MSF
+import           Control.Monad.Trans.MSF.Random
 import           Data.Functor.Identity
 import           Data.Maybe
-import           Data.MonadicStreamFunction   as X hiding (iPre, reactimate, switch, sum, trace)
-import qualified Data.MonadicStreamFunction   as MSF
-import           Data.MonadicStreamFunction.ArrowLoop
-import           FRP.Yampa.VectorSpace        as X
+import           Data.MonadicStreamFunction                     as X hiding (reactimate,
+                                                                      sum,
+                                                                      switch,
+                                                                      trace)
+import qualified Data.MonadicStreamFunction                     as MSF
+import           Data.MonadicStreamFunction.Instances.ArrowLoop
+import           Data.Traversable                               as T
+import           FRP.Yampa.VectorSpace                          as X
 
 type Time  = Double
 type DTime = Double
@@ -31,13 +38,11 @@ type SF m        = MSF (ClockInfo m)
 type ClockInfo m = ReaderT DTime m
 
 identity :: Monad m => SF m a a
-identity = arr id
+identity = Category.id
 
 constant :: Monad m => b -> SF m a b
 constant = arr . const
 
-iPre :: Monad m => a -> SF m a a
-iPre i = MSF $ \i' -> return (i, iPre i')
 
 -- * Continuous time
 
@@ -48,19 +53,18 @@ integral :: (Monad m, VectorSpace a s) => SF m a a
 integral = integralFrom zeroVector
 
 integralFrom :: (Monad m, VectorSpace a s) => a -> SF m a a
-integralFrom n0 = MSF $ \n -> do
-  dt <- ask
-  let acc = n0 ^+^ realToFrac dt *^ n
-  acc `seq` return (acc, integralFrom acc)
+integralFrom a0 = proc a -> do
+  dt <- arrM_ ask         -< ()
+  accumulateWith (^+^) a0 -< realToFrac dt *^ a
 
 derivative :: (Monad m, VectorSpace a s) => SF m a a
 derivative = derivativeFrom zeroVector
 
 derivativeFrom :: (Monad m, VectorSpace a s) => a -> SF m a a
-derivativeFrom n0 = MSF $ \n -> do
-  dt <- ask
-  let res = (n ^-^ n0) ^/ realToFrac dt
-  res `seq` return (res, derivativeFrom n)
+derivativeFrom a0 = proc a -> do
+  dt   <- arrM_ ask   -< ()
+  aOld <- MSF.iPre a0 -< a
+  returnA             -< (a ^-^ aOld) ^/ realToFrac dt
 
 -- * Events
 
@@ -101,7 +105,7 @@ mergeBy _       NoEvent      re@(Event _) = re
 mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
 
 lMerge :: Event a -> Event a -> Event a
-lMerge = mergeBy (\e1 _e2 -> e1)
+lMerge = mergeBy (\e1 _ -> e1)
 
 -- ** Relation to other types
 
@@ -142,11 +146,29 @@ hold a = feedback a $ arr $ \(e,a') ->
 loopPre :: Monad m => c -> SF m (a, c) (b, c) -> SF m a b
 loopPre = feedback
 
+-- | Event source that never occurs.
+never :: Monad m => SF m a (Event b)
+never = constant NoEvent
+
+-- | Event source with a single occurrence at time 0. The value of the event
+-- is given by the function argument.
+now :: Monad m => b -> SF m a (Event b)
+now b0 = Event b0 --> never
+
+-- | Suppress all but the first event.
+once :: Monad m => SF m (Event a) (Event a)
+once = takeEvents 1
+
+-- | Suppress all but the first n events.
+takeEvents :: Monad m => Int -> SF m (Event a) (Event a)
+takeEvents n | n <= 0 = never
+takeEvents n = dSwitch (arr dup) (const (NoEvent >-- takeEvents (n - 1)))
+
 after :: Monad m
       => Time -- ^ The time /q/ after which the event should be produced
       -> b    -- ^ Value to produce at that time
       -> SF m a (Event b)
-after q x = feedback q $ go
+after q x = feedback q go
  where go = MSF $ \(_, t) -> do
               dt <- ask
               let t' = t - dt
@@ -154,10 +176,39 @@ after q x = feedback q $ go
                   ct = if t' < 0 then constant (NoEvent, t') else go
               return ((e, t'), ct)
 
+occasionally :: MonadRandom m 
+             => Time -- ^ The time /q/ after which the event should be produced on average
+             -> b    -- ^ Value to produce at time of event
+             -> SF m a (Event b)
+occasionally tAvg b
+  | tAvg <= 0 = error "dunai: Non-positive average interval in occasionally."
+  | otherwise = proc _ -> do
+      r   <- getRandomRS (0, 1) -< ()
+      dt  <- timeDelta          -< ()
+      let p = 1 - exp (-(dt / tAvg))
+      returnA -< if r < p then Event b else NoEvent
+ where
+  timeDelta :: Monad m => SF m a DTime
+  timeDelta = arrM_ ask
+
+-- | Initialization operator (cf. Lustre/Lucid Synchrone).
+--
+-- The output at time zero is the first argument, and from
+-- that point on it behaves like the signal function passed as
+-- second argument.
 (-->) :: Monad m => b -> SF m a b -> SF m a b
-b0 --> sf = MSF $ \a -> do
-  (_, ct) <- unMSF sf a
-  return (b0, ct)
+b0 --> sf = sf >>> replaceOnce b0
+
+-- | Input initialization operator.
+--
+-- The input at time zero is the first argument, and from
+-- that point on it behaves like the signal function passed as
+-- second argument.
+(>--) :: Monad m => a -> SF m a b -> SF m a b
+a0 >-- sf = replaceOnce a0 >>> sf
+
+replaceOnce :: Monad m => a -> SF m a a
+replaceOnce a = dSwitch (arr $ const (a, Event ())) (const $ arr id)
 
 accumHoldBy :: Monad m => (b -> a -> b) -> b -> SF m (Event a) b
 accumHoldBy f b = feedback b $ arr $ \(a, b') ->
@@ -210,7 +261,7 @@ iterFrom f b = MSF $ \a -> do
   let b' = f a a dt b
   return (b, iterFrom f b')
 
-reactimate :: IO a -> (Bool -> IO (DTime, Maybe a)) -> (Bool -> b -> IO Bool) -> SF Identity a b -> IO ()
+reactimate :: Monad m => m a -> (Bool -> m (DTime, Maybe a)) -> (Bool -> b -> m Bool) -> SF Identity a b -> m ()
 reactimate senseI sense actuate sf = do
   -- runMaybeT $ MSF.reactimate $ liftMSFTrans (senseSF >>> sfIO) >>> actuateSF
   MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
@@ -235,6 +286,4 @@ reactimate senseI sense actuate sf = do
 -- * Auxiliary
 
 -- ** Tuples
-
 dup  x     = (x,x)
-swap (x,y) = (y,x)

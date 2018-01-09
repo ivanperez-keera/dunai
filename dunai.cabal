@@ -1,7 +1,36 @@
 name:                dunai
-version:             0.1.0.0
+version:             0.4.0.0
 synopsis:            Generalised reactive framework supporting classic, arrowized and monadic FRP.
--- description:
+homepage:            https://github.com/ivanperez-keera/dunai
+description:
+  Dunai is a DSL for strongly-typed CPS-based composable transformations.
+  .
+  Dunai is based on a concept of Monadic Stream Functions (MSFs). MSFs are
+  transformations defined by a function @unMSF :: MSF m a b -> a -> m (b, MSF m a b)@
+  that executes one step of a simulation, and produces an output in a monadic
+  context, and a continuation to be used for future steps.
+  .
+  MSFs are a generalisation of the implementation mechanism used by Yampa,
+  Wormholes and other FRP and reactive implementations.
+  .
+  When combined with different monads, they produce interesting effects. For
+  example, when combined with the @Maybe@ monad, they become transformations
+  that may stop producing outputs (and continuations). The @Either@ monad gives
+  rise to MSFs that end with a result (akin to Tasks in Yampa, and Monadic
+  FRP).
+  .
+  Flattening, that is, going from some structure @MSF (t m) a b@ to @MSF m a b@
+  for a specific transformer @t@ often gives rise to known FRP constructs. For
+  instance, flattening with @EitherT@ gives rise to switching, and flattening
+  with @ListT@ gives rise to parallelism with broadcasting.
+  .
+  MSFs can be used to implement many FRP variants, including Arrowized FRP,
+  Classic FRP, and plain reactive programming. Arrowized and applicative
+  syntax are both supported.
+  .
+  For a very detailed introduction to MSFs, see:
+  <http://dl.acm.org/citation.cfm?id=2976010>
+  (mirror: <http://www.cs.nott.ac.uk/~psxip1/#FRPRefactored>).
 license:             BSD3
 license-file:        LICENSE
 author:              Ivan Perez, Manuel Bärenz
@@ -14,11 +43,13 @@ cabal-version:       >=1.10
 
 -- You can disable the hlint test suite with -f-test-hlint
 flag test-hlint
+  description: Enable hlint test suite
   default: False
   manual: True
 
 -- You can disable the haddock coverage test suite with -f-test-doc-coverage
 flag test-doc-coverage
+  description: Enable haddock coverage test suite
   default: False
   manual: True
 
@@ -27,33 +58,35 @@ library
                      Control.Monad.Trans.MSF.Except
                      Control.Monad.Trans.MSF.GenLift
                      Control.Monad.Trans.MSF.Maybe
+                     Control.Monad.Trans.MSF.Random
                      Control.Monad.Trans.MSF.Reader
+                     Control.Monad.Trans.MSF.RWS
                      Control.Monad.Trans.MSF.State
                      Control.Monad.Trans.MSF.Writer
                      Data.MonadicStreamFunction
                      Data.MonadicStreamFunction.Core
-                     Data.MonadicStreamFunction.ArrowChoice
-                     Data.MonadicStreamFunction.ArrowLoop
-                     Data.MonadicStreamFunction.ArrowPlus
-                     Data.MonadicStreamFunction.Instances
+                     Data.MonadicStreamFunction.Async
+                     Data.MonadicStreamFunction.Instances.ArrowChoice
+                     Data.MonadicStreamFunction.Instances.ArrowLoop
+                     Data.MonadicStreamFunction.Instances.ArrowPlus
                      Data.MonadicStreamFunction.Instances.Num
                      Data.MonadicStreamFunction.Instances.VectorSpace
                      Data.MonadicStreamFunction.Parallel
                      Data.MonadicStreamFunction.ReactHandle
                      Data.MonadicStreamFunction.Util
 
-         -- Auxiliary definitions
+                     -- Auxiliary definitions
                      Data.VectorSpace
                      Data.VectorSpace.Fractional
                      Data.VectorSpace.Tuples
-                     Data.VectorSpace.Specific
+                     Data.VectorSpace.Primitive
 
   other-modules:     Control.Arrow.Util
-                     Data.Tuple.Util
 
   build-depends:     base >=4.6 && < 5,
                      transformers,
-                     transformers-base
+                     transformers-base,
+                     MonadRandom
   hs-source-dirs:    src
   default-language:  Haskell2010
   ghc-options:       -Wall -fno-warn-unused-do-bind
@@ -88,4 +121,4 @@ test-suite haddock-coverage
 
 source-repository head
   type:     git
-  location: git@bitbucket.org:iperezdominguez/dunai.git
+  location: git@github.com:ivanperez-keera/dunai.git

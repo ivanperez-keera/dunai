@@ -1,11 +1,32 @@
 {-# LANGUAGE TypeFamilies         #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+
+-- | Number instances for 'MSF's that produce numbers. This allows you to use
+--   numeric operators with 'MSF's that output numbers, for example,
+--   you can write:
+--
+-- @
+-- msf1 :: MSF Input Double -- defined however you want
+-- msf2 :: MSF Input Double -- defined however you want
+-- msf3 :: MSF Input Double
+-- msf3 = msf1 + msf2
+-- @
+--
+-- instead of
+--
+-- @
+-- msf3 = (msf1 &&& msf2) >>> arr (uncurry (+))
+-- @
+--
+-- Instances are provided for the type classes 'Num', 'Fractional'
+-- and 'Floating'.
+
 module Data.MonadicStreamFunction.Instances.Num where
 
 import Control.Arrow.Util
 import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.Instances
 
+-- | 'Num' instance for 'MSF's.
 instance (Monad m, Num b) => Num (MSF m a b) where
   (+)         = elementwise2 (+)
   (-)         = elementwise2 (-)
@@ -15,11 +36,13 @@ instance (Monad m, Num b) => Num (MSF m a b) where
   negate      = elementwise negate
   fromInteger = constantly . fromInteger
 
+-- | 'Fractional' instance for 'MSF's.
 instance (Monad m, Fractional b) => Fractional (MSF m a b) where
   fromRational = constantly . fromRational
   (/)          = elementwise2 (/)
   recip        = elementwise recip
 
+-- | 'Floating' instance for 'MSF's.
 instance (Monad m, Floating b) => Floating (MSF m a b) where
   pi      = constantly   pi
   exp     = elementwise  exp

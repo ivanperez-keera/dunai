@@ -1,7 +1,7 @@
 name:                dunai-examples-discreterp-wxhaskell
 version:             0.1.0.0
 synopsis:            An example using MStreamFs with a step clock and WX UIs
-license:             AllRightsReserved
+license:             BSD3
 license-file:        LICENSE
 author:              Ivan Perez
 maintainer:          ivan.perez@keera.co.uk
