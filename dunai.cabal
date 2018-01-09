@@ -74,6 +74,7 @@ library
                      Data.MonadicStreamFunction.Parallel
                      Data.MonadicStreamFunction.ReactHandle
                      Data.MonadicStreamFunction.Util
+                     Data.MonadicStreamFunction.Wormhole
 
                      -- Auxiliary definitions
                      Data.VectorSpace
