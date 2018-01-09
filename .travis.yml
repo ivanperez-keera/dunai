@@ -24,7 +24,7 @@ env:
 before_install:
   - cd ${PACKAGEDIR}
   - sudo apt-get update -qq
-  - sudo apt-get install -qq libsdl-gfx1.2-dev libwxgtk3.0-dev
+  - sudo apt-get install -qq libsdl-gfx1.2-dev libwxgtk3.0-dev libbluetooth-dev libcwiid-dev
 
 deploy:
   provider: hackage
