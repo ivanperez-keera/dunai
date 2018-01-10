@@ -13,14 +13,14 @@
 -- This is done through a wormhole, which is a shared mutable variable
 -- that can be written from one part and read from the other.
 --
--- An example implementation is given for IORefs.
+-- An example implementation is given for 'IORefs'.
 -- Usually, the implementation is straightforward
 -- for other synchronisation methods.
 -- A word of caution has to be said though,
 -- against using _blocking_ synchronisation mechanisms,
--- such as MVars, for wormholes. In typical use cases,
--- the side effects of the sink
--- and the source have to be assumed to be non-blocking, ruling e.g. MVars out.
+-- such as 'MVar's, for wormholes. In typical use cases,
+-- the side effects of the sink and the source
+-- have to be assumed to be non-blocking, ruling e.g. 'MVar's out.
 
 module Data.MonadicStreamFunction.Wormhole where
 
@@ -36,8 +36,8 @@ import Data.MonadicStreamFunction
 -- a sink and a source. It should satisfy the following properties:
 --
 -- * The data sent into the sink is transferred to the source
---   by means of side effects in m.
--- * Both sink and source are non-blocking.
+--   by means of side effects in @m@.
+-- * In case of 'IO', sink and source are non-blocking.
 data Wormhole m a b = Wormhole
   { sink   :: MSF m a ()
   , source :: MSF m () b
@@ -55,7 +55,8 @@ newWormholeIORef a = liftIO $ do
     , source = arrM_ $ liftIO $ readIORef  ref
     }
 
--- | Modify
+-- | Create a wormhole encapsulating an initialised 'IORef'.
+-- Incoming data modifies the stored value atomically and strictly.
 newWormholeModifyIORef
   :: MonadIO m
   => b -- ^ The initial value
@@ -64,16 +65,28 @@ newWormholeModifyIORef
 newWormholeModifyIORef b f = liftIO $ do
   ref <- newIORef b
   return $ Wormhole
-    { sink   = arrM $ \a -> do
-        liftIO $ atomicModifyIORef' ref ((, ()) . f a)
-        return ()
-    , source = arrM_ $ liftIO $ readIORef  ref
+    { sink   = arrM $ \a -> liftIO $ atomicModifyIORef' ref $ (, ()) . f a
+    , source = arrM_ $ liftIO $ readIORef ref
     }
 
--- | Creates two wormholes with IORefs at each end of the stream function
+-- | Create a wormhole encapsulating an 'IORef' storing a 'Monoid'.
+-- Every input is (atomically and strictly) 'mappend'ed to the stored value,
+-- and whenever output is requested, the stored value is retrieved
+-- (atomically and strictly) and replaced by 'mempty'.
+newWormholeMonoidIORef :: (Monoid a, MonadIO m) => m (Wormhole m a a)
+newWormholeMonoidIORef = liftIO $ do
+  ref <- newIORef mempty
+  return $ Wormhole
+    { sink   = arrM $ \a -> liftIO $ atomicModifyIORef' ref $ (, ()) . mappend a
+    , source = arrM_ $ liftIO $ atomicModifyIORef' ref $ \a -> (mempty, a)
+    }
+
+-- | Creates two wormholes with 'IORef's at each end of the stream function
 -- and runs the inner stream function in a separate thread.
--- It returns the outer stream function, which can be used to send and receive data
+-- It returns the outer stream function, which can be used
+-- to send and receive data
 -- from the other thread, and a method to kill the thread.
+-- As for 'newWormholeIORef', there is no synchronisation guarantee.
 concurrently :: MSF IO a b -> a -> b -> IO (MSF IO a b, IO ())
 concurrently msf a b = do
   input    <- newWormholeIORef a
