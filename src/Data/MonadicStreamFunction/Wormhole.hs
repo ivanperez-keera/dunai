@@ -28,6 +28,7 @@ module Data.MonadicStreamFunction.Wormhole where
 import Control.Monad.IO.Class
 import Control.Concurrent
 import Data.IORef
+import Data.Monoid
 
 -- Internal
 import Data.MonadicStreamFunction
