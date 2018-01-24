@@ -1,14 +1,14 @@
 {-# LANGUAGE Rank2Types          #-}
 
--- | MSFs with a Reader monadic layer.
+-- | 'MSF's with a 'Reader' monadic layer.
 --
--- This module contains functions to work with MSFs that include a 'Reader'
--- monadic layer. This includes functions to create new MSFs that include an
--- additional layer, and functions to flatten that layer out of the MSF's
+-- This module contains functions to work with 'MSF's that include a 'Reader'
+-- monadic layer. This includes functions to create new 'MSF's that include an
+-- additional layer, and functions to flatten that layer out of the 'MSF`'s
 -- transformer stack.
 module Control.Monad.Trans.MSF.Reader
   ( module Control.Monad.Trans.Reader
-  -- * Reader MSF wrapping/unwrapping.
+  -- * 'Reader' 'MSF' running and wrapping.
   , readerS
   , runReaderS
   , runReaderS_
@@ -21,21 +21,20 @@ import Control.Monad.Trans.Reader
 -- Internal
 import Data.MonadicStreamFunction
 
--- * Reader MSF wrapping/unwrapping
+-- * Reader 'MSF' running and wrapping
 
--- | Build an MSF in the 'Reader' monad from one that takes the reader
+-- | Build an 'MSF' in the 'Reader' monad from one that takes the reader
 -- environment as an extra input. This is the opposite of 'runReaderS'.
 readerS :: Monad m => MSF m (r, a) b -> MSF (ReaderT r m) a b
 readerS = hoistGen $ \f a -> ReaderT $ \r -> f (r, a)
 
--- | Build an MSF that takes an environment as an extra input from one on the
+-- | Build an 'MSF' that takes an environment as an extra input from one on the
 -- 'Reader' monad. This is the opposite of 'readerS'.
 runReaderS :: Monad m => MSF (ReaderT r m) a b -> MSF m (r, a) b
 runReaderS = hoistGen $ \f (r, a) -> runReaderT (f a) r
 
 
--- | Build an MSF /function/ that takes a fixed environment as additional
+-- | Build an 'MSF' /function/ that takes a fixed environment as additional
 -- input, from an MSF in the 'Reader' monad.
-
 runReaderS_ :: Monad m => MSF (ReaderT s m) a b -> s -> MSF m a b
 runReaderS_ msf s = arr (\a -> (s,a)) >>> runReaderS msf

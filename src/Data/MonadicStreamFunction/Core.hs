@@ -3,29 +3,30 @@
 -- | Monadic Stream Functions are synchronized stream functions
 --   with side effects.
 --
---   MSFs are defined by a function @unMSF :: MSF m a b -> a -> m (b, MSF m a b)@
+--   'MSF's are defined by a function
+--   @unMSF :: MSF m a b -> a -> m (b, MSF m a b)@
 --   that executes one step of a simulation, and produces an output in a
 --   monadic context, and a continuation to be used for future steps.
 --
---   MSFs are a generalisation of the implementation mechanism used by Yampa,
+--   'MSF's are a generalisation of the implementation mechanism used by Yampa,
 --   Wormholes and other FRP and reactive implementations.
 --
 --   When combined with different monads, they produce interesting effects. For
---   example, when combined with the @Maybe@ monad, they become transformations
---   that may stop producing outputs (and continuations). The @Either@ monad
---   gives rise to MSFs that end with a result (akin to Tasks in Yampa, and
+--   example, when combined with the 'Maybe' monad, they become transformations
+--   that may stop producing outputs (and continuations). The 'Either' monad
+--   gives rise to 'MSF's that end with a result (akin to Tasks in Yampa, and
 --   Monadic FRP).
 --
 --   Flattening, that is, going from some structure @MSF (t m) a b@ to @MSF m a b@
 --   for a specific transformer @t@ often gives rise to known FRP constructs.
---   For instance, flattening with @EitherT@ gives rise to switching, and
---   flattening with @ListT@ gives rise to parallelism with broadcasting.
+--   For instance, flattening with 'EitherT' gives rise to switching, and
+--   flattening with 'ListT' gives rise to parallelism with broadcasting.
 --
---   MSFs can be used to implement many FRP variants, including Arrowized FRP,
+--   'MSF's can be used to implement many FRP variants, including Arrowized FRP,
 --   Classic FRP, and plain reactive programming. Arrowized and applicative
 --   syntax are both supported.
 --
---   For a very detailed introduction to MSFs, see:
+--   For a very detailed introduction to 'MSF's, see:
 --   <http://dl.acm.org/citation.cfm?id=2976010>
 --   (mirror: <http://www.cs.nott.ac.uk/~psxip1/#FRPRefactored>).
 
@@ -62,9 +63,9 @@ import Prelude hiding ((.), id, sum)
 
 -- * Definitions
 
--- | Stepwise, side-effectful MSFs without implicit knowledge of time.
+-- | Stepwise, side-effectful 'MSF's without implicit knowledge of time.
 --
--- MSFs should be applied to streams or executed indefinitely or until they
+-- 'MSF's should be applied to streams or executed indefinitely or until they
 -- terminate. See 'reactimate' and 'reactimateB' for details. In general,
 -- calling the value constructor 'MSF' or the function 'unMSF' is discouraged.
 data MSF m a b = MSF { unMSF :: a -> m (b, MSF m a b) }
@@ -81,7 +82,7 @@ instance Monad m => Category (MSF m) where
     let sf' = sf2' . sf1'
     c `seq` return (c, sf')
 
--- | 'Arrow' instance for MSFs.
+-- | 'Arrow' instance for 'MSF's.
 instance Monad m => Arrow (MSF m) where
 
   arr f = go
@@ -91,20 +92,20 @@ instance Monad m => Arrow (MSF m) where
     (b, sf') <- unMSF sf a
     b `seq` return ((b, c), first sf')
 
--- | Functor instance for MSFs.
+-- | 'Functor' instance for 'MSF's.
 instance Functor m => Functor (MSF m a) where
   -- fmap f msf == msf >>> arr f
   fmap f msf = MSF $ fmap fS . unMSF msf
     where
       fS (b, cont) = (f b, fmap f cont)
 
--- | Applicative instance for MSFs.
+-- | 'Applicative' instance for 'MSF's.
 instance (Functor m, Monad m) => Applicative (MSF m a) where
   -- It is possible to define this instance with only Applicative m
   pure = arr . const
   fs <*> bs = (fs &&& bs) >>> arr (uncurry ($))
 
--- * Monadic computations and MSFs
+-- * Monadic computations and 'MSF's
 
 -- ** Lifting point-wise computations
 
@@ -121,7 +122,7 @@ arrM f = go
 liftS :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
 liftS = arrM . (liftBase .)
 
--- ** Lifting MSFs
+-- ** Lifting 'MSF's
 
 -- *** Lifting across monad stacks
 
@@ -137,7 +138,7 @@ liftMSFTrans = liftMSFPurer lift
 liftMSFBase :: (Monad m2, MonadBase m1 m2) => MSF m1 a b -> MSF m2 a b
 liftMSFBase = liftMSFPurer liftBase
 
--- *** Generic MSF Lifting
+-- *** Generic 'MSF' Lifting
 
 -- | Hoist a natural transformation to the level of 'MSF's.
 --
@@ -207,7 +208,7 @@ delay = iPre
 
 -- * Switching
 
--- | Switching applies one MSF until it produces a 'Just' output, and then
+-- | Switching applies one 'MSF' until it produces a 'Just' output, and then
 -- "turns on" a continuation and runs it.
 --
 -- A more advanced and comfortable approach to switching is given by Exceptions
@@ -232,7 +233,7 @@ feedback c sf = MSF $ \a -> do
 -- Because the result is in a monad, it may be necessary to
 -- traverse the whole list to evaluate the value in the results to WHNF.
 -- For example, if the monad is the maybe monad, this may not produce anything
--- if the MSF produces Nothing at any point, so the output stream cannot
+-- if the 'MSF' produces 'Nothing' at any point, so the output stream cannot
 -- consumed progressively.
 --
 -- To explore the output progressively, use 'liftMSF' and '(>>>)'', together
