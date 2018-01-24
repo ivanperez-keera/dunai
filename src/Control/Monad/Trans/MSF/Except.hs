@@ -20,7 +20,7 @@ import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen, lift
 import           Control.Monad.Trans.Maybe
 
 -- Internal
-import Control.Monad.Trans.MSF.GenLift (transG)
+import Control.Monad.Trans.MSF.GenLift (transG, handleGen)
 import Data.MonadicStreamFunction
 
 -- * Throwing exceptions
@@ -160,11 +160,20 @@ instance Monad m => Applicative (MSFExcept m a b) where
 -- | Monad instance for 'MSFExcept'. Bind uses the exception as the "return"
 -- value in the monad.
 instance Monad m => Monad (MSFExcept m a b) where
-  MSFExcept msf >>= f = MSFExcept $ MSF $ \a -> do
-    cont <- lift $ runExceptT $ unMSF msf a
-    case cont of
-      Left e          -> unMSF (runMSFExcept $ f e) a
-      Right (b, msf') -> return (b, runMSFExcept $ try msf' >>= f)
+  MSFExcept msf >>= f = MSFExcept $ handleExceptT msf $ runMSFExcept . f
+
+handleExceptT
+  :: Monad m
+  => MSF (ExceptT e1 m) a b
+  -> (e1 -> MSF (ExceptT e2 m) a b)
+  -> MSF (ExceptT e2 m) a b
+handleExceptT msf f = flip handleGen msf $ \a mbcont -> do
+  ebcont <- lift $ runExceptT mbcont
+  case ebcont of
+    Left e          -> unMSF (f e) a
+    Right (b, msf') -> return (b, handleExceptT msf' f)
+
+
 
 -- | The empty type. As an exception type, it encodes "no exception possible".
 data Empty

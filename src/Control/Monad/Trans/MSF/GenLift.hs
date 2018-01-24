@@ -85,3 +85,10 @@ transG transformInput transformOutput msf = go
 -- does not get in the way.
 --
 -- type Id a = a
+
+
+handleGen
+  :: (a -> m1 (b1, MSF m1 a b1) -> m2 (b2, MSF m2 a b2))
+  -> MSF m1 a b1
+  -> MSF m2 a b2
+handleGen handler msf = MSF $ \a -> handler a $ unMSF msf a
