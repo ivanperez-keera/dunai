@@ -21,6 +21,11 @@ env:
   - PACKAGEDIR="examples/list"
   - PACKAGEDIR="examples/taggingmonad"
 
+matrix:
+  exclude:
+    - ghc: 8.2.1
+    - env: PACKAGEDIR="examples/keerahails"
+
 before_install:
   - cd ${PACKAGEDIR}
   - sudo apt-get update -qq
