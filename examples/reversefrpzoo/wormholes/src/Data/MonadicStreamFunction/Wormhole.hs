@@ -60,8 +60,8 @@ newWormholeIORef a = liftIO $ do
 -- Incoming data modifies the stored value atomically and strictly.
 newWormholeModifyIORef
   :: MonadIO m
-  => b -- ^ The initial value
-  -> (a -> b -> b) -- ^ This function modifies the stored value for every input
+  => b              -- ^ The initial value
+  -> (a -> b -> b)  -- ^ This function modifies the stored value for every input
   -> m (Wormhole m a b)
 newWormholeModifyIORef b f = liftIO $ do
   ref <- newIORef b
@@ -94,3 +94,16 @@ concurrently msf a b = do
   output   <- newWormholeIORef b
   threadId <- forkIO $ reactimate $ source input >>> msf >>> sink output
   return (sink input >>> source output, killThread threadId)
+
+-- | Creates two ends of a synchronisation wormhole.
+--
+-- Often, the external framework may have several parallel loops,
+-- for example, OpenGL with a display callback, an idle callback and a keyboard callback.
+-- In such cases, one would like to let the different parts communicate.
+-- This is done through a wormhole, which is a shared mutable variable
+-- that can be written from one part and read from the other.
+-- In this implementation, an 'IORef' is used.
+createWormhole :: MonadIO m => a -> m (MSF m a (), MSF m () a)
+createWormhole a = liftIO $ do
+  ref <- newIORef a
+  return (arrM $ liftIO . writeIORef ref, arrM_ $ liftIO $ readIORef ref)

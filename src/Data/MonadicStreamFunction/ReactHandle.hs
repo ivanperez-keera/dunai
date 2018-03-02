@@ -3,10 +3,6 @@
 -- Sometimes it is beneficial to give control to an external main loop,
 -- for example OpenGL or a hardware-clocked audio server like JACK.
 -- This module makes Dunai compatible with external main loops.
---
--- For communication between 'ReactHandle's and other 'MSF's,
--- or between 'MSF's on different threads,
--- use 'Data.MonadicStreamFunction.Wormhole'.
 
 module Data.MonadicStreamFunction.ReactHandle where
 
