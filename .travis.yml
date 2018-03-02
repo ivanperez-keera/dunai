@@ -20,6 +20,7 @@ env:
   - PACKAGEDIR="examples/keerahails"
   - PACKAGEDIR="examples/list"
   - PACKAGEDIR="examples/taggingmonad"
+  - PACKAGEDIR="examples/reversefrpzoo/wormholes"
 
 matrix:
   exclude:
