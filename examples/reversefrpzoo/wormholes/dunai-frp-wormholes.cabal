@@ -1,0 +1,21 @@
+name:                dunai-frp-wormholes
+version:             0.1.0.0
+synopsis:            An implementation of Winograd-cort's wormholes on top of Dunai.
+homepage:            http://github.com/ivanperez-keera/dunai
+license:             BSD3
+license-file:        LICENSE
+author:              Manuel Bärenz
+maintainer:          ivan.perez@keera.co.uk
+category:            Reactivity, FRP
+build-type:          Simple
+extra-source-files:  ChangeLog.md
+cabal-version:       >=1.10
+
+library
+  exposed-modules:   Data.MonadicStreamFunction.Wormhole
+  build-depends:     base >=4.6 && < 5,
+                     transformers,
+                     dunai
+  hs-source-dirs:    src
+  default-language:  Haskell2010
+  ghc-options:       -Wall -fno-warn-unused-do-bind
