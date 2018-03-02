@@ -16,7 +16,6 @@ env:
   - PACKAGEDIR="examples/basic-examples"
   - PACKAGEDIR="examples/bouncingball"
   - PACKAGEDIR="examples/discrete"
-  - PACKAGEDIR="examples/haskanoid"
   - PACKAGEDIR="examples/keerahails"
   - PACKAGEDIR="examples/list"
   - PACKAGEDIR="examples/taggingmonad"
