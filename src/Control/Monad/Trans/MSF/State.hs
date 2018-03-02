@@ -5,6 +5,11 @@
 -- monadic layer. This includes functions to create new 'MSF's that include an
 -- additional layer, and functions to flatten that layer out of the 'MSF`'s
 -- transformer stack.
+--
+-- It is based on the _strict_ state monad 'Control.Monad.Trans.State.Strict',
+-- so when combining it with other modules such as @mtl@'s,
+-- the strict version has to be included, i.e. 'Control.Monad.State.Strict'
+-- instead of 'Control.Monad.State' or 'Control.Monad.State.Lazy'.
 module Control.Monad.Trans.MSF.State
   ( module Control.Monad.Trans.State.Strict
   -- * 'State' 'MSF' running and wrapping
