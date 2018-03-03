@@ -1,5 +1,5 @@
 name:                bearriver
-version:             0.10.4.2
+version:             0.10.4.3
 synopsis:            A replacement of Yampa based on Monadic Stream Functions.
 description:         A Yampa replacement built using Dunai.
 homepage:            keera.co.uk
@@ -7,10 +7,10 @@ license:             BSD3
 license-file:        LICENSE
 author:              Ivan Perez and Manuel Bärenz
 maintainer:          ivan.perez@keera.co.uk
--- copyright:           
+-- copyright:
 category:            FRP
 build-type:          Simple
--- extra-source-files:  
+-- extra-source-files:
 cabal-version:       >=1.10
 
 library
