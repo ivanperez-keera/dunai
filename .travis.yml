@@ -13,9 +13,23 @@ ghc:
 env:
   - PACKAGEDIR="."
   - PACKAGEDIR="examples/bearriver"
+  - PACKAGEDIR="examples/basic-examples"
+  - PACKAGEDIR="examples/bouncingball"
+  - PACKAGEDIR="examples/discrete"
+  - PACKAGEDIR="examples/keerahails"
+  - PACKAGEDIR="examples/list"
+  - PACKAGEDIR="examples/taggingmonad"
+  - PACKAGEDIR="examples/reversefrpzoo/wormholes"
+
+matrix:
+  exclude:
+    - ghc: 8.2.1
+    - env: PACKAGEDIR="examples/keerahails"
 
 before_install:
   - cd ${PACKAGEDIR}
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libsdl-gfx1.2-dev libwxgtk3.0-dev libbluetooth-dev libcwiid-dev libwxgtk-media3.0-dev libsdl-ttf2.0-dev
 
 deploy:
   provider: hackage
@@ -24,4 +38,6 @@ deploy:
     secure: nfxBR6dV3B+qmQcxiJsmQMPrRUvUZRfSPmhFWwFIjJCfjJLTteQg9V0QI2IpssnNos9qQrCF9qxsvSGSliC9rANYRz8jGz4y5/8XmS0LE71BDTvB8WyzWhKGB9SXNN4xozEIvFDdpEopeK3uh7yf3GXY30zDNhYbZaj38eUF0/3WfxcBBgKDjPgnVShNgoXkkwI6Vz+e1M42/f0IoUVdXWikmCuczMoVYKIkawr+qjCKn9jzKzsdxVYgFtKwOx4wzXvncfvsi1H90pHt4RZi0ufS0qhFxq8Wylx8s1J4i1AuC/2iuAhdEOTidSXGUpi3hDfPhvq70+5vJr9RxgdRA5SkqXT/cck5cC21uOuIw1mGs2Zic7jD16MrpDmZEgZq5QpsK7Hwy5B3+YXZ7y7gG8nxobg8Fj49IbYTuigGrlXJumAXMtU1mspRfWthySKLLrVyCqn8Jow8DcjtmQDGRf4yY2EPngf8iJ7VmFaUpiCPZZ2aE4FxjSpqgJLFun2szLsNLNVFkUHjHF/NFJzW6i+evy/oJmvk+SmI0D/YunbUmlgrN2+sy5TpwWquN9I78SDaGpP8yNlR7OutU6DgLpu9BigLTQHKQr+tJz30c4em3w2Gl1F+QM8sIEEvafEX8+h6WqpKuHi8sQlJKJziAnoEfgDC83tKJJpMc9hj3kE=
   on:
     branch: master
-    condition: ${TRAVIS_HASKELL_VERSION}=8.2.1
+    condition:
+      - ${TRAVIS_HASKELL_VERSION}=8.2.1
+      - ${PACKAGEDIR} =~ ^(\.|examples/bearriver)$

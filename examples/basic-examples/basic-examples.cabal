@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                basic-examples
-version:             0.1.0.0
+version:             0.1.0.1
 -- synopsis:
 -- description:
 license:             BSD3
@@ -19,6 +19,6 @@ executable basic-examples
   main-is:             BasicExamples.hs
   -- other-modules:
   -- other-extensions:
-  build-depends:       base >=4.8 && <4.9, dunai
+  build-depends:       base >=4.6 && <5, dunai
   -- hs-source-dirs:
   default-language:    Haskell2010
