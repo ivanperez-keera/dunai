@@ -31,7 +31,7 @@ transS :: (Monad m1, Monad m2)
        => (a2 -> m1 a1)
        -> (forall c. a2 -> m1 (b1, c) -> m2 (b2, c))
        -> MSF m1 a1 b1 -> MSF m2 a2 b2
-transS transInput transOutput = hoistGen $ \f a2 -> transOutput a2 $ do
+transS transInput transOutput = morphGS $ \f a2 -> transOutput a2 $ do
   a1 <- transInput a2
   f a1
 
