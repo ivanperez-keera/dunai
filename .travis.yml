@@ -23,10 +23,10 @@ env:
 
 matrix:
   exclude:
-    - ghc: 8.2.1
-      env: PACKAGEDIR="examples/keerahails"
     - ghc: 7.6.3
       env: PACKAGEDIR="examples/list"
+    - ghc: 8.2.1
+      env: PACKAGEDIR="examples/keerahails"
     - ghc: 8.2.1
       env: PACKAGEDIR="examples/discrete"
 
