@@ -1,27 +1,81 @@
+# Dunai
+
+[![Build Status](https://travis-ci.org/ivanperez-keera/dunai.svg?branch=develop)](https://travis-ci.org/ivanperez-keera/dunai)
+[![Version on Hackage](https://img.shields.io/hackage/v/dunai.svg)](https://hackage.haskell.org/package/dunai)
+
 This repository implements a generalized version of reactive programming, on
 top of which other variants like Yampa, Classic FRP and Reactive Values can
 be implemented.
 
-* Structure, internals and current status.
+# Installation
+
+```
+$ cabal sandbox init         # Optional, but recommended
+$ cabal update
+$ cabal install dunai
+```
+
+## Dependencies
+
+Dunai currently support GHC versions 7.6.3 to 8.2.1.
+
+# Examples
+
+To test Dunai:
+
+- Use `embed :: MSF m a b -> [a] -> m [b]` to collect
+  a list with the results.
+
+- Use `embed_ :: MSF m a () -> [a] -> m ()` to perform side effects without
+  collecting the results.
+
+- Use `reactimate :: MSF m () () -> m ()` when data is collected/provided by the
+  MSF itself.
+
+```haskell
+ghci> import Data.MonadicStreamFunction
+ghci> embed (arr (+1)) [1,2,3,4,5]
+[2,3,4,5,6]
+ghci> embed_ (arr (+1) >>> liftS print) [1,2,3,4,5]
+2
+3
+4
+5
+6
+ghci> reactimate (arrM_ getLine >>> arr reverse >>> liftS putStrLn)
+Hello
+olleH
+Haskell is awesome
+emosewa si lleksaH
+^C
+```
+
+# Further reading
+
+The best introduction to the fundamentals of Monadic Stream Functions is:
+
+- [Functional Reactive Programming, Refactored](https://dl.acm.org/authorize?N34896) ([official ACM page](http://dl.acm.org/citation.cfm?id=2976010)) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
+
+The following papers are also related to MSFs:
+
+- [Back to the Future: time travel in FRP](http://dl.acm.org/citation.cfm?id=3122957) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
+
+- [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/citation.cfm?id=3110246)
+
+# Structure and internals.
 
 This project is split in three parts:
 
-- Dunai: a reactive library that combines monads and arrows.
-- BearRiver: Yampa implemented on top of Dunai.
-- Examples: ballbounce, haskanoid
+- _Dunai_: a reactive library that combines monads and arrows.
+- _BearRiver_: Yampa implemented on top of Dunai.
+- _Examples_: ballbounce, haskanoid
   - sample applications that work both on traditional Yampa and BearRiver.
 
 We need to add examples of apps written in classic FRP, reactive values, etc. A
-new game, in honor of Paul Hudak, has been designed to work best with this
-library. It will also be added to the repo.
+[new game](https://github.com/keera-studios/pang-a-lambda), in honor of Paul
+Hudak, has been designed to work best with this library.
 
-Dunai uses monad transformers, but it's still very experimental and we have not
-agreed on either the syntax or intended behaviour of trans-monadic reactive
-networks. So, don't get too caught up in the current implementation, and don't
-freak out if you can't understand why there are three implementations of the
-same function.
-
-* Examples: Haskanoid
+# Performance
 
 Performance is ok, simpler games will be playable without further
 optimisations. This uses unaccelerated SDL 1.2. The speed is comparable to
@@ -58,29 +112,28 @@ cabal install examples/bearriver
 cabal install -f-wiimote -f-kinect -fbearriver examples/haskanoid
 ```
 
-You may have to use cabal sandbox add-source and install all libs with one
-cabal install invocation to link against the same versions of all common
+You may have to use `cabal sandbox add-source` and install all libs with one
+`cabal install` invocation to link against the same versions of all common
 dependencies.
 
-* Contributions
+# Contributions
 
-We are following this guide:
+We follow: http://nvie.com/posts/a-successful-git-branching-model/
 
-http://nvie.com/posts/a-successful-git-branching-model/
-
-Please, feel free to open new issues. In particular, we are looking for:
+Feel free to open new issues. We are looking for:
 
 - Unexplored ways of using MSFs.
 - Other games or applications that use MSFs (including but not limited to Yampa games).
+- Fixes. The syntax and behaviour are still experimental. If something
+  breaks/sounds strange, please open an issue.
 
-* About the name
+# About the name
 
 Dunai (aka. Danube, or Дунай) is one of the main rivers in Europe, originating
 in Germany and touching Austria, Slovakia, Hungary, Croatia, Serbia, Romania,
 Bulgaria, Moldova and Ukraine.
 
-The name is chosen following the idea of naming FRP libraries after
-rivers, and knowing that this library can be used to implement many others.
-I've chosen Dunai specifically taking into account the authors' relation with
-some of the countries it passes through, and knowing that this library has
-helped unite otherwise very different people from different backgrounds.
+Other FRP libraries, like Yampa, are named after rivers.  Dunai has been chosen
+due to the authors' relation with some of the countries it passes through, and
+knowing that this library has helped unite otherwise very different people from
+different backgrounds.

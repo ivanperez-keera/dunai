@@ -1,4 +1,4 @@
-module FRP.Yampa (module X) where
+module FRP.Yampa (module X, SF) where
 
 import           FRP.BearRiver         as X hiding (andThen, SF)
 import           FRP.Yampa.AffineSpace as X

@@ -1,8 +1,8 @@
-name:                bearriver-examples-boucingball-list
+name:                bearriver-examples-bouncingball-list
 version:             0.1.0.0
 synopsis:            Example of a bouncing ball that splits in BearRiver.
 -- description:
-license:             AllRightsReserved
+license:             BSD3
 license-file:        LICENSE
 author:              Ivan Perez, Manuel Bärenz
 maintainer:          ivan.perez@keera.co.uk

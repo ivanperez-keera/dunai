@@ -7,10 +7,10 @@ module Data.MonadicStreamFunction.CausalCommutative where
 
 
 import Control.Arrow
+import Control.Monad.Fix
 
 import Data.MonadicStreamFunction
 
--- I'm not requiring ArrowLoop here because I find it strange
 class ArrowLoop a => ArrowInit a where
     init :: b -> a b b
     {-
@@ -18,8 +18,8 @@ class ArrowLoop a => ArrowInit a where
     init i *** init j = init (i,j)
     -}
 
-instance ArrowInit (MStreamF m) where
-    init = delay
+instance MonadFix m => ArrowInit (MStreamF m) where
+    init = iPre
 
 class Monad m => CommutativeMonad m where
     {-
