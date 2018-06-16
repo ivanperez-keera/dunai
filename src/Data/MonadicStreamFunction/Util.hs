@@ -147,6 +147,11 @@ mealy f s0 = feedback s0 $ arr $ uncurry f
 unfold :: Monad m => (a -> (b, a)) -> a -> MSF m () b
 unfold f a = feedback a (arr (snd >>> f))
 
+-- | Generate outputs using a step-wise generation Kleisli arrow and an initial
+-- value.
+unfoldM :: Monad m => (a -> m (b, a)) -> a -> MSF m () b
+unfoldM f a = feedback a (arrM (snd >>> f))
+
 -- | Generate outputs using a step-wise generation function and an initial
 -- value. Version of 'unfold' in which the output and the new accumulator
 -- are the same. Should be equal to @\f a -> unfold (f >>> dup) a@.
