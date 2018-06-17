@@ -1,6 +1,7 @@
 name:                dunai-examples-discreterp-wxhaskell
-version:             0.1.0.0
-synopsis:            An example using MStreamFs with a step clock and WX UIs
+version:             0.1.0.1
+synopsis:            An example using Monadic Stream Functions
+                     with a step clock and WX UIs
 license:             BSD3
 license-file:        LICENSE
 author:              Ivan Perez
@@ -11,10 +12,14 @@ cabal-version:       >=1.10
 
 executable dunai-examples-discreterp-wxhaskell
   main-is:             WXText.hs
-  build-depends:       base >=4.7 && <4.9, dunai, wx
+  build-depends:       base >=4.6 && <5
+                     , dunai
+                     , wx
   default-language:    Haskell2010
 
 executable dunai-examples-discreterp-wxhaskell-step
   main-is:             WXStep.hs
-  build-depends:       base >=4.7 && <4.9, dunai, wx
+  build-depends:       base >=4.6 && <5
+                     , dunai
+                     , wx
   default-language:    Haskell2010

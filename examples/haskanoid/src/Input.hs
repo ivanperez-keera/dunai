@@ -217,7 +217,7 @@ sdlMouseKB = return (Just sdlGetController)
 -- TODO: Check http://gameprogrammer.com/fastevents/fastevents1.html
 sdlGetController :: Controller -> IO Controller
 sdlGetController info =
-  foldLoopM info pollEvent (not.isEmptyEvent) ((return .) . handleEvent)
+  foldWhileM info pollEvent (not.isEmptyEvent) ((return .) . handleEvent)
 
 -- | Handles one event only and returns the updated controller.
 handleEvent :: Controller -> SDL.Event -> Controller

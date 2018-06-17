@@ -77,9 +77,6 @@ library
 
                      -- Auxiliary definitions
                      Data.VectorSpace
-                     Data.VectorSpace.Fractional
-                     Data.VectorSpace.Tuples
-                     Data.VectorSpace.Primitive
 
   other-modules:     Control.Arrow.Util
 

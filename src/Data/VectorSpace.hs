@@ -1,6 +1,7 @@
-{-# LANGUAGE TypeFamilies      #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 -- |
 -- Module      :  Data.VectorSpace
 -- Copyright   :  (c) Ivan Perez and Manuel Bärenz
@@ -16,7 +17,7 @@
 module Data.VectorSpace where
 
 ------------------------------------------------------------------------------
--- Vector space type relation
+-- * Vector space classes
 ------------------------------------------------------------------------------
 
 infixr 6 *^
@@ -107,6 +108,216 @@ class (Floating (Groundfield v), InnerProductSpace v, VectorSpace v) => NormedSp
   norm :: v -> Groundfield v
   norm v = sqrt $ v `dot` v
 
+-- | Divides a vector by its norm, resulting in a vector of norm 1.
+--   Throws an error on vectors with norm 0.
 normalize :: (Eq (Groundfield v), NormedSpace v) => v -> v
 normalize v = if nv /= 0 then v ^/ nv else error "normalize: zero vector"
   where nv = norm v
+
+
+-----------------------------
+-- Instances for scalar types
+-----------------------------
+
+
+instance RModule Int where
+    type Groundring Int = Int
+    (^+^) = (+)
+    (^*) = (*)
+    zeroVector = 0
+
+instance RModule Integer where
+    type Groundring Integer = Integer
+    (^+^) = (+)
+    (^*) = (*)
+    zeroVector = 0
+
+instance RModule Double where
+    type Groundring Double = Double
+    (^+^) = (+)
+    (^*) = (*)
+    zeroVector = 0
+
+instance RModule Float where
+    type Groundring Float = Float
+    (^+^) = (+)
+    (^*) = (*)
+    zeroVector = 0
+
+instance VectorSpace Double where
+
+instance VectorSpace Float where
+
+-----------------------
+-- Instances for tuples
+-----------------------
+
+
+instance
+  ( Groundring a ~ Groundring b
+  , RModule a, RModule b
+  ) => RModule (a, b) where
+    type Groundring (a, b) = Groundring a
+    zeroVector = (zeroVector, zeroVector)
+    (a, b) ^* x = (a ^* x, b ^* x)
+    (a1, b1) ^+^ (a2, b2) = (a1 ^+^ a2, b1 ^+^ b2)
+
+instance
+  (Groundfield a ~ Groundfield b
+  , VectorSpace a, VectorSpace b
+  ) => VectorSpace (a, b) where
+    (a, b) ^/ x = (a ^/ x, b ^/ x)
+
+instance (Groundfield a ~ Groundfield b, InnerProductSpace a, InnerProductSpace b) => InnerProductSpace (a, b) where
+    (a1, b1) `dot` (a2, b2) = (a1 `dot` a2) + (b1 `dot` b2)
+
+instance (Groundfield a ~ Groundfield b, NormedSpace a, NormedSpace b) => NormedSpace (a, b) where
+
+-- ** Utilities to work with n-tuples for n = 3, 4, 5
+
+break3Tuple :: (a, b, c) -> ((a, b), c)
+break3Tuple    (a, b, c) =  ((a, b), c)
+
+join3Tuple  :: ((a, b), c) -> (a, b, c)
+join3Tuple     ((a, b), c) =  (a, b, c)
+
+break4Tuple :: (a, b, c, d) -> ((a, b), (c, d))
+break4Tuple    (a, b, c, d) =  ((a, b), (c, d))
+
+join4Tuple  :: ((a, b), (c, d)) -> (a, b, c, d)
+join4Tuple     ((a, b), (c, d)) =  (a, b, c, d)
+
+break5Tuple :: (a, b, c, d, e) -> ((a, b), (c, d, e))
+break5Tuple    (a, b, c, d, e) =  ((a, b), (c, d, e))
+
+join5Tuple  :: ((a, b), (c, d, e)) -> (a, b, c, d, e)
+join5Tuple     ((a, b), (c, d, e)) =  (a, b, c, d, e)
+
+
+
+instance
+  ( Groundring a ~ Groundring b
+  , Groundring a ~ Groundring c
+  , RModule a, RModule b, RModule c
+  ) => RModule (a, b, c) where
+    type Groundring (a, b, c) = Groundring a
+    zeroVector = join3Tuple zeroVector
+    a *^ v = join3Tuple $ a *^ (break3Tuple v)
+    v1 ^+^ v2 = join3Tuple $ break3Tuple v1 ^+^ break3Tuple v2
+
+instance
+  ( Groundring a ~ Groundring b
+  , Groundring a ~ Groundring c
+  , VectorSpace a, VectorSpace b, VectorSpace c
+  ) => VectorSpace (a, b, c) where
+
+instance
+  ( Groundring a ~ Groundring b
+  , Groundring a ~ Groundring c
+  , InnerProductSpace a, InnerProductSpace b, InnerProductSpace c
+  ) => InnerProductSpace (a, b, c) where
+  v1 `dot` v2 = break3Tuple v1 `dot` break3Tuple v2
+
+instance
+  ( Groundring a ~ Groundring b
+  , Groundring a ~ Groundring c
+  , NormedSpace a, NormedSpace b, NormedSpace c
+  ) => NormedSpace (a, b, c) where
+
+
+
+instance
+  ( Groundring a ~ Groundring b
+  , Groundring a ~ Groundring c
+  , Groundring a ~ Groundring d
+  , RModule a, RModule b, RModule c, RModule d
+  ) => RModule (a, b, c, d) where
+    type Groundring (a, b, c, d) = Groundring a
+    zeroVector = join4Tuple zeroVector
+    a *^ v = join4Tuple $ a *^ (break4Tuple v)
+    v1 ^+^ v2 = join4Tuple $ break4Tuple v1 ^+^ break4Tuple v2
+
+instance
+  ( Groundring a ~ Groundring b
+  , Groundring a ~ Groundring c
+  , Groundring a ~ Groundring d
+  , VectorSpace a, VectorSpace b, VectorSpace c, VectorSpace d
+  ) => VectorSpace (a, b, c, d) where
+
+instance
+  ( Groundring a ~ Groundring b
+  , Groundring a ~ Groundring c
+  , Groundring a ~ Groundring d
+  , InnerProductSpace a, InnerProductSpace b
+  , InnerProductSpace c, InnerProductSpace d
+  ) => InnerProductSpace (a, b, c, d) where
+  v1 `dot` v2 = break4Tuple v1 `dot` break4Tuple v2
+
+instance
+  ( Groundring a ~ Groundring b
+  , Groundring a ~ Groundring c
+  , Groundring a ~ Groundring d
+  , NormedSpace a, NormedSpace b, NormedSpace c, NormedSpace d
+  ) => NormedSpace (a, b, c, d) where
+
+
+
+instance
+  ( Groundring a ~ Groundring b
+  , Groundring a ~ Groundring c
+  , Groundring a ~ Groundring d
+  , Groundring a ~ Groundring e
+  , RModule a, RModule b, RModule c, RModule d, RModule e
+  ) => RModule (a, b, c, d, e) where
+    type Groundring (a, b, c, d, e) = Groundring a
+    zeroVector = join5Tuple zeroVector
+    a *^ v = join5Tuple $ a *^ (break5Tuple v)
+    v1 ^+^ v2 = join5Tuple $ break5Tuple v1 ^+^ break5Tuple v2
+
+instance
+  ( Groundring a ~ Groundring b
+  , Groundring a ~ Groundring c
+  , Groundring a ~ Groundring d
+  , Groundring a ~ Groundring e
+  , VectorSpace a, VectorSpace b, VectorSpace c, VectorSpace d, VectorSpace e
+  ) => VectorSpace (a, b, c, d, e) where
+
+instance
+  ( Groundring a ~ Groundring b
+  , Groundring a ~ Groundring c
+  , Groundring a ~ Groundring d
+  , Groundring a ~ Groundring e
+  , InnerProductSpace a, InnerProductSpace b, InnerProductSpace c
+  , InnerProductSpace d, InnerProductSpace e
+  ) => InnerProductSpace (a, b, c, d, e) where
+  v1 `dot` v2 = break5Tuple v1 `dot` break5Tuple v2
+
+instance
+  ( Groundring a ~ Groundring b
+  , Groundring a ~ Groundring c
+  , Groundring a ~ Groundring d
+  , Groundring a ~ Groundring e
+  , NormedSpace a, NormedSpace b, NormedSpace c, NormedSpace d, NormedSpace e
+  ) => NormedSpace (a, b, c, d, e) where
+
+
+-- * Vector spaces from arbitrary 'Fractional's
+
+-- | Wrap an arbitrary 'Fractional' in this newtype
+--   in order to get 'VectorSpace', and related instances.
+newtype FractionalVectorSpace a = FractionalVectorSpace { getFractional :: a }
+  deriving (Num, Fractional)
+
+
+instance Num a => RModule (FractionalVectorSpace a) where
+  type Groundring (FractionalVectorSpace a) = a
+  v1 ^+^ v2 = FractionalVectorSpace $ getFractional v1 + getFractional v2
+  v ^* a = FractionalVectorSpace $ getFractional v * a
+  zeroVector = FractionalVectorSpace 0
+
+instance Fractional a => VectorSpace (FractionalVectorSpace a) where
+
+instance Num a => InnerProductSpace (FractionalVectorSpace a) where
+  v1 `dot` v2 = getFractional v1 * getFractional v2
+
+instance Floating a => NormedSpace (FractionalVectorSpace a) where
