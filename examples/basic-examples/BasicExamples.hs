@@ -4,10 +4,6 @@ import Data.MonadicStreamFunction
 
 import Text.Read (readMaybe)
 
-
-add :: (Num n, Monad m) => MSF m (n, n) n
-add = arr (\(x, y) -> x + y)
-
 testSerial :: MSF IO () ()
 testSerial =   liftS (\_ -> getLine)
            >>> (arr id &&& arr reverse)
