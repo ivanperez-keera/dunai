@@ -30,7 +30,7 @@ stream = arrM_
 type MSink   m a = MSF m a ()
 
 -- | Obtain a sink by repetitively feeding a Kleisli arrow.
-sink :: Monad m => (a -> m b) -> MSink m a
+sink :: (Functor m, Monad m) => (a -> m b) -> MSink m a
 sink = arrM . fmap void
 
 -- * Lifting
