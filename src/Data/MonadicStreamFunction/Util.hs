@@ -21,9 +21,20 @@ import Data.VectorSpace
 -- It can obtain the values from a monadic context.
 type MStream m a = MSF m () a
 
+-- | Obtain a stream by repetitively running a monadic action.
+stream :: Monad m => m a -> MStream m a
+stream act = MSF go
+  where go _ = do a <- act
+                  pure (a, stream act)
+
 -- | A sink is an 'MSF' that consumes inputs, while producing no output.
 -- It can consume the values with side effects.
 type MSink   m a = MSF m a ()
+
+-- | Obtain a sink by repetitively feeding a kleisli arrow.
+sink :: Monad m => (a -> m b) -> MSink m a
+sink kl = MSF go
+  where go a = kl a >> pure ((), sink kl)
 
 -- * Lifting
 
