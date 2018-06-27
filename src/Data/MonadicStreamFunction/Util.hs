@@ -31,8 +31,7 @@ type MSink   m a = MSF m a ()
 
 -- | Obtain a sink by repetitively feeding a Kleisli arrow.
 sink :: Monad m => (a -> m b) -> MSink m a
-sink kl = MSF go
-  where go a = kl a >> pure ((), sink kl)
+sink = arrM . fmap void
 
 -- * Lifting
 
