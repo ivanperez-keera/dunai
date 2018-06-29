@@ -67,6 +67,17 @@ mapMSF = MSF . consume
       (bs, sf'') <- consume sf' as
       b `seq` return (b:bs, sf'')
 
+-- | Apply an 'MSF' to every input, discarding results.
+-- Used for side-effects only.
+mapMSF_ :: Monad m => MSF m a b -> MSink m [a]
+mapMSF_ = MSF . consume
+  where
+    consume sf []     = return ((), mapMSF_ sf)
+    consume sf (a:as) = do
+      (_, sf')  <- unMSF sf a
+      (_, sf'') <- consume sf' as
+      return ((), sf'')
+
 -- | Apply an 'MSF' to every input. Freezes temporarily if the input is
 -- 'Nothing', and continues as soon as a 'Just' is received.
 mapMaybeS :: Monad m => MSF m a b -> MSF m (Maybe a) (Maybe b)
