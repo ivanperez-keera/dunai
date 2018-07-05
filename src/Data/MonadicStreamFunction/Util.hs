@@ -138,6 +138,8 @@ edgeFromTo aOld aNew = edgeFrom aOld &&& edgeTo aNew >>> arr (uncurry (&&))
 
 -- | Emits 'True' (once) when the input value evaluates to 'True'
 --   under the given predicate.
+--
+--   Example usage: @edgeWhen (> 1)@
 edgeWhen
   :: (Monad m, Eq a)
 	=> (a -> Bool) -- ^ The predicate that is to be evaluated on the incoming signal
