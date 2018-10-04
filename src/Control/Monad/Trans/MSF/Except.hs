@@ -18,6 +18,7 @@ import           Control.Monad              (liftM, ap)
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen, liftPass) -- Avoid conflicting exports
 import           Control.Monad.Trans.Maybe
+import           Data.Either                (fromLeft, fromRight)
 
 -- Internal
 -- import Control.Monad.Trans.MSF.GenLift
@@ -175,7 +176,8 @@ safely :: Monad m => MSFExcept m a b Empty -> MSF m a b
 safely (MSFExcept msf) = safely' msf
   where
     safely' msf = MSF $ \a -> do
-      Right (b, msf') <- runExceptT $ unMSF msf a
+      (b, msf') <- fromRight (error "safely: Received `Left`")
+        <$> (runExceptT $ unMSF msf a)
       return (b, safely' msf')
 
 -- | An 'MSF' without an 'ExceptT' layer never throws an exception,
@@ -221,9 +223,8 @@ performOnFirstSample sfaction = safely $ do
 
 -- | Reactimates an 'MSFExcept' until it throws an exception.
 reactimateExcept :: Monad m => MSFExcept m () () e -> m e
-reactimateExcept msfe = do
-  Left e <- runExceptT $ reactimate $ runMSFExcept msfe
-  return e
+reactimateExcept msfe = fromLeft (error "reactimateExcept: Received `Right`")
+  <$> (runExceptT $ reactimate $ runMSFExcept msfe)
 
 -- | Reactimates an 'MSF' until it returns 'True'.
 reactimateB :: Monad m => MSF m () Bool -> m ()
