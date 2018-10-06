@@ -27,6 +27,8 @@ matrix:
       env: PACKAGEDIR="examples/keerahails"
     - ghc: 7.8.4
       env: PACKAGEDIR="examples/discrete"
+    - ghc: 7.8.4
+      env: PACKAGEDIR="examples/keerahails"
 
 before_install:
   - cd ${PACKAGEDIR}
