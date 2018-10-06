@@ -26,8 +26,10 @@ import Data.MonadicStreamFunction
 
 -- External, necessary for older base versions
 #if __GLASGOW_HASKELL__ < 802
+fromLeft  :: a -> Either a b -> a
 fromLeft  _ (Left  a) = a
 fromLeft  a (Right _) = a
+fromRight :: b -> Either a b -> b
 fromRight _ (Right b) = b
 fromRight b (Left  _) = b
 #else
