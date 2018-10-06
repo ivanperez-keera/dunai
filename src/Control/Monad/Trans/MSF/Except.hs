@@ -19,6 +19,12 @@ import           Control.Monad              (liftM, ap)
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen, liftPass) -- Avoid conflicting exports
 import           Control.Monad.Trans.Maybe
+
+-- Internal
+-- import Control.Monad.Trans.MSF.GenLift
+import Data.MonadicStreamFunction
+
+-- External, necessary for older base versions
 #if __GLASGOW_HASKELL__ < 802
 fromLeft  _ (Left  a) = a
 fromLeft  a (Right _) = a
@@ -27,10 +33,6 @@ fromRight b (Left  _) = b
 #else
 import           Data.Either                (fromLeft, fromRight)
 #endif
-
--- Internal
--- import Control.Monad.Trans.MSF.GenLift
-import Data.MonadicStreamFunction
 
 -- * Throwing exceptions
 
