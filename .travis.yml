@@ -13,7 +13,6 @@ ghc:
 env:
   - PACKAGEDIR="."
   - PACKAGEDIR="examples/bearriver"
-  - PACKAGEDIR="examples/basic-examples"
   - PACKAGEDIR="examples/bouncingball"
   - PACKAGEDIR="examples/discrete"
   - PACKAGEDIR="examples/keerahails"
