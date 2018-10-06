@@ -24,6 +24,8 @@ env:
 matrix:
   exclude:
     - ghc: 8.2.1
+      env: PACKAGEDIR="examples/discrete"
+    - ghc: 8.2.1
       env: PACKAGEDIR="examples/keerahails"
     - ghc: 7.8.4
       env: PACKAGEDIR="examples/discrete"
