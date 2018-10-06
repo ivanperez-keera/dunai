@@ -99,6 +99,55 @@ fifo = feedback [] $ proc (as, accum) -> do
     []       -> (Nothing, [])
     (a : as) -> (Just a , as)
 
+-- * Edge detectors
+
+-- | Emits 'True' (once) when the input value changes
+--   to the given argument, from any other value.
+--
+--   (If the input is equal to the given argument on the first tick,
+--    'True' is also emitted.
+--   )
+edgeTo
+  :: (Monad m, Eq a)
+  => a -- ^ The new value that the signal should have _now_ to trigger the edge
+  -> MSF m a Bool
+edgeTo aNew = proc a -> do
+  maPrevious <- delay Nothing -< Just a
+  returnA                     -< a == aNew && maPrevious /= Just aNew
+
+-- | Like 'edgeTo', but triggers as soon when the input changes
+--   from the given argument to any value that is _not_ equal to it.
+--
+--   (Does not trigger on the first tick.)
+edgeFrom
+  :: (Monad m, Eq a)
+	=> a -- ^ The old value that the signal should have directly before the edge
+  -> MSF m a Bool
+edgeFrom aOld = proc a -> do
+  maPrevious <- delay Nothing -< Just a
+  returnA                     -< a /= aOld && maPrevious == Just aOld
+
+-- | Triggers when both 'edgeTo' and 'edgeFrom' would trigger,
+--   i.e. when the input changes from the first given value to the second.
+edgeFromTo
+  :: (Monad m, Eq a)
+	=> a -- ^ The old value that the signal should have directly before the edge
+  -> a -- ^ The new value that the signal should have _now_ to trigger the edge
+  -> MSF m a Bool
+edgeFromTo aOld aNew = edgeFrom aOld &&& edgeTo aNew >>> arr (uncurry (&&))
+
+-- | Emits 'True' (once) when the input value evaluates to 'True'
+--   under the given predicate.
+--
+--   Example usage: @edgeWhen (> 1)@
+edgeWhen
+  :: (Monad m, Eq a)
+	=> (a -> Bool) -- ^ The predicate that is to be evaluated on the incoming signal
+  -> MSF m a Bool
+edgeWhen predicate  = arr predicate >>> edgeTo True
+
+
+
 -- * Folding
 
 -- ** Folding for 'VectorSpace' instances
