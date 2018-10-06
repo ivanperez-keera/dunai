@@ -59,6 +59,7 @@ import Control.Category (Category(..))
 import Control.Monad
 import Control.Monad.Base
 import Control.Monad.Trans.Class
+import Data.Tuple (swap)
 import Prelude hiding ((.), id, sum)
 
 -- * Definitions
@@ -169,10 +170,7 @@ liftMSFPurer liftPurer sf = MSF $ \a -> do
 iPre :: Monad m
      => a         -- ^ First output
      -> MSF m a a
-iPre firsta = MSF $ \a -> return (firsta, delay a)
--- iPre firsta = feedback firsta $ lift swap
---   where swap (a,b) = (b, a)
--- iPre firsta = next firsta identity
+iPre firsta = feedback firsta $ arr swap
 
 -- | See 'iPre'.
 
