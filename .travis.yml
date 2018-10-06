@@ -13,7 +13,6 @@ ghc:
 env:
   - PACKAGEDIR="."
   - PACKAGEDIR="examples/bearriver"
-  - PACKAGEDIR="examples/basic-examples"
   - PACKAGEDIR="examples/bouncingball"
   - PACKAGEDIR="examples/discrete"
   - PACKAGEDIR="examples/keerahails"
@@ -23,8 +22,16 @@ env:
 
 matrix:
   exclude:
+    - ghc: 7.6.3
+      env: PACKAGEDIR="examples/list"
+    - ghc: 7.8.4
+      env: PACKAGEDIR="examples/discrete"
+    - ghc: 7.8.4
+      env: PACKAGEDIR="examples/keerahails"
     - ghc: 8.2.1
-    - env: PACKAGEDIR="examples/keerahails"
+      env: PACKAGEDIR="examples/discrete"
+    - ghc: 8.2.1
+      env: PACKAGEDIR="examples/keerahails"
 
 before_install:
   - cd ${PACKAGEDIR}

@@ -128,8 +128,9 @@ mappendFrom = accumulateWith mappend
 
 -- ** Generic folding \/ accumulation
 
--- | Applies a function to the input and an accumulator, outputing the
--- accumulator. Equal to @\f s0 -> feedback s0 $ arr (uncurry f >>> dup)@.
+-- | Applies a function to the input and an accumulator,
+-- outputting the updated accumulator.
+-- Equal to @\f s0 -> feedback s0 $ arr (uncurry f >>> dup)@.
 accumulateWith :: Monad m => (a -> s -> s) -> s -> MSF m a s
 accumulateWith f s0 = feedback s0 $ arr g
   where
