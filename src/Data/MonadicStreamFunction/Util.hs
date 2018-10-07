@@ -21,9 +21,17 @@ import Data.VectorSpace
 -- It can obtain the values from a monadic context.
 type MStream m a = MSF m () a
 
+-- | Obtain a stream by repetitively running a monadic action.
+stream :: Monad m => m a -> MStream m a
+stream = arrM_
+
 -- | A sink is an 'MSF' that consumes inputs, while producing no output.
 -- It can consume the values with side effects.
 type MSink   m a = MSF m a ()
+
+-- | Obtain a sink by repetitively feeding a Kleisli arrow.
+sink :: (Functor m, Monad m) => (a -> m b) -> MSink m a
+sink = arrM . fmap void
 
 -- * Lifting
 
@@ -58,6 +66,17 @@ mapMSF = MSF . consume
       (b, sf')   <- unMSF sf a
       (bs, sf'') <- consume sf' as
       b `seq` return (b:bs, sf'')
+
+-- | Apply an 'MSF' to every input, discarding results.
+-- Used for side-effects only.
+mapMSF_ :: Monad m => MSF m a b -> MSink m [a]
+mapMSF_ = MSF . consume
+  where
+    consume sf []     = return ((), mapMSF_ sf)
+    consume sf (a:as) = do
+      (_, sf')  <- unMSF sf a
+      (_, sf'') <- consume sf' as
+      return ((), sf'')
 
 -- | Apply an 'MSF' to every input. Freezes temporarily if the input is
 -- 'Nothing', and continues as soon as a 'Just' is received.
