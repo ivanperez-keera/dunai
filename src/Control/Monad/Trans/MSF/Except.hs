@@ -184,7 +184,7 @@ instance Monad m => Monad (MSFExcept m a b) where
 data Empty
 
 -- | If no exception can occur, the 'MSF' can be executed without the 'ExceptT' layer.
-safely :: Monad m => MSFExcept m a b Empty -> MSF m a b
+safely :: (Functor m, Monad m) => MSFExcept m a b Empty -> MSF m a b
 safely (MSFExcept msf) = liftMSFPurer fromExcept msf
   where
     -- We can assume that the pattern @Left e@ will not occur,
@@ -234,7 +234,7 @@ performOnFirstSample sfaction = safely $ do
   safe msf
 
 -- | Reactimates an 'MSFExcept' until it throws an exception.
-reactimateExcept :: Monad m => MSFExcept m () () e -> m e
+reactimateExcept :: (Functor m, Monad m) => MSFExcept m () () e -> m e
 reactimateExcept msfe = fromLeft (error "reactimateExcept: Received `Right`")
   <$> (runExceptT $ reactimate $ runMSFExcept msfe)
 
