@@ -176,20 +176,54 @@ after q x = feedback q go
                   ct = if t' < 0 then constant (NoEvent, t') else go
               return ((e, t'), ct)
 
-occasionally :: MonadRandom m 
-             => Time -- ^ The time /q/ after which the event should be produced on average
-             -> b    -- ^ Value to produce at time of event
+occasionally :: (Monad m, RandomGen g) 
+             => g 
+             -> Time 
+             -> b 
              -> SF m a (Event b)
-occasionally tAvg b
+occasionally g tAvg b 
   | tAvg <= 0 = error "dunai: Non-positive average interval in occasionally."
   | otherwise = proc _ -> do
+    r  <- noiseR (0, 1) g -< ()
+    dt <- arrM_ ask       -< ()
+    let p = 1 - exp (-(dt / tAvg))
+    returnA -< if r < p then Event b else NoEvent
+
+occasionallyM :: MonadRandom m 
+              => Time -- ^ The time /q/ after which the event should be produced on average
+              -> b    -- ^ Value to produce at time of event
+              -> SF m a (Event b)
+occasionallyM tAvg b
+  | tAvg <= 0 = error "dunai: Non-positive average interval in occasionallyM."
+  | otherwise = proc _ -> do
       r   <- getRandomRS (0, 1) -< ()
-      dt  <- timeDelta          -< ()
+      dt  <- arrM_ ask          -< ()
       let p = 1 - exp (-(dt / tAvg))
       returnA -< if r < p then Event b else NoEvent
+
+noiseR :: (RandomGen g, Random b, Monad m) 
+       => (b, b) 
+       -> g 
+       -> SF m a b
+noiseR range g0 = loopPre g0 (noiseRAux range)
+  where
+    noiseRAux :: (RandomGen g, Random b, Monad m) 
+              => (b, b) 
+              -> SF m (a, g) (b, g)
+    noiseRAux range = proc (_, g) -> do
+      let (r, g') = randomR range g
+      returnA -< (r, g')
+
+noise :: (RandomGen g, Random b, Monad m) 
+      => g 
+      -> SF m a b
+noise g0 = loopPre g0 noiseAux
  where
-  timeDelta :: Monad m => SF m a DTime
-  timeDelta = arrM_ ask
+   noiseAux :: (RandomGen g, Random b, Monad m) 
+             => SF m (a, g) (b, g)
+   noiseAux = proc (_, g) -> do
+     let (r, g') = random g
+     returnA -< (r, g')
 
 -- | Initialization operator (cf. Lustre/Lucid Synchrone).
 --
@@ -227,6 +261,23 @@ dpSwitchB sfs sfF sfCs = MSF $ \a -> do
              Event c -> sfCs sfs' c
              NoEvent -> dpSwitchB sfs' sfF' sfCs
   return (bs, ct)
+
+dpSwitch :: (Monad m, Traversable col)
+         => (forall sf. (a -> col sf -> col (b, sf)))
+         -> col (SF m b c) 
+         -> SF m (a, col c) (Event d) 
+         -> (col (SF m b c) -> d -> SF m a (col c))
+         -> SF m a (col c)
+dpSwitch rf sfs sfF sfCs = MSF $ \a -> do
+  let bsfs = rf a sfs
+  res <- T.mapM (\(b, sf) -> unMSF sf b) bsfs
+  let cs   = fmap fst res
+      sfs' = fmap snd res
+  (e,sfF') <- unMSF sfF (a, cs)
+  let ct = case e of
+            Event d -> sfCs sfs' d
+            NoEvent -> dpSwitch rf sfs' sfF' sfCs
+  return (cs, ct)
 
 dSwitch ::  Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
 dSwitch sf sfC = MSF $ \a -> do
