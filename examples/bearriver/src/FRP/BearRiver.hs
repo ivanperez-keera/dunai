@@ -191,6 +191,21 @@ occasionally tAvg b
   timeDelta :: Monad m => SF m a DTime
   timeDelta = arrM_ ask
 
+-- | Performs uniform super sampling on the provided signal-function with n samples
+-- 
+-- This is done by dividing the current time-delta into N equally spaced samples 
+-- and evalutating the signal function with these subsamples and always the same input. 
+superSamplingUniform :: Monad m 
+                     => Int          -- ^ Number of samples into which the current time-delta is being uniformly subdivided. If LT 0, exactly 1 sample will be generated
+                     -> SF m a b     -- ^ The signal-function to sample
+                     -> SF m a [b]   -- ^ The new signal-function which performs the super sampling, length of [b] is number of samples (except in case of LT 0, then its 1).
+superSamplingUniform n sf 
+  | n <= 1    = sf >>> arr return
+  | otherwise = readerS $ proc (dt, a) -> do
+    let superDt = dt / fromIntegral n
+        dtas    = replicate n (superDt, a)
+    mapMSF (runReaderS sf) -< dtas
+
 -- | Initialization operator (cf. Lustre/Lucid Synchrone).
 --
 -- The output at time zero is the first argument, and from
@@ -208,7 +223,7 @@ b0 --> sf = sf >>> replaceOnce b0
 a0 >-- sf = replaceOnce a0 >>> sf
 
 replaceOnce :: Monad m => a -> SF m a a
-replaceOnce a = dSwitch (arr $ const (a, Event ())) (const $ arr id)
+replaceOnce a = dSwitch (constant (a, Event ())) (const $ arr id)
 
 accumHoldBy :: Monad m => (b -> a -> b) -> b -> SF m (Event a) b
 accumHoldBy f b = feedback b $ arr $ \(a, b') ->
