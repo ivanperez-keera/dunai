@@ -81,6 +81,7 @@ library
   other-modules:     Control.Arrow.Util
 
   build-depends:     base >=4.6 && < 5,
+                     fail,
                      transformers,
                      transformers-base,
                      MonadRandom
@@ -97,6 +98,7 @@ test-suite hlint
   else
     build-depends:
       base,
+      fail,
       hlint >= 1.7
 
 -- Verify that the code is thoroughly documented
@@ -111,6 +113,7 @@ test-suite haddock-coverage
   else
     build-depends:
       base >= 4 && < 5,
+      fail,
       directory,
       filepath,
       process,
