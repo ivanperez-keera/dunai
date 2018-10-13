@@ -27,7 +27,6 @@ module Control.Monad.Trans.MSF.State
   ) where
 
 -- External
-import Control.Applicative
 import Control.Monad.Trans.State.Strict
   hiding (liftCallCC, liftCatch, liftListen, liftPass) -- Avoid conflicting exports
 

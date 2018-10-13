@@ -16,6 +16,7 @@ import           Control.Arrow                                  as X
 import qualified Control.Category                               as Category
 import           Control.Monad                                  (mapM)
 import           Control.Monad.Random
+import           Control.Monad.Fail
 import           Control.Monad.Trans.Maybe
 import           Control.Monad.Trans.MSF
 import           Control.Monad.Trans.MSF.Except                 as MSF
@@ -261,7 +262,7 @@ iterFrom f b = MSF $ \a -> do
   let b' = f a a dt b
   return (b, iterFrom f b')
 
-reactimate :: Monad m => m a -> (Bool -> m (DTime, Maybe a)) -> (Bool -> b -> m Bool) -> SF Identity a b -> m ()
+reactimate :: MonadFail m => m a -> (Bool -> m (DTime, Maybe a)) -> (Bool -> b -> m Bool) -> SF Identity a b -> m ()
 reactimate senseI sense actuate sf = do
   -- runMaybeT $ MSF.reactimate $ liftMSFTrans (senseSF >>> sfIO) >>> actuateSF
   MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF

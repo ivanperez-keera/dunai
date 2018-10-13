@@ -25,11 +25,9 @@ module Control.Monad.Trans.MSF.Writer
   ) where
 
 -- External
-import Control.Applicative
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Writer.Strict
   hiding (liftCallCC, liftCatch, pass) -- Avoid conflicting exports
-import Data.Monoid
 
 -- Internal
 import Control.Monad.Trans.MSF.GenLift

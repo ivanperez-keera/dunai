@@ -13,7 +13,6 @@ module Control.Monad.Trans.MSF.RWS
 -- External
 import Control.Monad.Trans.RWS.Strict
   hiding (liftCallCC, liftCatch) -- Avoid conflicting exports
-import Data.Monoid
 import Data.Functor ((<$>))
 
 -- Internal
