@@ -15,6 +15,7 @@
 --   defined in terms of the functions in this module without accessing the
 --   MSF constuctor.
 
+
 -- NOTE TO IMPLEMENTORS:
 --
 -- This module contains the core. Only the core. It should be possible
@@ -96,27 +97,6 @@ morphGS :: Monad m2
 morphGS morph msf = MSF $ \a2 -> do
   (b2, msf') <- morph (unMSF msf) a2
   return (b2, morphGS morph msf')
-
--- | More general lifting combinator that enables recovery. Note that, unlike a
--- polymorphic lifting function @forall a . m a -> m1 a@, this auxiliary
--- function needs to be a bit more structured, and produces a Maybe value. The
--- previous 'MSF' is used if a new one is not produced.
-transG :: (Monad m1, Monad m2)
-       => (a2 -> m1 a1)
-       -> (forall c. a2 -> m1 (b1, c) -> m2 (b2, Maybe c))
-       -> MSF m1 a1 b1 -> MSF m2 a2 b2
-transG transformInput transformOutput msf = go
-  where go = MSF $ \a2 -> do
-               (b2, msf') <- transformOutput a2 $ unMSF msf =<< transformInput a2
-               case msf' of
-                 Just msf'' -> return (b2, transG transformInput transformOutput msf'')
-                 Nothing    -> return (b2, go)
-
-handleGen
-  :: (a -> m1 (b1, MSF m1 a b1) -> m2 (b2, MSF m2 a b2))
-  -> MSF m1 a b1
-  -> MSF m2 a b2
-handleGen handler msf = MSF $ \a -> handler a $ unMSF msf a
 
 -- * Feedback loops
 
