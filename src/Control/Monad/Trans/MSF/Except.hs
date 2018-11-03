@@ -180,11 +180,13 @@ data Empty
 
 -- | If no exception can occur, the 'MSF' can be executed without the 'ExceptT' layer.
 safely :: Monad m => MSFExcept m a b Empty -> MSF m a b
-safely (MSFExcept msf) = safely' msf
+safely (MSFExcept msf) = morphS fromExcept msf
   where
-    safely' msf = MSF $ \a -> do
-      Right (b, msf') <- runExceptT $ unMSF msf a
-      return (b, safely' msf')
+    fromExcept ma = do
+      -- We can assume that the pattern @Left e@ will not occur,
+      -- since @e@ would have to be of type @Empty@.
+      Right a <- runExceptT ma
+      return a
 
 -- | An 'MSF' without an 'ExceptT' layer never throws an exception,
 --   and can thus have an arbitrary exception type.

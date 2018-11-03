@@ -1,6 +1,7 @@
-{-# LANGUAGE TypeFamilies      #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 -- |
 -- Module      :  Data.VectorSpace
 -- Copyright   :  (c) Ivan Perez and Manuel Bärenz
@@ -305,6 +306,7 @@ instance
 -- | Wrap an arbitrary 'Fractional' in this newtype
 --   in order to get 'VectorSpace', and related instances.
 newtype FractionalVectorSpace a = FractionalVectorSpace { getFractional :: a }
+  deriving (Num, Fractional)
 
 
 instance Num a => RModule (FractionalVectorSpace a) where

@@ -36,11 +36,15 @@ module Data.MonadicStreamFunction.Core
   where
 
 import Control.Arrow
-import qualified Control.Category as C
+import Control.Category as C
 import Control.Monad.Base
 import Control.Monad.Trans.Class
+import Data.Tuple (swap)
+import Prelude hiding ((.), id, sum)
 
 import Data.MonadicStreamFunction.InternalCore (MSF, morphGS, feedback, reactimate, embed)
+
+-- * Definitions
 
 -- | 'Arrow' instance for 'MSF's.
 instance Monad m => Arrow (MSF m) where
