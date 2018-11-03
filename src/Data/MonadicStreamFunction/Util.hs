@@ -88,7 +88,7 @@ iPost b sf = MSF $ \_ -> return (b, sf)
 
 -- | Preprends a fixed output to an 'MSF', shifting the output.
 next :: Monad m => b -> MSF m a b -> MSF m a b
-next b sf = sf >>> delay b
+next b sf = sf >>> iPre b
 
 -- | Buffers and returns the elements in FIFO order,
 --   returning 'Nothing' whenever the buffer is empty.

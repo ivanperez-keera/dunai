@@ -50,6 +50,7 @@
 -- having orphan instances'), the main module Data.MonadicStreamFunction
 -- exports everything. Users should *never* import this module here
 -- individually, but the main module instead.
+
 module Data.MonadicStreamFunction.Core where
 
 -- External
@@ -195,17 +196,10 @@ liftMSFPurer morph = morphGS (morph .)
 iPre :: Monad m
      => a         -- ^ First output
      -> MSF m a a
-iPre firsta = MSF $ \a -> return (firsta, delay a)
+iPre firsta = MSF $ \a -> return (firsta, iPre a)
 -- iPre firsta = feedback firsta $ lift swap
 --   where swap (a,b) = (b, a)
 -- iPre firsta = next firsta identity
-
--- | See 'iPre'.
-
--- FIXME: Remove delay from this module. We should try to make this module
--- small, keeping only primitives.
-delay :: Monad m => a -> MSF m a a
-delay = iPre
 
 -- * Switching
 
