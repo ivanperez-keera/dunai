@@ -55,6 +55,7 @@ module Data.MonadicStreamFunction.Core
   )
   where
 
+import Control.Applicative
 import Control.Arrow
 import Control.Category as C
 import Control.Monad.Base
