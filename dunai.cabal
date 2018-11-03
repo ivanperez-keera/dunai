@@ -78,6 +78,7 @@ library
                      Data.VectorSpace
 
   other-modules:     Control.Arrow.Util
+                     Data.MonadicStreamFunction.InternalCore
 
   build-depends:     base >=4.6 && < 5,
                      transformers,
