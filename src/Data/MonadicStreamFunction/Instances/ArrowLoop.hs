@@ -9,6 +9,7 @@
 module Data.MonadicStreamFunction.Instances.ArrowLoop where
 
 import Data.MonadicStreamFunction.Core
+import Data.MonadicStreamFunction.Util
 
 -- External
 import Control.Arrow

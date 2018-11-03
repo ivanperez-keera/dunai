@@ -83,15 +83,6 @@ instance Monad m => Category (MSF m) where
     let sf' = sf2' . sf1'
     c `seq` return (c, sf')
 
--- | 'Arrow' instance for 'MSF's.
-instance Monad m => Arrow (MSF m) where
-
-  arr f = go
-    where go = MSF $ \a -> return (f a, go)
-
-  first sf = MSF $ \(a,c) -> do
-    (b, sf') <- unMSF sf a
-    b `seq` return ((b, c), first sf')
 
 -- * Monadic computations and 'MSF's
 

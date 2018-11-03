@@ -13,9 +13,25 @@ import Data.Monoid
 
 -- Internal
 import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.Instances.ArrowChoice ()
+-- import Data.MonadicStreamFunction.Instances.ArrowChoice ()
 import Data.VectorSpace
 import Prelude hiding (id, (.))
+
+-- * Arrow instance
+
+-- | 'Arrow' instance for 'MSF's.
+instance Monad m => Arrow (MSF m) where
+
+  arr f = arrM (return . f)
+
+  -- first sf = MSF $ \(a,c) -> do
+  --   (b, sf') <- unMSF sf a
+  --   b `seq` return ((b, c), first sf')
+
+  first = morphGS (\f (a,c) -> do
+            (b,msf') <- f a
+            return ((b, c), msf'))
+
 
 -- * Functor and applicative instances
 
