@@ -1,3 +1,8 @@
+2018-11-03 Ivan Perez <ivan.perez@keera.co.uk>
+        * Renames lifting functions, moves definitions around.
+        * dunai.cabal: Version bump (0.5).
+        * Thanks: @turion.
+
 2017-12-05 Ivan Perez <ivan.perez@keera.co.uk>
         * Adds support for random numbers using MonadRandom
           (thanks Jonathan Thaler -- @thalerjonathan).
