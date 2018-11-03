@@ -24,17 +24,6 @@ transS transInput transOutput = morphGS $ \f a2 -> transOutput a2 $ do
   a1 <- transInput a2
   f a1
 
--- | Lifting combinator to move from one monad to another, if one has a
--- function to run computations in one monad into another. Note that, unlike a
--- polymorphic lifting function @forall a . m a -> m1 a@, this auxiliary
--- function needs to be a bit more structured, although less structured than
--- 'lifterS'.
-transG1 :: (Monad m1, Functor m2, Monad m2)
-        => (a2 -> m1 a1)
-        -> (forall c. a2 -> m1 (b1, c) -> m2 (b2, c))
-        -> MSF m1 a1 b1 -> MSF m2 a2 b2
-transG1 = transS
-
 -- | More general lifting combinator that enables recovery. Note that, unlike a
 -- polymorphic lifting function @forall a . m a -> m1 a@, this auxiliary
 -- function needs to be a bit more structured, and produces a Maybe value. The
