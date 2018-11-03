@@ -20,7 +20,6 @@ import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen, lift
 import           Control.Monad.Trans.Maybe
 
 -- Internal
-import Control.Monad.Trans.MSF.GenLift (transG, handleGen)
 import Data.MonadicStreamFunction
 import Data.MonadicStreamFunction.InternalCore
 

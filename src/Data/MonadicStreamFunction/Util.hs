@@ -66,6 +66,21 @@ liftMSFPurer :: (Monad m2, Monad m1)
              => (forall c . m1 c -> m2 c) -> MSF m1 a b -> MSF m2 a b
 liftMSFPurer morph = morphGS (morph .)
 
+-- | Lifting combinator to move from one monad to another, if one has a
+-- function to run computations in one monad into another. Note that, unlike a
+-- polymorphic lifting function @forall a . m a -> m1 a@, this auxiliary
+-- function needs to be a bit more structured, although less structured than
+-- 'lifterS'.
+
+transS :: (Monad m1, Monad m2)
+       => (a2 -> m1 a1)
+       -> (forall c. a2 -> m1 (b1, c) -> m2 (b2, c))
+       -> MSF m1 a1 b1 -> MSF m2 a2 b2
+transS transInput transOutput = morphGS $ \f a2 -> transOutput a2 $ do
+  a1 <- transInput a2
+  f a1
+
+
 -- IPerez: There is an alternative signature for liftMStreamPurer that also
 -- works, and makes the code simpler:
 --
