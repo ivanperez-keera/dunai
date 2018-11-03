@@ -8,7 +8,7 @@ module Data.MonadicStreamFunction.Instances.ArrowChoice where
 import Control.Arrow
 
 import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.Util
+import Data.MonadicStreamFunction.InternalCore
 
 -- | 'ArrowChoice' instance for MSFs.
 instance Monad m => ArrowChoice (MSF m) where

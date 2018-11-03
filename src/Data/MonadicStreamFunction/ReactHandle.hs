@@ -12,6 +12,7 @@ import Data.IORef
 
 -- Internal
 import Data.MonadicStreamFunction
+import Data.MonadicStreamFunction.InternalCore
 
 
 -- | A storage for the current state of an 'MSF'.

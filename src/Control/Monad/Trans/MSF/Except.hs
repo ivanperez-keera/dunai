@@ -22,6 +22,7 @@ import           Control.Monad.Trans.Maybe
 -- Internal
 import Control.Monad.Trans.MSF.GenLift (transG, handleGen)
 import Data.MonadicStreamFunction
+import Data.MonadicStreamFunction.InternalCore
 
 -- * Throwing exceptions
 
@@ -85,7 +86,7 @@ catchS msf f = safely $ do
   e <- try msf
   safe $ f e
 
--- | Similar to Yampa's delayed switching. Looses a @b@ in case of an exception.
+-- | Similar to Yampa's delayed switching. Loses a @b@ in case of an exception.
 untilE :: Monad m => MSF m a b -> MSF m b (Maybe e)
        -> MSF (ExceptT e m) a b
 untilE msf msfe = proc a -> do
@@ -236,3 +237,11 @@ reactimateExcept msfe = do
 -- | Reactimates an 'MSF' until it returns 'True'.
 reactimateB :: Monad m => MSF m () Bool -> m ()
 reactimateB sf = reactimateExcept $ try $ liftMSFTrans sf >>> throwOn ()
+
+-- * Analog to Yampa's switch, with Maybe instead of Event
+switch :: Monad m => MSF m a (b, Maybe c) -> (c -> MSF m a b) -> MSF m a b
+switch sf f = catchS ef  f
+  where
+    ef = proc a -> do
+           (b,me)  <- liftMSFTrans sf -< a
+           inExceptT -< ExceptT $ return $ maybe (Right b) Left me

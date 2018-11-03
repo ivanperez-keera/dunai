@@ -8,6 +8,7 @@
 module Control.Monad.Trans.MSF.GenLift where
 
 import Data.MonadicStreamFunction
+import Data.MonadicStreamFunction.InternalCore
 
 -- | Lifting combinator to move from one monad to another, if one has a
 -- function to run computations in one monad into another. Note that, unlike a

@@ -13,40 +13,16 @@ import Data.Monoid
 
 -- Internal
 import Data.MonadicStreamFunction.Core
--- import Data.MonadicStreamFunction.Instances.ArrowChoice ()
+import Data.MonadicStreamFunction.InternalCore
+import Data.MonadicStreamFunction.Instances.ArrowChoice ()
 import Data.VectorSpace
 import Prelude hiding (id, (.))
 
+import Control.Monad.Trans.MSF.State
+
+
 -- * Arrow instance
 
--- | 'Arrow' instance for 'MSF's.
-instance Monad m => Arrow (MSF m) where
-
-  arr f = arrM (return . f)
-
-  -- first sf = MSF $ \(a,c) -> do
-  --   (b, sf') <- unMSF sf a
-  --   b `seq` return ((b, c), first sf')
-
-  first = morphGS (\f (a,c) -> do
-            (b,msf') <- f a
-            return ((b, c), msf'))
-
-
--- * Functor and applicative instances
-
--- | 'Functor' instance for 'MSF's.
-instance Monad m => Functor (MSF m a) where
-  fmap f msf = msf >>> arr f
-  -- fmap f msf = MSF $ fmap fS . unMSF msf
-  --   where
-  --     fS (b, cont) = (f b, fmap f cont)
-
--- | 'Applicative' instance for 'MSF's.
-instance (Functor m, Monad m) => Applicative (MSF m a) where
-  -- It is possible to define this instance with only Applicative m
-  pure = arr . const
-  fs <*> bs = (fs &&& bs) >>> arr (uncurry ($))
 
 
 -- * Streams and sinks
@@ -101,6 +77,23 @@ liftMSFTrans = liftMSFPurer lift
 liftMSFPurer :: (Monad m2, Monad m1)
              => (forall c . m1 c -> m2 c) -> MSF m1 a b -> MSF m2 a b
 liftMSFPurer morph = morphGS (morph .)
+
+-- IPerez: There is an alternative signature for liftMStreamPurer that also
+-- works, and makes the code simpler:
+--
+-- liftMSFPurer :: Monad m => (m1 (b, MSF m1 a b) -> m (b, MSF m1 a b)) -> MSF m1 a b -> MSF m a b
+--
+-- Then we can express:
+--
+-- liftMSFTrans = liftMSFPurer lift
+-- liftMSFBase  = liftMSFPurer liftBase
+--
+-- We could also define a strict version of liftMSFPurer as follows:
+--
+-- liftMStreamPurer' f = liftMSFPurer (f >=> whnfVal)
+--   where whnfVal p@(b,_) = b `seq` return p
+--
+-- and leave liftMSFPurer as a lazy version (by default).
 
 
 

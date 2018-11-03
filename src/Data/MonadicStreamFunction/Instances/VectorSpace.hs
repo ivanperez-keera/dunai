@@ -24,7 +24,6 @@ module Data.MonadicStreamFunction.Instances.VectorSpace where
 import Control.Arrow
 import Control.Arrow.Util
 import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.Util
 import Data.VectorSpace
 
 -- These conflict with Data.VectorSpace.Instances

@@ -26,7 +26,8 @@ import Control.Monad.Trans.State.Strict
 import Data.Tuple (swap)
 
 -- Internal
-import Data.MonadicStreamFunction
+import Data.MonadicStreamFunction.Core
+import Data.MonadicStreamFunction.InternalCore
 
 -- * 'State' 'MSF' running and wrapping
 
