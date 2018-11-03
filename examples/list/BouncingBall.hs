@@ -6,6 +6,7 @@ import           Control.Monad
 import           Control.Monad.Identity
 import           Control.Monad.Trans.Reader
 import           Data.MonadicStreamFunction hiding (reactimate, switch, trace)
+import           Data.MonadicStreamFunction.InternalCore (MSF(..))
 import qualified Data.MonadicStreamFunction as MSF
 import           Debug.Trace
 import           FRP.Yampa                  as Yampa
@@ -33,7 +34,7 @@ fireballs :: SF (Bool, (Float, Float)) [(Float, Float)]
 fireballs = switch
   (arr (const []) &&& arr (\(mp, pos) -> if mp then Event pos else Yampa.NoEvent))
 
-  (\(p, v) -> let oldfb = voidI $ runListMSF (liftMSFTrans (bouncingBall p v))
+  (\(p, v) -> let oldfb = voidI $ runListMSF (liftTransS (bouncingBall p v))
                   newfb = fireballs
               in (oldfb &&& newfb) >>> arr2 (++)
   )

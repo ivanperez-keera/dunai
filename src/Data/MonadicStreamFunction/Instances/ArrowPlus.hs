@@ -13,6 +13,7 @@ import Control.Applicative
 
 -- dunai
 import Data.MonadicStreamFunction.Core
+import Data.MonadicStreamFunction.InternalCore
 
 -- | Instance of 'ArrowZero' for Monadic Stream Functions ('MSF').
 --   The monad must be an instance of 'MonadPlus'.

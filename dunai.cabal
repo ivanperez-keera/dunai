@@ -56,7 +56,6 @@ flag test-doc-coverage
 library
   exposed-modules:   Control.Monad.Trans.MSF
                      Control.Monad.Trans.MSF.Except
-                     Control.Monad.Trans.MSF.GenLift
                      Control.Monad.Trans.MSF.Maybe
                      Control.Monad.Trans.MSF.Random
                      Control.Monad.Trans.MSF.Reader
@@ -71,6 +70,7 @@ library
                      Data.MonadicStreamFunction.Instances.ArrowPlus
                      Data.MonadicStreamFunction.Instances.Num
                      Data.MonadicStreamFunction.Instances.VectorSpace
+                     Data.MonadicStreamFunction.InternalCore
                      Data.MonadicStreamFunction.Parallel
                      Data.MonadicStreamFunction.ReactHandle
                      Data.MonadicStreamFunction.Util

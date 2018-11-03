@@ -8,6 +8,7 @@ import GHC.Conc
 
 -- Internal
 import Data.MonadicStreamFunction
+import Data.MonadicStreamFunction.InternalCore
 
 -- | Run two 'MSF's in parallel, taking advantage of parallelism if
 --   possible. This is the parallel version of '***'.
