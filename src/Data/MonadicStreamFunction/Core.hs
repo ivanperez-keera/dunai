@@ -93,19 +93,6 @@ instance Monad m => Arrow (MSF m) where
     (b, sf') <- unMSF sf a
     b `seq` return ((b, c), first sf')
 
--- | 'Functor' instance for 'MSF's.
-instance Functor m => Functor (MSF m a) where
-  -- fmap f msf == msf >>> arr f
-  fmap f msf = MSF $ fmap fS . unMSF msf
-    where
-      fS (b, cont) = (f b, fmap f cont)
-
--- | 'Applicative' instance for 'MSF's.
-instance (Functor m, Monad m) => Applicative (MSF m a) where
-  -- It is possible to define this instance with only Applicative m
-  pure = arr . const
-  fs <*> bs = (fs &&& bs) >>> arr (uncurry ($))
-
 -- * Monadic computations and 'MSF's
 
 -- ** Lifting point-wise computations
@@ -119,25 +106,7 @@ arrM f = go
                b <- f a
                return (b, go)
 
--- | Monadic lifting from one monad into another
-liftS :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
-liftS = arrM . (liftBase .)
-
 -- ** Lifting 'MSF's
-
--- *** Lifting across monad stacks
-
--- | Lift inner monadic actions in monad stacks.
-
-liftMSFTrans :: (MonadTrans t, Monad m, Monad (t m))
-             => MSF m a b
-             -> MSF (t m) a b
-liftMSFTrans = liftMSFPurer lift
-
--- | Lift innermost monadic actions in a monad stacks (generalisation of
--- 'liftIO').
-liftMSFBase :: (Monad m2, MonadBase m1 m2) => MSF m1 a b -> MSF m2 a b
-liftMSFBase = liftMSFPurer liftBase
 
 -- *** Generic 'MSF' Lifting
 
@@ -185,21 +154,6 @@ morphGS morph msf = MSF $ \a2 -> do
 --
 -- and leave liftMSFPurer as a lazy version (by default).
 
--- | Lifting purer monadic actions (in an arbitrary way)
-liftMSFPurer :: (Monad m2, Monad m1)
-             => (forall c . m1 c -> m2 c) -> MSF m1 a b -> MSF m2 a b
-liftMSFPurer morph = morphGS (morph .)
-
--- * Delays
-
--- | Delay a signal by one sample.
-iPre :: Monad m
-     => a         -- ^ First output
-     -> MSF m a a
-iPre firsta = MSF $ \a -> return (firsta, iPre a)
--- iPre firsta = feedback firsta $ lift swap
---   where swap (a,b) = (b, a)
--- iPre firsta = next firsta identity
 
 -- * Switching
 

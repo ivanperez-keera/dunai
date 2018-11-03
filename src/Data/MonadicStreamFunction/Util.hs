@@ -1,4 +1,5 @@
 {-# LANGUAGE Arrows #-}
+{-# LANGUAGE Rank2Types     #-}
 -- | Useful auxiliary functions and definitions.
 module Data.MonadicStreamFunction.Util where
 
@@ -7,13 +8,30 @@ import Control.Arrow
 import Control.Category
 import Control.Monad
 import Control.Monad.Base
+import Control.Monad.Trans.Class
 import Data.Monoid
-import Prelude hiding (id, (.))
 
 -- Internal
 import Data.MonadicStreamFunction.Core
 import Data.MonadicStreamFunction.Instances.ArrowChoice ()
 import Data.VectorSpace
+import Prelude hiding (id, (.))
+
+-- * Functor and applicative instances
+
+-- | 'Functor' instance for 'MSF's.
+instance Monad m => Functor (MSF m a) where
+  fmap f msf = msf >>> arr f
+  -- fmap f msf = MSF $ fmap fS . unMSF msf
+  --   where
+  --     fS (b, cont) = (f b, fmap f cont)
+
+-- | 'Applicative' instance for 'MSF's.
+instance (Functor m, Monad m) => Applicative (MSF m a) where
+  -- It is possible to define this instance with only Applicative m
+  pure = arr . const
+  fs <*> bs = (fs &&& bs) >>> arr (uncurry ($))
+
 
 -- * Streams and sinks
 
@@ -36,6 +54,11 @@ insert = arrM id
 arrM_ :: Monad m => m b -> MSF m a b
 arrM_ = arrM . const
 
+-- | Monadic lifting from one monad into another
+liftS :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
+liftS = arrM . (liftBase .)
+
+
 -- | Lift the first 'MSF' into the monad of the second.
 (^>>>) :: MonadBase m1 m2 => MSF m1 a b -> MSF m2 b c -> MSF m2 a c
 sf1 ^>>> sf2 = liftMSFBase sf1 >>> sf2
@@ -45,6 +68,25 @@ sf1 ^>>> sf2 = liftMSFBase sf1 >>> sf2
 (>>>^) :: MonadBase m1 m2 => MSF m2 a b -> MSF m1 b c -> MSF m2 a c
 sf1 >>>^ sf2 = sf1 >>> liftMSFBase sf2
 {-# INLINE (>>>^) #-}
+
+-- | Lift innermost monadic actions in a monad stacks (generalisation of
+-- 'liftIO').
+liftMSFBase :: (Monad m2, MonadBase m1 m2) => MSF m1 a b -> MSF m2 a b
+liftMSFBase = liftMSFPurer liftBase
+
+-- | Lift inner monadic actions in monad stacks.
+
+liftMSFTrans :: (MonadTrans t, Monad m, Monad (t m))
+             => MSF m a b
+             -> MSF (t m) a b
+liftMSFTrans = liftMSFPurer lift
+
+-- | Lifting purer monadic actions (in an arbitrary way)
+liftMSFPurer :: (Monad m2, Monad m1)
+             => (forall c . m1 c -> m2 c) -> MSF m1 a b -> MSF m2 a b
+liftMSFPurer morph = morphGS (morph .)
+
+
 
 -- * Analogues of 'map' and 'fmap'
 
@@ -80,6 +122,16 @@ withSideEffect_ method = withSideEffect $ const method
 -- * Delays
 
 -- See also: 'iPre'
+
+-- | Delay a signal by one sample.
+iPre :: Monad m
+     => a         -- ^ First output
+     -> MSF m a a
+iPre firsta = MSF $ \a -> return (firsta, iPre a)
+-- iPre firsta = feedback firsta $ lift swap
+--   where swap (a,b) = (b, a)
+-- iPre firsta = next firsta identity
+
 
 -- | Preprends a fixed output to an 'MSF'. The first input is completely
 -- ignored.
