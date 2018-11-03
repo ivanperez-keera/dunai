@@ -29,8 +29,28 @@
 --   <http://dl.acm.org/citation.cfm?id=2976010>
 --   (mirror: <http://www.cs.nott.ac.uk/~psxip1/#FRPRefactored>).
 module Data.MonadicStreamFunction.Core
-  ( module Data.MonadicStreamFunction.Core
-  , module Data.MonadicStreamFunction.InternalCore
+  ( -- * Types
+    MSF
+    -- * Lifting and Monadic transformations
+    -- ** Lifting point-wise computations
+  , constM
+  , arrM
+  , liftBaseM
+    -- ** Trans-monadic MSF combinators
+    -- *** MonadBase
+  , liftBaseS
+  , (^>>>)
+  , (>>>^)
+    -- *** MonadTrans
+  , liftTransS
+    -- *** Generic Monadic Transformations
+  , morphS
+  , morphGS
+    -- * Depending on the past
+  , feedback
+    -- * Simulation
+  , reactimate
+  , embed
   , module Control.Arrow
   )
   where
