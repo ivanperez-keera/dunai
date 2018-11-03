@@ -14,7 +14,7 @@ The stream of lists will be called exactly when new data is needed.
 
 Example:
 
->>> let intstream = arrM_ $ putStrLn "Enter a list of Ints:" >> readLn :: MStream IO [Int]
+>>> let intstream = constS $ putStrLn "Enter a list of Ints:" >> readLn :: MStream IO [Int]
 >>> reactimate $ concatS intstream >>> arrM print
 Enter a list of Ints:
 [1,2,33]

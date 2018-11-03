@@ -23,7 +23,7 @@ import Data.MonadicStreamFunction
 
 -- | Throw the exception immediately.
 exit :: Monad m => MSF (MaybeT m) a b
-exit = arrM_ $ MaybeT $ return Nothing
+exit = constM $ MaybeT $ return Nothing
 
 -- | Throw the exception when the condition becomes true on the input.
 exitWhen :: Monad m => (a -> Bool) -> MSF (MaybeT m) a a
@@ -51,8 +51,8 @@ inMaybeT = arrM $ MaybeT . return
 -- | Run the first @msf@ until the second one produces 'True' from the output of the first.
 untilMaybe :: Monad m => MSF m a b -> MSF m b Bool -> MSF (MaybeT m) a b
 untilMaybe msf cond = proc a -> do
-  b <- liftMSFTrans msf  -< a
-  c <- liftMSFTrans cond -< b
+  b <- liftTransS msf  -< a
+  c <- liftTransS cond -< b
   inMaybeT -< if c then Nothing else Just b
 
 -- | When an exception occurs in the first 'msf', the second 'msf' is executed from there.
@@ -91,4 +91,4 @@ reactimateMaybe msf = reactimateExcept $ try $ maybeToExceptS msf
 -- combine effects and streams (i.e., for testing purposes).
 embed_ :: (Functor m, Monad m) => MSF m a () -> [a] -> m ()
 
-embed_ msf as = reactimateMaybe $ listToMaybeS as >>> liftMSFTrans msf
+embed_ msf as = reactimateMaybe $ listToMaybeS as >>> liftTransS msf

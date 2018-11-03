@@ -61,7 +61,7 @@ throwS = arrM throwE
 
 -- | Immediately throw the given exception.
 throw :: Monad m => e -> MSF (ExceptT e m) a b
-throw = arrM_ . throwE
+throw = constM . throwE
 
 -- | Do not throw an exception.
 pass :: Monad m => MSF (ExceptT e m) a a
@@ -71,7 +71,7 @@ pass = Category.id
 --   Whenever 'Nothing' is thrown, throw @()@ instead.
 maybeToExceptS :: (Functor m, Monad m)
                => MSF (MaybeT m) a b -> MSF (ExceptT () m) a b
-maybeToExceptS = liftMSFPurer (ExceptT . (maybe (Left ()) Right <$>) . runMaybeT)
+maybeToExceptS = morphS (ExceptT . (maybe (Left ()) Right <$>) . runMaybeT)
 
 -- * Catching exceptions
 
@@ -89,8 +89,8 @@ catchS msf f = safely $ do
 untilE :: Monad m => MSF m a b -> MSF m b (Maybe e)
        -> MSF (ExceptT e m) a b
 untilE msf msfe = proc a -> do
-  b  <- liftMSFTrans msf  -< a
-  me <- liftMSFTrans msfe -< b
+  b  <- liftTransS msf  -< a
+  me <- liftTransS msfe -< b
   inExceptT -< ExceptT $ return $ maybe (Right b) Left me
 
 -- TODO This needs to be renamed as 'runExceptS'!
@@ -189,7 +189,7 @@ safely (MSFExcept msf) = safely' msf
 -- | An 'MSF' without an 'ExceptT' layer never throws an exception,
 --   and can thus have an arbitrary exception type.
 safe :: Monad m => MSF m a b -> MSFExcept m a b e
-safe = try . liftMSFTrans
+safe = try . liftTransS
 
 -- | Inside the 'MSFExcept' monad, execute an action of the wrapped monad.
 --   This passes the last input value to the action,
@@ -235,14 +235,14 @@ reactimateExcept msfe = do
 
 -- | Reactimates an 'MSF' until it returns 'True'.
 reactimateB :: Monad m => MSF m () Bool -> m ()
-reactimateB sf = reactimateExcept $ try $ liftMSFTrans sf >>> throwOn ()
+reactimateB sf = reactimateExcept $ try $ liftTransS sf >>> throwOn ()
 
 -- * Analog to Yampa's switch, with Maybe instead of Event
 switch :: Monad m => MSF m a (b, Maybe c) -> (c -> MSF m a b) -> MSF m a b
 switch sf f = catchS ef  f
   where
     ef = proc a -> do
-           (b,me)  <- liftMSFTrans sf -< a
+           (b,me)  <- liftTransS sf -< a
            inExceptT -< ExceptT $ return $ maybe (Right b) Left me
 
 -- | More general lifting combinator that enables recovery. Note that, unlike a
