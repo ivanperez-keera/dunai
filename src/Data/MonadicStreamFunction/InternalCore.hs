@@ -11,24 +11,9 @@
 --   'MSF's are a generalisation of the implementation mechanism used by Yampa,
 --   Wormholes and other FRP and reactive implementations.
 --
---   When combined with different monads, they produce interesting effects. For
---   example, when combined with the 'Maybe' monad, they become transformations
---   that may stop producing outputs (and continuations). The 'Either' monad
---   gives rise to 'MSF's that end with a result (akin to Tasks in Yampa, and
---   Monadic FRP).
---
---   Flattening, that is, going from some structure @MSF (t m) a b@ to @MSF m a b@
---   for a specific transformer @t@ often gives rise to known FRP constructs.
---   For instance, flattening with 'EitherT' gives rise to switching, and
---   flattening with 'ListT' gives rise to parallelism with broadcasting.
---
---   'MSF's can be used to implement many FRP variants, including Arrowized FRP,
---   Classic FRP, and plain reactive programming. Arrowized and applicative
---   syntax are both supported.
---
---   For a very detailed introduction to 'MSF's, see:
---   <http://dl.acm.org/citation.cfm?id=2976010>
---   (mirror: <http://www.cs.nott.ac.uk/~psxip1/#FRPRefactored>).
+--   This modules defines only the minimal core. Hopefully, other functions can be
+--   defined in terms of the functions in this module without accessing the
+--   MSF constuctor.
 
 -- NOTE TO IMPLEMENTORS:
 --
@@ -41,7 +26,7 @@
 -- adding all the functions and instances that *may* be useful in one
 -- module.
 --
--- By separating some instances and functions in other modules , we can
+-- By separating some instances and functions in other modules, we can
 -- easily understand what is the essential idea and then analyse how it
 -- is affected by an extension. It also helps demonstrate that something
 -- works for MSFs + ArrowChoice, or MSFs + ArrowLoop, etc.
