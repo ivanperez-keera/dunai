@@ -112,19 +112,6 @@ morphGS morph msf = MSF $ \a2 -> do
   (b2, msf') <- morph (unMSF msf) a2
   return (b2, morphGS morph msf')
 
-
----- * Switching
---
----- | Switching applies one 'MSF' until it produces a 'Just' output, and then
----- "turns on" a continuation and runs it.
-----
----- A more general approach to switching is given by Exceptions
----- in 'Control.Monad.Trans.MSF.Except'
---switch :: Monad m => MSF m a (b, Maybe c) -> (c -> MSF m a b) -> MSF m a b
---switch sf f = MSF $ \a -> do
---  ((b, c), sf') <- unMSF sf a
---  return (b, maybe (switch sf' f) f c)
-
 -- * Feedback loops
 
 -- | Well-formed looped connection of an output component as a future input.
