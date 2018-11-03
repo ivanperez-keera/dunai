@@ -13,18 +13,6 @@ import Data.MonadicStreamFunction.InternalCore
 -- | Lifting combinator to move from one monad to another, if one has a
 -- function to run computations in one monad into another. Note that, unlike a
 -- polymorphic lifting function @forall a . m a -> m1 a@, this auxiliary
--- function needs to be a bit more structured.
-lifterS :: (Monad m, Monad m1)
-        => ((a1 -> m1 (b1, MSF m1 a1 b1)) -> a -> m (b, MSF m1 a1 b1))
-        -> MSF m1 a1 b1
-        -> MSF m  a  b
-lifterS f msf = MSF $ \a -> do
-  (b, msf') <- f (unMSF msf) a
-  return (b, lifterS f msf')
-
--- | Lifting combinator to move from one monad to another, if one has a
--- function to run computations in one monad into another. Note that, unlike a
--- polymorphic lifting function @forall a . m a -> m1 a@, this auxiliary
 -- function needs to be a bit more structured, although less structured than
 -- 'lifterS'.
 
