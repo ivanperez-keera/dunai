@@ -1,5 +1,5 @@
 name:                dunai
-version:             0.4.0.0
+version:             0.5
 synopsis:            Generalised reactive framework supporting classic, arrowized and monadic FRP.
 homepage:            https://github.com/ivanperez-keera/dunai
 description:
