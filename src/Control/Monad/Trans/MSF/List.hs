@@ -28,3 +28,15 @@ sequenceS msfs = MSF $ \a -> ListT $ sequence $ apply a <$> msfs
         (b, msf') <- unMSF msf a
         return (b, sequenceS [msf'])
 -- sequenceS = foldl (<+>) arrowzero . map liftMSFTrans
+
+-- | Apply an 'MSF' to every input.
+mapMSF :: Monad m => MSF m a b -> MSF m [a] [b]
+mapMSF = MSF . consume
+  where
+    consume :: Monad m => MSF m a t -> [a] -> m ([t], MSF m [a] [t])
+    consume sf []     = return ([], mapMSF sf)
+    consume sf (a:as) = do
+      (b, sf')   <- unMSF sf a
+      (bs, sf'') <- consume sf' as
+      b `seq` return (b:bs, sf'')
+

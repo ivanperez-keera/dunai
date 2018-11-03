@@ -13,7 +13,6 @@ import Data.Monoid
 
 -- Internal
 import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.InternalCore
 import Data.MonadicStreamFunction.Instances.ArrowChoice ()
 import Data.VectorSpace
 import Prelude hiding (id, (.))
@@ -88,16 +87,6 @@ liftMSFPurer morph = morphGS (morph .)
 
 -- * Analogues of 'map' and 'fmap'
 
--- | Apply an 'MSF' to every input.
-mapMSF :: Monad m => MSF m a b -> MSF m [a] [b]
-mapMSF = MSF . consume
-  where
-    consume :: Monad m => MSF m a t -> [a] -> m ([t], MSF m [a] [t])
-    consume sf []     = return ([], mapMSF sf)
-    consume sf (a:as) = do
-      (b, sf')   <- unMSF sf a
-      (bs, sf'') <- consume sf' as
-      b `seq` return (b:bs, sf'')
 
 -- | Apply an 'MSF' to every input. Freezes temporarily if the input is
 -- 'Nothing', and continues as soon as a 'Just' is received.
@@ -125,16 +114,18 @@ withSideEffect_ method = withSideEffect $ const method
 iPre :: Monad m
      => a         -- ^ First output
      -> MSF m a a
-iPre firsta = MSF $ \a -> return (firsta, iPre a)
--- iPre firsta = feedback firsta $ lift swap
---   where swap (a,b) = (b, a)
+-- iPre firsta = MSF $ \a -> return (firsta, iPre a)
+iPre firsta = feedback firsta $ arr swap
+  where swap (a,b) = (b, a)
 -- iPre firsta = next firsta identity
 
 
 -- | Preprends a fixed output to an 'MSF'. The first input is completely
 -- ignored.
 iPost :: Monad m => b -> MSF m a b -> MSF m a b
-iPost b sf = MSF $ \_ -> return (b, sf)
+iPost b sf = sf >>> (feedback (Just b) $ arr $ \(c, ac) -> case ac of
+  Nothing -> (c, Nothing)
+  Just b' -> (b', Nothing))
 
 -- | Preprends a fixed output to an 'MSF', shifting the output.
 next :: Monad m => b -> MSF m a b -> MSF m a b

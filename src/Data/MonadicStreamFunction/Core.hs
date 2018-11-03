@@ -37,7 +37,7 @@ module Data.MonadicStreamFunction.Core
 import Control.Arrow
 import qualified Control.Category as C
 
-import Data.MonadicStreamFunction.InternalCore (MSF, morphGS)
+import Data.MonadicStreamFunction.InternalCore (MSF, morphGS, feedback, reactimate, embed)
 
 -- | 'Arrow' instance for 'MSF's.
 instance Monad m => Arrow (MSF m) where
