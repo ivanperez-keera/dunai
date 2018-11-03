@@ -70,6 +70,7 @@ library
                      Data.MonadicStreamFunction.Instances.ArrowPlus
                      Data.MonadicStreamFunction.Instances.Num
                      Data.MonadicStreamFunction.Instances.VectorSpace
+                     Data.MonadicStreamFunction.InternalCore
                      Data.MonadicStreamFunction.Parallel
                      Data.MonadicStreamFunction.ReactHandle
                      Data.MonadicStreamFunction.Util
@@ -78,7 +79,6 @@ library
                      Data.VectorSpace
 
   other-modules:     Control.Arrow.Util
-                     Data.MonadicStreamFunction.InternalCore
 
   build-depends:     base >=4.6 && < 5,
                      transformers,

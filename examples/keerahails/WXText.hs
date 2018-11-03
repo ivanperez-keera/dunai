@@ -16,6 +16,7 @@ import Control.Monad
 import Data.IORef
 import Data.Maybe
 import Data.MonadicStreamFunction hiding (trace)
+import Data.MonadicStreamFunction.InternalCore
 import Debug.Trace
 import Graphics.UI.WX
 
@@ -86,7 +87,7 @@ setProp c p v = set c [ p := v ]
 -- ** Keera Hails - WX bridge on top of Dunai
 reactiveWXFieldRO :: Updating widget => widget -> Attr widget attr -> ReactiveValueRO IO attr
 reactiveWXFieldRO widget attr =
-  ( arrM_ (get widget attr)
+  ( constM (get widget attr)
   , \m -> set widget [ on update :~ (\m1 -> m1 >> m) ]
   )
 
