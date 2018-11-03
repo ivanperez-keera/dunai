@@ -20,11 +20,6 @@ import Prelude hiding (id, (.))
 
 import Control.Monad.Trans.MSF.State
 
-
--- * Arrow instance
-
-
-
 -- * Streams and sinks
 
 -- | A stream is an 'MSF' that produces outputs, while ignoring the input.
@@ -37,11 +32,6 @@ type MSink   m a = MSF m a ()
 
 -- * Lifting
 
--- | Pre-inserts an input sample.
-{-# DEPRECATED insert "Don't use this. arrM id instead" #-}
-insert :: Monad m => MSF m (m a) a
-insert = arrM id
-
 -- | Lifts a computation into a Stream.
 arrM_ :: Monad m => m b -> MSF m a b
 arrM_ = arrM . const
@@ -49,7 +39,6 @@ arrM_ = arrM . const
 -- | Monadic lifting from one monad into another
 liftS :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
 liftS = arrM . (liftBase .)
-
 
 -- | Lift the first 'MSF' into the monad of the second.
 (^>>>) :: MonadBase m1 m2 => MSF m1 a b -> MSF m2 b c -> MSF m2 a c
