@@ -9,11 +9,11 @@ whileLoopM val cond act = r'
                   act v
                   whileLoopM val cond act
 
-foldLoopM :: Monad m => a -> m b -> (b -> Bool) -> (a -> b -> m a) -> m a
-foldLoopM val sense cond act = r'
+foldWhileM :: Monad m => a -> m b -> (b -> Bool) -> (a -> b -> m a) -> m a
+foldWhileM val sense cond act = r'
   where r' = do s <- sense
                 if cond s
                   then do
                       val' <- act val s
-                      foldLoopM val' sense cond act
+                      foldWhileM val' sense cond act
                   else return val

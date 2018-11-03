@@ -1,0 +1,20 @@
+name:                dunai-examples-paper
+version:             0.1.0.0
+synopsis:            Examples from the paper "Functional Reactive Programming, refactored"
+homepage:            http://github.com/ivanperez-keera/dunai
+license:             BSD3
+license-file:        LICENSE
+author:              Ivan Perez and Manuel Baerenz
+maintainer:          ivan.perez@keera.co.uk
+category:            Reactivity, FRP
+build-type:          Simple
+extra-source-files:  ChangeLog.md
+cabal-version:       >=1.10
+
+library
+  exposed-modules:     DunaiExamplesConcepts
+  build-depends:       base >=4.6 && <5,
+                       dunai
+
+  hs-source-dirs:      src
+  default-language:    Haskell2010

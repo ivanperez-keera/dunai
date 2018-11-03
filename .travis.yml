@@ -1,26 +1,50 @@
 # The following enables several GHC versions to be tested; often it's enough to
 # test only against the last release in a major GHC version. Feel free to omit
 # lines listings versions you don't need/want testing for.
-language: c
+language: haskell
+
+ghc:
+  - "7.6.3"
+  - "7.8.4"
+  - "7.10.3"
+  - "8.0.2"
+  - "8.2.1"
+
 env:
- - GHCVER=7.6.3
- - GHCVER=7.8.4
- - GHCVER=7.10.3
- - GHCVER=8.0.2
- - GHCVER=8.2.1
+  - PACKAGEDIR="."
+  - PACKAGEDIR="examples/bearriver"
+  - PACKAGEDIR="examples/bouncingball"
+  - PACKAGEDIR="examples/discrete"
+  - PACKAGEDIR="examples/keerahails"
+  - PACKAGEDIR="examples/list"
+  - PACKAGEDIR="examples/taggingmonad"
+  - PACKAGEDIR="examples/reversefrpzoo/wormholes"
 
-# Note: the distinction between `before_install` and `install` is not important.
+matrix:
+  exclude:
+    - ghc: 7.6.3
+      env: PACKAGEDIR="examples/list"
+    - ghc: 7.8.4
+      env: PACKAGEDIR="examples/discrete"
+    - ghc: 7.8.4
+      env: PACKAGEDIR="examples/keerahails"
+    - ghc: 8.2.1
+      env: PACKAGEDIR="examples/discrete"
+    - ghc: 8.2.1
+      env: PACKAGEDIR="examples/keerahails"
+
 before_install:
- - unset CC
-install:
- - travis_retry sudo add-apt-repository -y ppa:hvr/ghc
- - travis_retry sudo apt-get update
- - travis_retry sudo apt-get install cabal-install-1.24 ghc-$GHCVER-prof ghc-$GHCVER-dyn alex-3.1.4 happy-1.19.5
- - export PATH=$HOME/.cabal/bin:/opt/ghc/$GHCVER/bin:/opt/cabal/1.24/bin:/opt/alex/3.1.4/bin:/opt/happy/1.19.5/bin:$PATH
- - travis_retry cabal update
+  - cd ${PACKAGEDIR}
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libsdl-gfx1.2-dev libwxgtk3.0-dev libbluetooth-dev libcwiid-dev libwxgtk-media3.0-dev libsdl-ttf2.0-dev
 
-script:
- - travis_retry cabal install --run-tests -v -j1
-
-notifications:
- email: true
+deploy:
+  provider: hackage
+  username: keera_studios_ci_dunai
+  password:
+    secure: nfxBR6dV3B+qmQcxiJsmQMPrRUvUZRfSPmhFWwFIjJCfjJLTteQg9V0QI2IpssnNos9qQrCF9qxsvSGSliC9rANYRz8jGz4y5/8XmS0LE71BDTvB8WyzWhKGB9SXNN4xozEIvFDdpEopeK3uh7yf3GXY30zDNhYbZaj38eUF0/3WfxcBBgKDjPgnVShNgoXkkwI6Vz+e1M42/f0IoUVdXWikmCuczMoVYKIkawr+qjCKn9jzKzsdxVYgFtKwOx4wzXvncfvsi1H90pHt4RZi0ufS0qhFxq8Wylx8s1J4i1AuC/2iuAhdEOTidSXGUpi3hDfPhvq70+5vJr9RxgdRA5SkqXT/cck5cC21uOuIw1mGs2Zic7jD16MrpDmZEgZq5QpsK7Hwy5B3+YXZ7y7gG8nxobg8Fj49IbYTuigGrlXJumAXMtU1mspRfWthySKLLrVyCqn8Jow8DcjtmQDGRf4yY2EPngf8iJ7VmFaUpiCPZZ2aE4FxjSpqgJLFun2szLsNLNVFkUHjHF/NFJzW6i+evy/oJmvk+SmI0D/YunbUmlgrN2+sy5TpwWquN9I78SDaGpP8yNlR7OutU6DgLpu9BigLTQHKQr+tJz30c4em3w2Gl1F+QM8sIEEvafEX8+h6WqpKuHi8sQlJKJziAnoEfgDC83tKJJpMc9hj3kE=
+  on:
+    branch: master
+    condition:
+      - ${TRAVIS_HASKELL_VERSION}=8.2.1
+      - ${PACKAGEDIR} =~ ^(\.|examples/bearriver)$

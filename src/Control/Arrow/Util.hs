@@ -8,18 +8,6 @@ constantly :: Arrow a => b -> a c b
 constantly = arr . const
 {-# INLINE constantly #-}
 
--- | Alternative implementation of '<<<' that binds more strongly.
-infixr 4 <-<
-(<-<) :: Arrow a => a c d -> a b c -> a b d
-(<-<) = (<<<)
-{-# INLINE (<-<) #-}
-
--- | Alternative implementation of '>>>' that binds more strongly.
-infixr 4 >->
-(>->) :: Arrow a => a b c -> a c d -> a b d
-(>->) = (>>>)
-{-# INLINE (>->) #-}
-
 -- import Control.Category (id)
 -- import Prelude hiding (id)
 

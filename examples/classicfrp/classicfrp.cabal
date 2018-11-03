@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                classicfrp
-version:             0.1.0.0
+version:             0.1.0.1
 -- synopsis:
 -- description:
 license:             BSD3
@@ -19,7 +19,13 @@ executable test
   main-is:             Test.hs
   -- other-modules:
   other-extensions:    Arrows, RankNTypes, FlexibleInstances
-  build-depends:       base >=4.8 && <4.9, mtl >=2.2 && <2.3, transformers >=0.4 && <0.5, SDL >=0.6 && <0.7, SDL-gfx >=0.6 && <0.7, dunai, bearriver
+  build-depends:       base >=4.6 && <5
+                     , mtl >=2.2 && <2.3
+                     , transformers ==0.5.*
+                     , SDL >=0.6 && <0.7
+                     , SDL-gfx >=0.6 && <0.7
+                     , dunai
+                     , bearriver
   -- hs-source-dirs:
   default-language:    Haskell2010
 
@@ -28,6 +34,12 @@ executable gtest
   main-is:             GTest.hs
   -- other-modules:
   other-extensions:    Arrows, RankNTypes, FlexibleInstances
-  build-depends:       base >=4.8 && <4.9, mtl >=2.2 && <2.3, transformers >=0.4 && <0.5, SDL >=0.6 && <0.7, SDL-gfx >=0.6 && <0.7, dunai, bearriver
+  build-depends:       base >=4.6 && <5
+                     , mtl >=2.2 && <2.3
+                     , transformers ==0.5.*
+                     , SDL >=0.6 && <0.7
+                     , SDL-gfx >=0.6 && <0.7
+                     , dunai
+                     , bearriver
   -- hs-source-dirs:
   default-language:    Haskell2010

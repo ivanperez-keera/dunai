@@ -20,8 +20,8 @@ import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen, lift
 import           Control.Monad.Trans.Maybe
 
 -- Internal
--- import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
+import Data.MonadicStreamFunction.InternalCore
 
 -- * Throwing exceptions
 
@@ -50,7 +50,7 @@ throwOn' = proc (b, e) -> if b
   then throwS  -< e
   else returnA -< ()
 
--- | When the input is 'Just e', throw the exception 'e'.
+-- | When the input is @Just e@, throw the exception @e@.
 --   (Does not output any actual data.)
 throwMaybe :: Monad m => MSF (ExceptT e m) (Maybe e) (Maybe a)
 throwMaybe = mapMaybeS throwS
@@ -61,15 +61,17 @@ throwS = arrM throwE
 
 -- | Immediately throw the given exception.
 throw :: Monad m => e -> MSF (ExceptT e m) a b
-throw = arrM_ . throwE
+throw = constM . throwE
 
 -- | Do not throw an exception.
 pass :: Monad m => MSF (ExceptT e m) a a
 pass = Category.id
 
--- | Whenever 'Nothing' is thrown, throw '()' instead.
-maybeToExceptS :: (Functor m, Monad m) => MSF (MaybeT m) a b -> MSF (ExceptT () m) a b
-maybeToExceptS = liftMSFPurer (ExceptT . (maybe (Left ()) Right <$>) . runMaybeT)
+-- | Converts an 'MSF' in 'MaybeT' to an 'MSF' in 'ExceptT'.
+--   Whenever 'Nothing' is thrown, throw @()@ instead.
+maybeToExceptS :: (Functor m, Monad m)
+               => MSF (MaybeT m) a b -> MSF (ExceptT () m) a b
+maybeToExceptS = morphS (ExceptT . (maybe (Left ()) Right <$>) . runMaybeT)
 
 -- * Catching exceptions
 
@@ -83,25 +85,24 @@ catchS msf f = safely $ do
   e <- try msf
   safe $ f e
 
--- | Similar to Yampa's delayed switching. Looses a 'b' in case of an exception.
+-- | Similar to Yampa's delayed switching. Loses a @b@ in case of an exception.
 untilE :: Monad m => MSF m a b -> MSF m b (Maybe e)
        -> MSF (ExceptT e m) a b
 untilE msf msfe = proc a -> do
-  b  <- liftMSFTrans msf  -< a
-  me <- liftMSFTrans msfe -< b
+  b  <- liftTransS msf  -< a
+  me <- liftTransS msfe -< b
   inExceptT -< ExceptT $ return $ maybe (Right b) Left me
 
+-- TODO This needs to be renamed as 'runExceptS'!
+-- 'exceptS' would have type @MSF m a (Either e b) -> MSF (ExceptT e m) a b@
 -- | Escape an 'ExceptT' layer by outputting the exception whenever it occurs.
 --   If an exception occurs, the current 'MSF' continuation is tested again
 --   on the next input.
-exceptS :: Monad m => MSF (ExceptT e m) a b -> MSF m a (Either e b)
-exceptS msf = go
- where
-   go = MSF $ \a -> do
-          cont <- runExceptT $ unMSF msf a
-          case cont of
-            Left e          -> return (Left e,  go)
-            Right (b, msf') -> return (Right b, exceptS msf')
+exceptS :: (Functor m, Monad m) => MSF (ExceptT e m) a b -> MSF m a (Either e b)
+exceptS = transG return $ const $ fmap f . runExceptT
+  where
+    f (Left e)       = (Left e , Nothing)
+    f (Right (b, c)) = (Right b, Just c )
 
 -- | Embed an 'ExceptT' value inside the 'MSF'.
 --   Whenever the input value is an ordinary value,
@@ -113,7 +114,7 @@ inExceptT = arrM id
 --   replace the exception by the second component of the tuple.
 tagged :: Monad m => MSF (ExceptT e1 m) a b -> MSF (ExceptT e2 m) (a, e2) b
 tagged msf = runMSFExcept $ do
-  e1      <- try $ msf <<< arr fst
+  _       <- try $ msf <<< arr fst
   (_, e2) <- currentInput
   return e2
 
@@ -124,15 +125,19 @@ tagged msf = runMSFExcept $ do
 --   are in fact monads /in the exception type/.
 --
 --   * 'return' corresponds to throwing an exception immediately.
---   * '(>>=)' is exception handling:
+--   * '>>=' is exception handling:
 --     The first value throws an exception,
 --     while the Kleisli arrow handles the exception
 --     and produces a new signal function,
 --     which can throw exceptions in a different type.
+--   * @m@: The monad that the 'MSF' may take side effects in.
+--   * @a@: The input type
+--   * @b@: The output type
+--   * @e@: The type of exceptions that can be thrown
 newtype MSFExcept m a b e = MSFExcept { runMSFExcept :: MSF (ExceptT e m) a b }
 
--- | An alias for the |MSFExcept| constructor,
--- used to enter the |MSFExcept| monad context.
+-- | An alias for the 'MSFExcept' constructor,
+-- used to enter the 'MSFExcept' monad context.
 -- Execute an 'MSF' in 'ExceptT' until it raises an exception.
 try :: MSF (ExceptT e m) a b -> MSFExcept m a b e
 try = MSFExcept
@@ -152,30 +157,41 @@ instance Monad m => Applicative (MSFExcept m a b) where
   pure = MSFExcept . throw
   (<*>) = ap
 
--- | Monad instance for 'MSFExcept'. Bind uses the exception as the "return"
+-- | Monad instance for 'MSFExcept'. Bind uses the exception as the 'return'
 -- value in the monad.
 instance Monad m => Monad (MSFExcept m a b) where
-  MSFExcept msf >>= f = MSFExcept $ MSF $ \a -> do
-    cont <- lift $ runExceptT $ unMSF msf a
-    case cont of
-      Left e          -> unMSF (runMSFExcept $ f e) a
-      Right (b, msf') -> return (b, runMSFExcept $ try msf' >>= f)
+  MSFExcept msf >>= f = MSFExcept $ handleExceptT msf $ runMSFExcept . f
+
+handleExceptT
+  :: Monad m
+  => MSF (ExceptT e1 m) a b
+  -> (e1 -> MSF (ExceptT e2 m) a b)
+  -> MSF (ExceptT e2 m) a b
+handleExceptT msf f = flip handleGen msf $ \a mbcont -> do
+  ebcont <- lift $ runExceptT mbcont
+  case ebcont of
+    Left e          -> unMSF (f e) a
+    Right (b, msf') -> return (b, handleExceptT msf' f)
+
+
 
 -- | The empty type. As an exception type, it encodes "no exception possible".
 data Empty
 
 -- | If no exception can occur, the 'MSF' can be executed without the 'ExceptT' layer.
 safely :: Monad m => MSFExcept m a b Empty -> MSF m a b
-safely (MSFExcept msf) = safely' msf
+safely (MSFExcept msf) = morphS fromExcept msf
   where
-    safely' msf = MSF $ \a -> do
-      Right (b, msf') <- runExceptT $ unMSF msf a
-      return (b, safely' msf')
+    fromExcept ma = do
+      -- We can assume that the pattern @Left e@ will not occur,
+      -- since @e@ would have to be of type @Empty@.
+      Right a <- runExceptT ma
+      return a
 
 -- | An 'MSF' without an 'ExceptT' layer never throws an exception,
 --   and can thus have an arbitrary exception type.
 safe :: Monad m => MSF m a b -> MSFExcept m a b e
-safe = try . liftMSFTrans
+safe = try . liftTransS
 
 -- | Inside the 'MSFExcept' monad, execute an action of the wrapped monad.
 --   This passes the last input value to the action,
@@ -203,10 +219,10 @@ step f = try $ proc a -> do
 -- that could only be broken by moving a few things to Data.MonadicStreamFunction.Core
 -- (that probably belong there anyways).
 
--- | Extract MSF from a monadic action.
+-- | Extract an 'MSF' from a monadic action.
 --
--- Runs a monadic action that produces an MSF on the first iteration/step, and
--- uses that MSF as the main signal function for all inputs (including the
+-- Runs a monadic action that produces an 'MSF' on the first iteration/step, and
+-- uses that 'MSF' as the main signal function for all inputs (including the
 -- first one).
 performOnFirstSample :: Monad m => m (MSF m a b) -> MSF m a b
 performOnFirstSample sfaction = safely $ do
@@ -221,4 +237,33 @@ reactimateExcept msfe = do
 
 -- | Reactimates an 'MSF' until it returns 'True'.
 reactimateB :: Monad m => MSF m () Bool -> m ()
-reactimateB sf = reactimateExcept $ try $ liftMSFTrans sf >>> throwOn ()
+reactimateB sf = reactimateExcept $ try $ liftTransS sf >>> throwOn ()
+
+-- * Analog to Yampa's switch, with Maybe instead of Event
+switch :: Monad m => MSF m a (b, Maybe c) -> (c -> MSF m a b) -> MSF m a b
+switch sf f = catchS ef  f
+  where
+    ef = proc a -> do
+           (b,me)  <- liftTransS sf -< a
+           inExceptT -< ExceptT $ return $ maybe (Right b) Left me
+
+-- | More general lifting combinator that enables recovery. Note that, unlike a
+-- polymorphic lifting function @forall a . m a -> m1 a@, this auxiliary
+-- function needs to be a bit more structured, and produces a Maybe value. The
+-- previous 'MSF' is used if a new one is not produced.
+transG :: (Monad m1, Monad m2)
+       => (a2 -> m1 a1)
+       -> (forall c. a2 -> m1 (b1, c) -> m2 (b2, Maybe c))
+       -> MSF m1 a1 b1
+       -> MSF m2 a2 b2
+transG transformInput transformOutput msf = go
+  where go = MSF $ \a2 -> do
+               (b2, msf') <- transformOutput a2 $ unMSF msf =<< transformInput a2
+               case msf' of
+                 Just msf'' -> return (b2, transG transformInput transformOutput msf'')
+                 Nothing    -> return (b2, go)
+
+handleGen :: (a -> m1 (b1, MSF m1 a b1) -> m2 (b2, MSF m2 a b2))
+          -> MSF m1 a b1
+          -> MSF m2 a b2
+handleGen handler msf = MSF $ \a -> handler a (unMSF msf a)

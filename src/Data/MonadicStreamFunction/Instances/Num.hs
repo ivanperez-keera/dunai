@@ -1,8 +1,9 @@
 {-# LANGUAGE TypeFamilies         #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
--- | Number instances for MSFs that produce numbers. This allows you to use
--- numeric operators with MSFs that output numbers, for example, you can write:
+-- | Number instances for 'MSF's that produce numbers. This allows you to use
+--   numeric operators with 'MSF's that output numbers, for example,
+--   you can write:
 --
 -- @
 -- msf1 :: MSF Input Double -- defined however you want
@@ -25,7 +26,7 @@ module Data.MonadicStreamFunction.Instances.Num where
 import Control.Arrow.Util
 import Data.MonadicStreamFunction.Core
 
--- | 'Num' instance for MSFs.
+-- | 'Num' instance for 'MSF's.
 instance (Monad m, Num b) => Num (MSF m a b) where
   (+)         = elementwise2 (+)
   (-)         = elementwise2 (-)
@@ -35,13 +36,13 @@ instance (Monad m, Num b) => Num (MSF m a b) where
   negate      = elementwise negate
   fromInteger = constantly . fromInteger
 
--- | 'Fractional' instance for MSFs.
+-- | 'Fractional' instance for 'MSF's.
 instance (Monad m, Fractional b) => Fractional (MSF m a b) where
   fromRational = constantly . fromRational
   (/)          = elementwise2 (/)
   recip        = elementwise recip
 
--- | 'Floating' instance for MSFs.
+-- | 'Floating' instance for 'MSF's.
 instance (Monad m, Floating b) => Floating (MSF m a b) where
   pi      = constantly   pi
   exp     = elementwise  exp
