@@ -1,4 +1,5 @@
-{-# LANGUAGE Arrows #-}
+{-# LANGUAGE Arrows     #-}
+{-# LANGUAGE Rank2Types #-}
 -- | Useful auxiliary functions and definitions.
 module Data.MonadicStreamFunction.Util where
 
@@ -8,12 +9,14 @@ import Control.Category
 import Control.Monad
 import Control.Monad.Base
 import Data.Monoid
-import Prelude hiding (id, (.))
 
 -- Internal
 import Data.MonadicStreamFunction.Core
 import Data.MonadicStreamFunction.Instances.ArrowChoice ()
 import Data.VectorSpace
+import Prelude hiding (id, (.))
+
+import Control.Monad.Trans.MSF.State
 
 -- * Streams and sinks
 
@@ -27,37 +30,10 @@ type MSink   m a = MSF m a ()
 
 -- * Lifting
 
--- | Pre-inserts an input sample.
-{-# DEPRECATED insert "Don't use this. arrM id instead" #-}
-insert :: Monad m => MSF m (m a) a
-insert = arrM id
 
--- | Lifts a computation into a Stream.
-arrM_ :: Monad m => m b -> MSF m a b
-arrM_ = arrM . const
-
--- | Lift the first 'MSF' into the monad of the second.
-(^>>>) :: MonadBase m1 m2 => MSF m1 a b -> MSF m2 b c -> MSF m2 a c
-sf1 ^>>> sf2 = liftMSFBase sf1 >>> sf2
-{-# INLINE (^>>>) #-}
-
--- | Lift the second 'MSF' into the monad of the first.
-(>>>^) :: MonadBase m1 m2 => MSF m2 a b -> MSF m1 b c -> MSF m2 a c
-sf1 >>>^ sf2 = sf1 >>> liftMSFBase sf2
-{-# INLINE (>>>^) #-}
 
 -- * Analogues of 'map' and 'fmap'
 
--- | Apply an 'MSF' to every input.
-mapMSF :: Monad m => MSF m a b -> MSF m [a] [b]
-mapMSF = MSF . consume
-  where
-    consume :: Monad m => MSF m a t -> [a] -> m ([t], MSF m [a] [t])
-    consume sf []     = return ([], mapMSF sf)
-    consume sf (a:as) = do
-      (b, sf')   <- unMSF sf a
-      (bs, sf'') <- consume sf' as
-      b `seq` return (b:bs, sf'')
 
 -- | Apply an 'MSF' to every input. Freezes temporarily if the input is
 -- 'Nothing', and continues as soon as a 'Just' is received.
@@ -81,14 +57,26 @@ withSideEffect_ method = withSideEffect $ const method
 
 -- See also: 'iPre'
 
+-- | Delay a signal by one sample.
+iPre :: Monad m
+     => a         -- ^ First output
+     -> MSF m a a
+-- iPre firsta = MSF $ \a -> return (firsta, iPre a)
+iPre firsta = feedback firsta $ arr swap
+  where swap (a,b) = (b, a)
+-- iPre firsta = next firsta identity
+
+
 -- | Preprends a fixed output to an 'MSF'. The first input is completely
 -- ignored.
 iPost :: Monad m => b -> MSF m a b -> MSF m a b
-iPost b sf = MSF $ \_ -> return (b, sf)
+iPost b sf = sf >>> (feedback (Just b) $ arr $ \(c, ac) -> case ac of
+  Nothing -> (c, Nothing)
+  Just b' -> (b', Nothing))
 
 -- | Preprends a fixed output to an 'MSF', shifting the output.
 next :: Monad m => b -> MSF m a b -> MSF m a b
-next b sf = sf >>> delay b
+next b sf = sf >>> iPre b
 
 -- | Buffers and returns the elements in FIFO order,
 --   returning 'Nothing' whenever the buffer is empty.

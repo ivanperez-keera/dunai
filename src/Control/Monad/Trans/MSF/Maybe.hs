@@ -17,14 +17,13 @@ import Control.Monad.Trans.Maybe
 
 -- Internal
 import Control.Monad.Trans.MSF.Except
-import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
 
 -- * Throwing 'Nothing' as an exception ("exiting")
 
 -- | Throw the exception immediately.
 exit :: Monad m => MSF (MaybeT m) a b
-exit = arrM_ $ MaybeT $ return Nothing
+exit = constM $ MaybeT $ return Nothing
 
 -- | Throw the exception when the condition becomes true on the input.
 exitWhen :: Monad m => (a -> Bool) -> MSF (MaybeT m) a a
@@ -52,8 +51,8 @@ inMaybeT = arrM $ MaybeT . return
 -- | Run the first @msf@ until the second one produces 'True' from the output of the first.
 untilMaybe :: Monad m => MSF m a b -> MSF m b Bool -> MSF (MaybeT m) a b
 untilMaybe msf cond = proc a -> do
-  b <- liftMSFTrans msf  -< a
-  c <- liftMSFTrans cond -< b
+  b <- liftTransS msf  -< a
+  c <- liftTransS cond -< b
   inMaybeT -< if c then Nothing else Just b
 
 -- | When an exception occurs in the first 'msf', the second 'msf' is executed from there.
@@ -75,38 +74,12 @@ listToMaybeS = foldr iPost exit
 -- * Running 'MaybeT'
 -- | Remove the 'MaybeT' layer by outputting 'Nothing' when the exception occurs.
 --   The continuation in which the exception occurred is then tested on the next input.
-runMaybeS :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
-runMaybeS msf = go
+runMaybeS :: (Functor m, Monad m) => MSF (MaybeT m) a b -> MSF m a (Maybe b)
+runMaybeS msf = exceptS (maybeToExceptS msf) >>> arr eitherToMaybe
   where
-    go = MSF $ \a -> do
-           bmsf <- runMaybeT $ unMSF msf a
-           case bmsf of
-             Just (b, msf') -> return (Just b, runMaybeS msf')
-             Nothing        -> return (Nothing, go)
+    eitherToMaybe (Left ()) = Nothing
+    eitherToMaybe (Right b) = Just b
 
--- | Different implementation, to study performance.
-runMaybeS'' :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
-runMaybeS'' = transG transformInput transformOutput
-  where
-    transformInput       = return
-    transformOutput _ m1 = do r <- runMaybeT m1
-                              case r of
-                                Nothing     -> return (Nothing, Nothing)
-                                Just (b, c) -> return (Just b,  Just c)
-
--- mapMaybeS msf == runMaybeS (inMaybeT >>> lift mapMaybeS)
-
-{-
-runMaybeS'' :: Monad m => MSF (MaybeT m) a b -> MSF m a (Maybe b)
-runMaybeS'' msf = transS transformInput transformOutput msf
-  where
-    transformInput  = return
-    transformOutput _ msfaction = do
-      thing <- runMaybeT msfaction
-      case thing of
-        Just (b, msf') -> return (Just b, msf')
-        Nothing        -> return (Nothing, msf)
--}
 
 -- | Reactimates an 'MSF' in the 'MaybeT' monad until it throws 'Nothing'.
 reactimateMaybe
@@ -118,4 +91,4 @@ reactimateMaybe msf = reactimateExcept $ try $ maybeToExceptS msf
 -- combine effects and streams (i.e., for testing purposes).
 embed_ :: (Functor m, Monad m) => MSF m a () -> [a] -> m ()
 
-embed_ msf as = reactimateMaybe $ listToMaybeS as >>> liftMSFTrans msf
+embed_ msf as = reactimateMaybe $ listToMaybeS as >>> liftTransS msf

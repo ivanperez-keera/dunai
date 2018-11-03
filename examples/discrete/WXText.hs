@@ -7,6 +7,7 @@ import Control.Category
 import Control.Monad
 import Data.IORef
 import Data.MonadicStreamFunction
+import Data.MonadicStreamFunction.InternalCore
 import Graphics.UI.WX
 
 main :: IO ()
@@ -36,7 +37,7 @@ main = start $ do
 
 -- ** Adhoc Dunai-WX backend
 textEntryTextSg :: TextCtrl a -> MStream IO String
-textEntryTextSg entry = arrM_ (get entry text)
+textEntryTextSg entry = constM (get entry text)
 
 labelTextSk :: StaticText a -> MSink IO String
 labelTextSk lbl = arrM $ setJust lbl text

@@ -27,37 +27,37 @@ import Control.Monad.Random
 
 -- Internal
 import Data.MonadicStreamFunction
+import Control.Monad.Trans.MSF.State
 
 -- | Run an 'MSF' in the 'RandT' random number monad transformer
 --   by supplying an initial random generator.
 --   Updates the generator every step.
-runRandS :: (RandomGen g, Monad m)
+runRandS :: (RandomGen g, Functor m, Monad m)
          => MSF (RandT g m) a b
          -> g -- ^ The initial random number generator.
          -> MSF m a (g, b)
-runRandS msf g = MSF $ \a -> do
-  ((b, msf'), g') <- runRandT (unMSF msf a) g
-  return ((g', b), runRandS msf' g')
+runRandS = runStateS_ . morphS (StateT . runRandT)
 
 -- | Evaluate an 'MSF' in the 'RandT' transformer,
 --   i.e. extract possibly random values
 --   by supplying an initial random generator.
 --   Updates the generator every step but discharges the generator.
-evalRandS  :: (RandomGen g, Monad m) => MSF (RandT g m) a b -> g -> MSF m a b
+evalRandS :: (RandomGen g, Functor m, Monad m)
+          => MSF (RandT g m) a b -> g -> MSF m a b
 evalRandS msf g = runRandS msf g >>> arr snd
 
 -- | Create a stream of random values.
 getRandomS :: (MonadRandom m, Random b) => MSF m a b
-getRandomS = arrM_ getRandom
+getRandomS = constM getRandom
 
 
 -- | Create a stream of lists of random values.
 getRandomsS :: (MonadRandom m, Random b) => MSF m a [b]
-getRandomsS = arrM_ getRandoms
+getRandomsS = constM getRandoms
 
 -- | Create a stream of random values in a given fixed range.
 getRandomRS :: (MonadRandom m, Random b) => (b, b) -> MSF m a b
-getRandomRS range = arrM_ $ getRandomR range
+getRandomRS range = constM $ getRandomR range
 
 -- | Create a stream of random values in a given range,
 --   where the range is specified on every tick.
@@ -66,7 +66,7 @@ getRandomRS_  = arrM getRandomR
 
 -- | Create a stream of lists of random values in a given fixed range.
 getRandomsRS :: (MonadRandom m, Random b) => (b, b) -> MSF m a [b]
-getRandomsRS range = arrM_ $ getRandomRs range
+getRandomsRS range = constM $ getRandomRs range
 
 -- | Create a stream of lists of random values in a given range,
 --   where the range is specified on every tick.

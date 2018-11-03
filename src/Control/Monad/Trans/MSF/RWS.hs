@@ -17,29 +17,21 @@ import Data.Monoid
 import Data.Functor ((<$>))
 
 -- Internal
-import Control.Monad.Trans.MSF.GenLift
 import Data.MonadicStreamFunction
 
 -- * 'RWS' (Reader-Writer-State) monad
 
--- | Run the 'RWST' layer by making the state variables explicit.
-runRWSS :: (Functor m, Monad m, Monoid w)
-        => MSF (RWST r w s m) a b
-        -> MSF m (r, s, a) (w, s, b)
-runRWSS = transS transformInput transformOutput
-  where
-    transformInput  (_, _, a) = return a
-    transformOutput (r, s, _) msfaction = sym <$> runRWST msfaction r s
-    sym ((b, msf'), s, w) = ((w, s, b), msf')
 
 -- | Wrap an 'MSF' with explicit state variables in 'RWST' monad.
 rwsS :: (Functor m, Monad m, Monoid w)
      => MSF m (r, s, a) (w, s, b)
      -> MSF (RWST r w s m) a b
-rwsS = lifterS wrapRWST
-  where
-    wrapRWST :: Monad m
-             => ((r, s, a) -> m ((w, s, b), c)) -> a -> RWST r w s m (b, c)
-    wrapRWST f a = RWST $ \r s -> do
-      ((w, s', b), c) <- f (r, s, a)
-      return ((b, c), s', w)
+rwsS = morphGS $ \f a -> RWST $ \r s -> (\((w, s', b), c) -> ((b, c), s', w))
+   <$> f (r, s, a)
+
+-- | Run the 'RWST' layer by making the state variables explicit.
+runRWSS :: (Functor m, Monad m, Monoid w)
+        => MSF (RWST r w s m) a b
+        -> MSF m (r, s, a) (w, s, b)
+runRWSS = morphGS $ \f (r, s, a) -> (\((b, c), s', w) -> ((w, s', b), c))
+      <$> runRWST (f a) r s

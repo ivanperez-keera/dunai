@@ -17,16 +17,18 @@ import qualified Control.Category                               as Category
 import           Control.Monad                                  (mapM)
 import           Control.Monad.Random
 import           Control.Monad.Trans.Maybe
-import           Control.Monad.Trans.MSF
-import           Control.Monad.Trans.MSF.Except                 as MSF
+import           Control.Monad.Trans.MSF                        hiding (switch)
+import           Control.Monad.Trans.MSF.Except                 as MSF hiding (switch)
 import           Control.Monad.Trans.MSF.Random
 import           Data.Functor.Identity
 import           Data.Maybe
+import           Data.MonadicStreamFunction.InternalCore
 import           Data.MonadicStreamFunction                     as X hiding (reactimate,
                                                                       sum,
                                                                       switch,
                                                                       trace)
 import qualified Data.MonadicStreamFunction                     as MSF
+import qualified Control.Monad.Trans.MSF                        as MSF
 import           Data.MonadicStreamFunction.Instances.ArrowLoop
 import           Data.Traversable                               as T
 import           FRP.Yampa.VectorSpace                          as X
@@ -54,7 +56,7 @@ integral = integralFrom zeroVector
 
 integralFrom :: (Monad m, VectorSpace a s) => a -> SF m a a
 integralFrom a0 = proc a -> do
-  dt <- arrM_ ask         -< ()
+  dt <- constM ask         -< ()
   accumulateWith (^+^) a0 -< realToFrac dt *^ a
 
 derivative :: (Monad m, VectorSpace a s) => SF m a a
@@ -62,7 +64,7 @@ derivative = derivativeFrom zeroVector
 
 derivativeFrom :: (Monad m, VectorSpace a s) => a -> SF m a a
 derivativeFrom a0 = proc a -> do
-  dt   <- arrM_ ask   -< ()
+  dt   <- constM ask   -< ()
   aOld <- MSF.iPre a0 -< a
   returnA             -< (a ^-^ aOld) ^/ realToFrac dt
 
@@ -176,7 +178,7 @@ after q x = feedback q go
                   ct = if t' < 0 then constant (NoEvent, t') else go
               return ((e, t'), ct)
 
-occasionally :: MonadRandom m 
+occasionally :: MonadRandom m
              => Time -- ^ The time /q/ after which the event should be produced on average
              -> b    -- ^ Value to produce at time of event
              -> SF m a (Event b)
@@ -189,7 +191,7 @@ occasionally tAvg b
       returnA -< if r < p then Event b else NoEvent
  where
   timeDelta :: Monad m => SF m a DTime
-  timeDelta = arrM_ ask
+  timeDelta = constM ask
 
 -- | Initialization operator (cf. Lustre/Lucid Synchrone).
 --
@@ -266,12 +268,12 @@ reactimate senseI sense actuate sf = do
   -- runMaybeT $ MSF.reactimate $ liftMSFTrans (senseSF >>> sfIO) >>> actuateSF
   MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
   return ()
- where sfIO        = liftMSFPurer (return.runIdentity) (runReaderS sf)
+ where sfIO        = morphS (return.runIdentity) (runReaderS sf)
 
        -- Sense
        senseSF     = switch senseFirst senseRest
-       senseFirst  = arrM_ senseI >>> (arr $ \x -> ((0, x), Event x))
-       senseRest a = arrM_ (sense True) >>> (arr id *** keepLast a)
+       senseFirst  = constM senseI >>> (arr $ \x -> ((0, x), Event x))
+       senseRest a = constM (sense True) >>> (arr id *** keepLast a)
 
        keepLast :: Monad m => a -> MSF m (Maybe a) a
        keepLast a = MSF $ \ma -> let a' = fromMaybe a ma in return (a', keepLast a')

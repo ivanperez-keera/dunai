@@ -53,7 +53,7 @@ newWormholeIORef a = liftIO $ do
   ref <- newIORef a
   return $ Wormhole
     { sink   = arrM  $ liftIO . writeIORef ref
-    , source = arrM_ $ liftIO $ readIORef  ref
+    , source = constM $ liftIO $ readIORef  ref
     }
 
 -- | Create a wormhole encapsulating an initialised 'IORef'.
@@ -67,7 +67,7 @@ newWormholeModifyIORef b f = liftIO $ do
   ref <- newIORef b
   return $ Wormhole
     { sink   = arrM $ \a -> liftIO $ atomicModifyIORef' ref $ (, ()) . f a
-    , source = arrM_ $ liftIO $ readIORef ref
+    , source = constM $ liftIO $ readIORef ref
     }
 
 -- | Create a wormhole encapsulating an 'IORef' storing a 'Monoid'.
@@ -79,7 +79,7 @@ newWormholeMonoidIORef = liftIO $ do
   ref <- newIORef mempty
   return $ Wormhole
     { sink   = arrM $ \a -> liftIO $ atomicModifyIORef' ref $ (, ()) . mappend a
-    , source = arrM_ $ liftIO $ atomicModifyIORef' ref $ \a -> (mempty, a)
+    , source = constM $ liftIO $ atomicModifyIORef' ref $ \a -> (mempty, a)
     }
 
 -- | Creates two wormholes with 'IORef's at each end of the stream function
@@ -106,4 +106,4 @@ concurrently msf a b = do
 createWormhole :: MonadIO m => a -> m (MSF m a (), MSF m () a)
 createWormhole a = liftIO $ do
   ref <- newIORef a
-  return (arrM $ liftIO . writeIORef ref, arrM_ $ liftIO $ readIORef ref)
+  return (arrM $ liftIO . writeIORef ref, constM $ liftIO $ readIORef ref)
