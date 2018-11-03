@@ -72,7 +72,7 @@ instance Monad m => Category (MSF m) where
 
 -- | Generic lifting of a morphism to the level of 'MSF's.
 --
--- natural transformation to the level of 'MSF's.
+-- Natural transformation to the level of 'MSF's.
 --
 -- __Mathematical background:__ The type @a -> m (b, c)@ is a functor in @c@,
 -- and @MSF m a b@ is its greatest fixpoint, i.e. it is isomorphic to the type
