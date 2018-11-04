@@ -8,7 +8,9 @@ ghc:
   - "7.8.4"
   - "7.10.3"
   - "8.0.2"
-  - "8.2.1"
+  - "8.2.2"
+  - "8.4.4"
+  - "8.6.1"
 
 env:
   - PACKAGEDIR="."
@@ -28,10 +30,20 @@ matrix:
       env: PACKAGEDIR="examples/discrete"
     - ghc: 7.8.4
       env: PACKAGEDIR="examples/keerahails"
-    - ghc: 8.2.1
+    - ghc: 8.2.2
       env: PACKAGEDIR="examples/discrete"
-    - ghc: 8.2.1
+    - ghc: 8.2.2
       env: PACKAGEDIR="examples/keerahails"
+    - ghc: 8.4.4
+      env: PACKAGEDIR="examples/discrete"
+    - ghc: 8.4.4
+      env: PACKAGEDIR="examples/keerahails"
+    - ghc: 8.6.1
+      env: PACKAGEDIR="examples/discrete"
+    - ghc: 8.6.1
+      env: PACKAGEDIR="examples/keerahails"
+  allow_failures:
+    - ghc: "8.6.1"
 
 before_install:
   - cd ${PACKAGEDIR}
@@ -46,5 +58,5 @@ deploy:
   on:
     branch: master
     condition:
-      - ${TRAVIS_HASKELL_VERSION}=8.2.1
+      - ${TRAVIS_HASKELL_VERSION}=8.4.4
       - ${PACKAGEDIR} =~ ^(\.|examples/bearriver)$

@@ -1,4 +1,5 @@
 {-# LANGUAGE Arrows              #-}
+{-# LANGUAGE CPP                 #-}
 {-# LANGUAGE Rank2Types          #-}
 -- | 'MSF's in the 'ExceptT' monad are monadic stream functions
 --   that can throw exceptions,
@@ -22,6 +23,18 @@ import           Control.Monad.Trans.Maybe
 -- Internal
 import Data.MonadicStreamFunction
 import Data.MonadicStreamFunction.InternalCore
+
+-- External, necessary for older base versions
+#if __GLASGOW_HASKELL__ < 802
+fromLeft  :: a -> Either a b -> a
+fromLeft  _ (Left  a) = a
+fromLeft  a (Right _) = a
+fromRight :: b -> Either a b -> b
+fromRight _ (Right b) = b
+fromRight b (Left  _) = b
+#else
+import           Data.Either                (fromLeft, fromRight)
+#endif
 
 -- * Throwing exceptions
 
@@ -182,11 +195,11 @@ data Empty
 safely :: Monad m => MSFExcept m a b Empty -> MSF m a b
 safely (MSFExcept msf) = morphS fromExcept msf
   where
+    -- We can assume that the pattern @Left e@ will not occur,
+    -- since @e@ would have to be of type @Empty@.
     fromExcept ma = do
-      -- We can assume that the pattern @Left e@ will not occur,
-      -- since @e@ would have to be of type @Empty@.
-      Right a <- runExceptT ma
-      return a
+      rightMa <- runExceptT ma
+      return $ fromRight (error "safely: Received `Left`") rightMa
 
 -- | An 'MSF' without an 'ExceptT' layer never throws an exception,
 --   and can thus have an arbitrary exception type.
@@ -232,8 +245,8 @@ performOnFirstSample sfaction = safely $ do
 -- | Reactimates an 'MSFExcept' until it throws an exception.
 reactimateExcept :: Monad m => MSFExcept m () () e -> m e
 reactimateExcept msfe = do
-  Left e <- runExceptT $ reactimate $ runMSFExcept msfe
-  return e
+  leftMe <- runExceptT $ reactimate $ runMSFExcept msfe
+  return $ fromLeft (error "reactimateExcept: Received `Right`") leftMe
 
 -- | Reactimates an 'MSF' until it returns 'True'.
 reactimateB :: Monad m => MSF m () Bool -> m ()
