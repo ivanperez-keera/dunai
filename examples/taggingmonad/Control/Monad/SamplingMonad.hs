@@ -7,7 +7,7 @@ import Data.Monoid
 import Data.Maybe.Util
 
 #if MIN_VERSION_base(4,9,0)
-import Data.Semigroup
+import Data.Semigroup as Sem
 #endif
 
 type SamplingMonad t a = TaggingMonad (NextSample t) a
@@ -27,5 +27,5 @@ instance Ord a => Monoid (NextSample a) where
 #elif !(MIN_VERSION_base(4,11,0))
   -- this is redundant starting with base-4.11 / GHC 8.4
   -- if you want to avoid CPP, you can define `mappend = (<>)` unconditionally
-  mappend = (<>)
+  mappend = Sem.(<>)
 #endif
