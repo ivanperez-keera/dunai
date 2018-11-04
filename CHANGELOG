@@ -1,5 +1,10 @@
 2018-11-03 Ivan Perez <ivan.perez@keera.co.uk>
-        * Renames lifting functions, moves definitions around.
+        * src:/: Fixes failed patterns in do notation.
+        * dunai.cabal: Version bump (0.5.1).
+        * Thanks: @turion, @ggreif.
+
+2018-11-03 Ivan Perez <ivan.perez@keera.co.uk>
+        * src:/ Renames lifting functions, moves definitions around.
         * dunai.cabal: Version bump (0.5).
         * Thanks: @turion.
 
