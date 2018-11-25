@@ -63,7 +63,7 @@ import Control.Monad.Trans.Class
 import Data.Tuple (swap)
 import Prelude hiding ((.), id, sum)
 
-import Data.MonadicStreamFunction.InternalCore (MSF, morphGS, feedback, reactimate, embed)
+import Data.MonadicStreamFunction.InternalCore (MSF, morphGS, feedback, reactimate, embed, inner_arrM)
 
 -- * Definitions
 
@@ -100,28 +100,24 @@ instance (Functor m, Monad m) => Applicative (MSF m a) where
 -- ** Lifting point-wise computations
 
 -- | Lifts a monadic computation into a Stream.
-constM :: Monad m => m b -> MSF m a b
+constM :: Functor m => m b -> MSF m a b
 constM = arrM . const
 
 -- | Apply a monadic transformation to every element of the input stream.
 --
 -- Generalisation of 'arr' from 'Arrow' to monadic functions.
-arrM :: Monad m => (a -> m b) -> MSF m a b
---arrM f = go
---  where go = MSF $ \a -> do
---               b <- f a
---               return (b, go)
-arrM f = morphGS (\i a -> i a >>= \(_,c) -> f a >>= \b -> return (b, c)) C.id
+arrM :: Functor m => (a -> m b) -> MSF m a b
+arrM = inner_arrM
 
 -- | Monadic lifting from one monad into another
-liftBaseM :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
+liftBaseM :: (Functor m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
 liftBaseM = arrM . (liftBase .)
 
 -- ** MSF combinators that apply monad transformations
 
 -- | Lift innermost monadic actions in monad stack (generalisation of
 -- 'liftIO').
-liftBaseS :: (Monad m2, MonadBase m1 m2) => MSF m1 a b -> MSF m2 a b
+liftBaseS :: (Functor m2, MonadBase m1 m2) => MSF m1 a b -> MSF m2 a b
 liftBaseS = morphS liftBase
 
 -- *** MonadBase
@@ -139,7 +135,7 @@ sf1 >>>^ sf2 = sf1 >>> liftBaseS sf2
 
 -- | Lift inner monadic actions in monad stacks.
 
-liftTransS :: (MonadTrans t, Monad m, Monad (t m))
+liftTransS :: (MonadTrans t, Monad m, Functor (t m))
            => MSF m a b
            -> MSF (t m) a b
 liftTransS = morphS lift
@@ -150,7 +146,7 @@ liftTransS = morphS lift
 --
 -- This is just a convenience function when you have a function to move across
 -- monads, because the signature of 'morphGS' is a bit complex.
-morphS :: (Monad m2, Monad m1)
+morphS :: (Functor m2, Functor m1)
       => (forall c . m1 c -> m2 c)
       -> MSF m1 a b
       -> MSF m2 a b

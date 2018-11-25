@@ -88,23 +88,20 @@ instance Monad m => Category (MSF m) where
 -- types, and doesn't influence control flow.
 -- Other handling functions like exception handling or 'ListT' broadcasting
 -- necessarily change control flow.
-morphGS :: Monad m2
+morphGS :: Functor m2
         => (forall c . (a1 -> m1 (b1, c)) -> (a2 -> m2 (b2, c)))
           -- ^ The natural transformation. @mi@, @ai@ and @bi@ for @i = 1, 2@
           --   can be chosen freely, but @c@ must be universally quantified
         -> MSF m1 a1 b1
         -> MSF m2 a2 b2
-morphGS morph msf = MSF $ \a2 -> do
-  (b2, msf') <- morph (unMSF msf) a2
-  return (b2, morphGS morph msf')
+morphGS morph msf = MSF $ fmap (fmap (morphGS morph)) . morph (unMSF msf)
 
 -- * Feedback loops
 
 -- | Well-formed looped connection of an output component as a future input.
-feedback :: Monad m => c -> MSF m (a, c) (b, c) -> MSF m a b
-feedback c sf = MSF $ \a -> do
-  ((b', c'), sf') <- unMSF sf (a, c)
-  return (b', feedback c' sf')
+feedback :: Functor m => c -> MSF m (a, c) (b, c) -> MSF m a b
+feedback c sf = MSF $ \a -> uncurry feed `fmap` (unMSF sf (a, c) ) where
+  feed (b', c') sf' = (b', feedback c' sf')
 
 -- * Execution/simulation
 
@@ -133,3 +130,8 @@ reactimate :: Monad m => MSF m () () -> m ()
 reactimate sf = do
   (_, sf') <- unMSF sf ()
   reactimate sf'
+
+inner_arrM :: Functor m => (a -> m b) -> MSF m a b
+inner_arrM f = go where
+  go = MSF $ (fmap (tl go) . f)
+  tl y x = (x, y)

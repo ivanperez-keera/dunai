@@ -33,13 +33,13 @@ import Data.MonadicStreamFunction.InternalCore
 
 -- | Build an 'MSF' in the 'State' monad from one that takes the state as an
 -- extra input. This is the opposite of 'runStateS'.
-stateS :: (Functor m, Monad m) => MSF m (s, a) (s, b) -> MSF (StateT s m) a b
+stateS :: Functor m => MSF m (s, a) (s, b) -> MSF (StateT s m) a b
 stateS = morphGS $ \f a -> StateT $ \s -> (\((s', b), c) -> ((b, c), s'))
      <$> f (s, a)
 
 -- | Build an 'MSF' that takes a state as an extra input from one on the
 -- 'State' monad. This is the opposite of 'stateS'.
-runStateS :: (Functor m, Monad m) => MSF (StateT s m) a b -> MSF m (s, a) (s, b)
+runStateS :: Functor m => MSF (StateT s m) a b -> MSF m (s, a) (s, b)
 runStateS = morphGS $ \f (s, a) -> (\((b, c), s') -> ((s', b), c))
         <$> runStateT (f a) s
 

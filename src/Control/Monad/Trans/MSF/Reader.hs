@@ -25,12 +25,12 @@ import Data.MonadicStreamFunction
 
 -- | Build an 'MSF' in the 'Reader' monad from one that takes the reader
 -- environment as an extra input. This is the opposite of 'runReaderS'.
-readerS :: Monad m => MSF m (r, a) b -> MSF (ReaderT r m) a b
+readerS :: Functor m => MSF m (r, a) b -> MSF (ReaderT r m) a b
 readerS = morphGS $ \f a -> ReaderT $ \r -> f (r, a)
 
 -- | Build an 'MSF' that takes an environment as an extra input from one on the
 -- 'Reader' monad. This is the opposite of 'readerS'.
-runReaderS :: Monad m => MSF (ReaderT r m) a b -> MSF m (r, a) b
+runReaderS :: Functor m => MSF (ReaderT r m) a b -> MSF m (r, a) b
 runReaderS = morphGS $ \f (r, a) -> runReaderT (f a) r
 
 
