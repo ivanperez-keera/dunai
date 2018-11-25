@@ -23,14 +23,14 @@ import Data.MonadicStreamFunction
 
 
 -- | Wrap an 'MSF' with explicit state variables in 'RWST' monad.
-rwsS :: (Functor m, Monoid w)
+rwsS :: (Functor m, Monad m, Monoid w)
      => MSF m (r, s, a) (w, s, b)
      -> MSF (RWST r w s m) a b
 rwsS = morphGS $ \f a -> RWST $ \r s -> (\((w, s', b), c) -> ((b, c), s', w))
    <$> f (r, s, a)
 
 -- | Run the 'RWST' layer by making the state variables explicit.
-runRWSS :: (Functor m, Monoid w)
+runRWSS :: (Functor m, Monad m, Monoid w)
         => MSF (RWST r w s m) a b
         -> MSF m (r, s, a) (w, s, b)
 runRWSS = morphGS $ \f (r, s, a) -> (\((b, c), s', w) -> ((w, s', b), c))

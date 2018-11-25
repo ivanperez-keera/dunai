@@ -1,4 +1,5 @@
 {-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE TypeOperators  #-}
 -- | Monadic Stream Functions are synchronized stream functions
 --   with side effects.
 --
@@ -60,42 +61,27 @@ import Control.Arrow
 import Control.Category as C
 import Control.Monad.Base
 import Control.Monad.Trans.Class
-import Data.Tuple (swap)
 import Prelude hiding ((.), id, sum)
 
-import Data.MonadicStreamFunction.InternalCore (MSF, morphGS, feedback, reactimate, embed, inner_arrM)
+import Data.MonadicStreamFunction.InternalCore
 
 -- * Definitions
 
 -- | 'Arrow' instance for 'MSF's.
-instance Monad m => Arrow (MSF m) where
-
-  arr f = arrM (return . f)
-
-  -- first sf = MSF $ \(a,c) -> do
-  --   (b, sf') <- unMSF sf a
-  --   b `seq` return ((b, c), first sf')
-
-  first = morphGS $ \f (a,c) -> do
-            (b, msf') <- f a
-            return ((b, c), msf')
-
+instance (Functor m , Applicative m, Monad m) => Arrow (MSF m) where
+  arr   = arr_msf
+  first = first_msf
 
 -- * Functor and applicative instances
 
 -- | 'Functor' instance for 'MSF's.
-instance Monad m => Functor (MSF m a) where
-  fmap f msf = msf >>> arr f
-  -- fmap f msf = MSF $ fmap fS . unMSF msf
-  --   where
-  --     fS (b, cont) = (f b, fmap f cont)
+instance Functor m => Functor (MSF m a) where
+  fmap = map_msf
 
--- | 'Applicative' instance for 'MSF's.
-instance (Functor m, Monad m) => Applicative (MSF m a) where
-  -- It is possible to define this instance with only Applicative m
-  pure = arr . const
-  fs <*> bs = (fs &&& bs) >>> arr (uncurry ($))
-
+-- | 'Applicative' instance72 for 'MSF's.
+instance (Functor m, Applicative m) => Applicative (MSF m a) where
+  pure = pure_msf
+  (<*>) = ap_msf
 
 -- ** Lifting point-wise computations
 
@@ -107,7 +93,7 @@ constM = arrM . const
 --
 -- Generalisation of 'arr' from 'Arrow' to monadic functions.
 arrM :: Functor m => (a -> m b) -> MSF m a b
-arrM = inner_arrM
+arrM = arrM_msf
 
 -- | Monadic lifting from one monad into another
 liftBaseM :: (Functor m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
@@ -145,27 +131,9 @@ liftTransS = morphS lift
 -- | Apply trans-monadic actions (in an arbitrary way).
 --
 -- This is just a convenience function when you have a function to move across
--- monads, because the signature of 'morphGS' is a bit complex.
-morphS :: (Functor m2, Functor m1)
-      => (forall c . m1 c -> m2 c)
-      -> MSF m1 a b
-      -> MSF m2 a b
-morphS morph = morphGS morph'
-  where
-    -- The following makes the a's and the b's the same, and it just says:
-    -- whatever function m1F you give me to apply to every sample, I use morph
-    -- on the result to go from m1 to m2.
-    --
-    -- Remember that:
-    -- morphGS :: Monad m2
-    --         => (forall c . (a1 -> m1 (b1, c)) -> (a2 -> m2 (b2, c)))
-    --           -- ^ The natural transformation. @mi@, @ai@ and @bi@ for @i = 1, 2@
-    --           --   can be chosen freely, but @c@ must be universally quantified
-    --         -> MSF m1 a1 b1
-    --         -> MSF m2 a2 b2
-    --
-    --  morph' :: (forall c . (a -> m1 (b, c)) -> (a -> m2 (b, c)))
-        morph' m1F = morph . m1F
+-- functors, because the signature of 'morphGS' is a bit complex.
+morphS :: Functor m2 => (m1 ~> m2) -> MSF m1 a b -> MSF m2 a b
+morphS = mapK
 
 -- IPerez: There is an alternative signature for liftMStreamPurer that also
 -- works, and makes the code simpler:

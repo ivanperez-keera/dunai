@@ -1,5 +1,6 @@
 {-# LANGUAGE ExplicitForAll #-}
 {-# LANGUAGE Rank2Types     #-}
+{-# LANGUAGE TypeOperators  #-}
 -- | Monadic Stream Functions are synchronized stream functions
 --   with side effects.
 --
@@ -40,12 +41,10 @@
 module Data.MonadicStreamFunction.InternalCore where
 
 -- External
-import Control.Arrow
 import Control.Applicative
 import Control.Category (Category(..))
 import Control.Monad
-import Control.Monad.Base
-import Control.Monad.Trans.Class
+
 import Prelude hiding ((.), id, sum)
 
 -- * Definitions
@@ -89,19 +88,22 @@ instance Monad m => Category (MSF m) where
 -- Other handling functions like exception handling or 'ListT' broadcasting
 -- necessarily change control flow.
 morphGS :: Functor m2
-        => (forall c . (a1 -> m1 (b1, c)) -> (a2 -> m2 (b2, c)))
+        => (InMorph m1 a1 b1 ~> InMorph m2 a2 b2)
           -- ^ The natural transformation. @mi@, @ai@ and @bi@ for @i = 1, 2@
           --   can be chosen freely, but @c@ must be universally quantified
         -> MSF m1 a1 b1
         -> MSF m2 a2 b2
-morphGS morph msf = MSF $ fmap (fmap (morphGS morph)) . morph (unMSF msf)
+morphGS morph msf = MSF $ \ a2 -> morphU <$> morph (unMSF msf) a2 where
+  morphU (b2, cont) = (b2, morphGS morph cont)
+
+type InMorph m a b c = a -> m (b, c)
 
 -- * Feedback loops
 
 -- | Well-formed looped connection of an output component as a future input.
 feedback :: Functor m => c -> MSF m (a, c) (b, c) -> MSF m a b
-feedback c sf = MSF $ \a -> uncurry feed `fmap` (unMSF sf (a, c) ) where
-  feed (b', c') sf' = (b', feedback c' sf')
+feedback c sf = MSF $ \a -> unMSF sf (a, c) `pamf` feed where
+  feed ((b, c'), cont) = (b, feedback c' cont)
 
 -- * Execution/simulation
 
@@ -131,7 +133,65 @@ reactimate sf = do
   (_, sf') <- unMSF sf ()
   reactimate sf'
 
-inner_arrM :: Functor m => (a -> m b) -> MSF m a b
-inner_arrM f = go where
-  go = MSF $ (fmap (tl go) . f)
-  tl y x = (x, y)
+-- Implementation of some common operations for type-class instances, without the instances
+map_msf :: Functor m => (b -> c) -> MSF m a b -> MSF m a c
+map_msf f sf = MSF $ \ a -> fS <$> unMSF sf a where
+  fS (b, cont) = (f b, map_msf f cont)
+
+-- Pure: a constant MSF that always returns the given value, without effects, and continues with itself.
+pure_msf :: Applicative m => b -> MSF m a b
+pure_msf b = MSF $ const . pure $ (b, pure_msf b)
+
+-- Zips, one-by-one, the function output of first stream with the output of the second one.
+ap_msf :: Applicative m => MSF m a (b -> c) -> MSF m a b -> MSF m a c
+ap_msf sff sfb = MSF $ \a -> liftA2 mix (unMSF sff a) (unMSF sfb a) where
+  mix (f, sff') (b, sfb')= (f b, ap_msf sff' sfb')
+
+-- Raises a Kleisli-like function into an MSF,
+arrM_msf :: Functor m => (a -> m b) -> MSF m a b
+arrM_msf f = MSF $ \a -> f a <&> (\b -> (b, arrM_msf f))
+
+-- An effect-less MSF that just applies the function and continues with itself.
+arr_msf :: Applicative m => (a -> b) -> MSF m a b
+arr_msf f = MSF $ \a -> pure (f a, arr_msf f)
+
+-- Tuples the inputs and outputs of the MSF with a value that is left unchanged.
+first_msf :: Functor m => MSF m a b -> MSF m (a,c) (b,c)
+first_msf sf = MSF $ \ (a,c) -> fST c <$> unMSF sf a where
+  fST c (b, cont) = ((b, c), first_msf cont)
+
+-- Changes the container functor
+-- Simplified version of morphGS, which only changes the monadic type
+mapK :: Functor n => (m ~> n) -> MSF m a b -> MSF n a b
+mapK nt sf = MSF $ fmap inM . nt . unMSF sf  where
+  inM (b, cont) = (b, mapK nt cont)
+
+-- | Apply an 'MSF' to every input. Freezes temporarily if the input is
+-- 'Nothing', and continues as soon as a 'Just' is received.
+mapMaybeMsf :: Applicative m => MSF m a b -> MSF m (Maybe a) (Maybe b)
+mapMaybeMsf msf = MSF $ maybe ifNothing ifJust where
+  ifNothing = pure (Nothing, mapMaybeMsf msf)
+  ifJust a  = unMSF msf a <&> (\ (b, cont) -> (Just b, mapMaybeMsf cont) )
+
+
+-- | Applies a function to produce an additional side effect and passes the
+-- input unchanged.
+sideEffectMsf :: Functor m => (a -> m b) -> MSF m a a
+sideEffectMsf f = MSF $ \a -> f a <&> \ _ -> (a, sideEffectMsf f)
+
+-- In newer versions of Base, there is Functor. <&> operator
+pamf :: Functor m => m a -> (a -> b) -> m b
+pamf = flip fmap
+
+-- | A natural transformation from @f@ to @g@.
+-- Copied from the natural-transformations package
+-- http://hackage.haskell.org/package/natural-transformation-0.4/docs/Control-Natural.html
+infixr 0 ~>
+type (~>) f g = forall x. f x -> g x
+
+-- infix alias for flipped fmap
+-- copied from the base package
+(<&>) :: Functor f => f a -> (a -> b) -> f b
+(<&>) = flip fmap
+
+infixl 1 <&>
