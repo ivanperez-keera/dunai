@@ -1,5 +1,4 @@
-{-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE TypeOperators  #-}
+{-# LANGUAGE CPP, Rank2Types, TypeOperators, FlexibleInstances  #-}
 -- | Monadic Stream Functions are synchronized stream functions
 --   with side effects.
 --
@@ -68,7 +67,8 @@ import Data.MonadicStreamFunction.InternalCore
 -- * Definitions
 
 -- | 'Arrow' instance for 'MSF's.
-instance (Functor m , Applicative m, Monad m) => Arrow (MSF m) where
+instance Monad m => Arrow (MSF m) where
+  -- monad is required by Category (MSF m), which is over Arrow
   arr   = arr_msf
   first = first_msf
 
@@ -79,7 +79,7 @@ instance Functor m => Functor (MSF m a) where
   fmap = map_msf
 
 -- | 'Applicative' instance72 for 'MSF's.
-instance (Functor m, Applicative m) => Applicative (MSF m a) where
+instance Applicative m => Applicative (MSF m a) where
   pure = pure_msf
   (<*>) = ap_msf
 
@@ -151,3 +151,20 @@ morphS = mapK
 --   where whnfVal p@(b,_) = b `seq` return p
 --
 -- and leave morphS as a lazy version (by default).
+
+
+-- DAlonso: A Block of code needed to by-pass the lack of Functor-Applicative-Monad
+#if __GLASGOW_HASKELL__ < 710
+
+instance Applicative m => Functor m where
+  fmap f = (pure f <*>)
+
+instance Monad m => Applicative m where
+  pure = return
+  ff <*> fa = do
+    f <- ff
+    a <- fa
+    return fa
+
+#endif
+

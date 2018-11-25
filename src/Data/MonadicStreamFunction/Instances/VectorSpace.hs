@@ -29,7 +29,7 @@ import Data.VectorSpace
 -- These conflict with Data.VectorSpace.Instances
 
 -- | R-module instance for 'MSF's.
-instance (Applicative m, Monad m, RModule v) => RModule (MSF m a v) where
+instance (Monad m, RModule v) => RModule (MSF m a v) where
   type Groundring (MSF m a v) = Groundring v
   zeroVector   = constantly zeroVector
   r *^ msf     = msf >>^ (r *^)
@@ -38,5 +38,5 @@ instance (Applicative m, Monad m, RModule v) => RModule (MSF m a v) where
   (^-^)        = elementwise2 (^-^)
 
 -- | Vector-space instance for 'MSF's.
-instance (Applicative m, Monad m, VectorSpace v) => VectorSpace (MSF m a v) where
+instance (Monad m, VectorSpace v) => VectorSpace (MSF m a v) where
   msf ^/ r = msf >>^ (^/ r)
