@@ -2,7 +2,7 @@
 module FRP.Dunai.Stream where
 
 import Data.MonadicStreamFunction
--- import FRP.Yampa
+import Data.MonadicStreamFunction.InternalCore (unMSF)
 import Control.Monad.Trans.MSF.Reader
 
 -- * Types
@@ -66,7 +66,7 @@ refineWith interpolate maxDT a0 ((dt, a):as)
 -- ** Clipping (dropping samples)
 
 sClipAfterFrame  :: Int -> SignalSampleStream a -> SignalSampleStream a
-sClipAfterFrame  n xs = take n xs 
+sClipAfterFrame  n xs = take n xs
 
 sClipAfterTime dt [] = []
 sClipAfterTime dt ((dt',x):xs)
@@ -94,11 +94,11 @@ evalSF :: Monad m
        -> m (SampleStream b, MSF (ReaderT DTime m) a b)
 evalSF fsf as = do
   let msf'' = runReaderS fsf
-  (ss, msf') <- evalMSF msf'' as 
+  (ss, msf') <- evalMSF msf'' as
   return (ss, readerS msf')
-   
 
-evalMSF :: Monad m 
+
+evalMSF :: Monad m
         => MSF m a b
        -> SampleStream a
        -> m (SampleStream b, MSF m a b)

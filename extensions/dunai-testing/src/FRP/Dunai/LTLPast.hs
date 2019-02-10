@@ -2,6 +2,8 @@
 module FRP.Dunai.LTLPast where
 
 ------------------------------------------------------------------------------
+import Control.Monad.Trans.MSF.Maybe
+import Data.Maybe
 import Data.MonadicStreamFunction
 
 -- * SFs that implement temporal combinators
@@ -13,10 +15,18 @@ everSF :: Monad m => MSF m Bool Bool
 everSF = feedback False $ arr $ \(n,o) -> let n' = o || n in (n', n')
 
 untilSF :: Monad m => MSF m (Bool, Bool) Bool
-untilSF = switch
-  (feedback True $ arr (\((i,u),o) -> let n = o && i
-                                      in ((n, if (o && u) then Just () else Nothing), n)))
-  (\_ -> arr snd >>> sofarSF)
+untilSF =
+  catchMaybe (untilMaybeB (feedback True $ arr cond))
+             (snd ^>> sofarSF)
+
+  where
+    untilMaybeB :: Monad m => MSF m a (b, Bool) -> MSF (MaybeT m) a b
+    untilMaybeB msf = proc a -> do
+      (b,c) <- liftTransS msf  -< a
+      inMaybeT -< if c then Nothing else Just b
+
+    cond ((i,u),o) = let n = o && i
+                     in ((n, (o && u)), n)
 
 lastSF :: Monad m => MSF m Bool Bool
 lastSF = iPre False
@@ -34,17 +44,17 @@ impliesSF :: Monad m => MSF m (Bool, Bool) Bool
 impliesSF = arr $ \(i,p) -> not i || p
 
 -- data UnclearResult = Possibly Bool | Definitely Bool
--- 
+--
 -- causally :: SF a Bool -> SF a UnclearResult
 -- causally = (>>> arr Definitely)
--- 
+--
 -- data TSF a = NonCausal (SF a UnclearResult)
 --            | Causal    (SF a Bool)
--- 
+--
 -- evalTSF :: TSF a -> SignalSampleStream a -> Bool
 -- evalTSF (Causal sf)    ss = firstSample $ fst $ evalSF sf ss
 -- evalTSF (NonCausal sf) ss = clarifyResult $ lastSample $ fst $ evalSF sf ss
--- 
+--
 -- clarifyResult :: UnclearResult -> Bool
 -- clarifyResult (Possibly x)   = x
 -- clarifyResult (Definitely x) = x

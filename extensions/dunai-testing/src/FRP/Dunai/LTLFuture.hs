@@ -13,6 +13,7 @@ module FRP.Dunai.LTLFuture where
 ------------------------------------------------------------------------------
 import Control.Monad.Trans.MSF.Reader
 import Data.MonadicStreamFunction
+import Data.MonadicStreamFunction.InternalCore (unMSF)
 import FRP.Dunai.Stream
 
 -- * Temporal Logics based on SFs
@@ -66,7 +67,7 @@ evalT (Next t1)       = \stream -> case stream of
 -- Tau-application (transportation to the future)
 tauApp :: forall m a . Monad m => TPred (ReaderT DTime m) a -> (DTime, a) -> m (TPred (ReaderT DTime m) a)
 tauApp pred (dtime, sample) = runReaderT f dtime
- where 
+ where
     f :: ReaderT DTime m (TPred (ReaderT DTime m) a)
     f = (tPredMap (\s -> snd <$> unMSF s sample) pred)
 

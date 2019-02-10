@@ -6,12 +6,12 @@ import System.IO.Unsafe
 
 -- ** Debugging
 
-traceMSF :: Monad m 
+traceMSF :: Monad m
          => Show a
         => MSF m a a
 traceMSF = traceMSFWith show
 
-traceMSFWith :: Monad m 
+traceMSFWith :: Monad m
              => (a -> String)
              -> MSF m a a
 traceMSFWith f = arr (\x -> trace (f x) x)
