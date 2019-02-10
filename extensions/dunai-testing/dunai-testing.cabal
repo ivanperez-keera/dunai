@@ -1,7 +1,18 @@
 name:                dunai-testing
 version:             0.1.0.0
 synopsis:            Testing library for Dunai
--- description:
+description:         Testing and debugging library for Duani.
+  .
+  It contains:
+  .
+  * Debugging signal functions using "Debug.Trace".
+  * A definition of Temporal Predicates based on LTL.
+  * Monitoring signal functions with ptLTL using Signal Predicates.
+  * A definition of Streams, and a Stream manipulation API.
+  * Signal/stream generators for QuickCheck.
+  .
+  A detailed explanation of these ideas is included in the ICFP 2017 paper
+  <https://dl.acm.org/citation.cfm?id=3110246 Testing and Debugging Functional Reactive Programming>.
 homepage:            http://github.com/ivanperez-keera/dunai
 license:             BSD3
 license-file:        LICENSE
