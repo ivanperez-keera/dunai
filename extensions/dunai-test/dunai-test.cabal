@@ -1,4 +1,4 @@
-name:                dunai-testing
+name:                dunai-test
 version:             0.1.0.0
 synopsis:            Testing library for Dunai
 description:         Testing and debugging library for Duani.
