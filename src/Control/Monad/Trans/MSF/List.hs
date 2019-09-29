@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 module Control.Monad.Trans.MSF.List
   ( module Control.Monad.Trans.MSF.List
   , module Control.Monad.Trans.List
@@ -6,6 +7,10 @@ module Control.Monad.Trans.MSF.List
 -- External
 import Control.Monad.Trans.List
   hiding (liftCallCC, liftCatch) -- Avoid conflicting exports
+
+#if !MIN_VERSION_base(4,8,0)
+import Control.Applicative ((<$>))
+#endif
 
 -- Internal
 import Data.MonadicStreamFunction
