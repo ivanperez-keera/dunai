@@ -19,6 +19,7 @@ import           Control.Monad.Random
 import           Control.Monad.Trans.Maybe
 import           Control.Monad.Trans.MSF                        hiding (switch)
 import           Control.Monad.Trans.MSF.Except                 as MSF hiding (switch)
+import           Control.Monad.Trans.MSF.List                   (widthFirst, sequenceS)
 import           Control.Monad.Trans.MSF.Random
 import           Data.Functor.Identity
 import           Data.Maybe
@@ -49,7 +50,10 @@ constant = arr . const
 -- * Continuous time
 
 time :: Monad m => SF m () Time
-time = integral <<< constant 1
+time = localTime
+
+localTime :: Monad m => SF m () Time
+localTime = constant 1.0 >>> integral
 
 integral :: (Monad m, VectorSpace a s) => SF m a a
 integral = integralFrom zeroVector
@@ -71,7 +75,7 @@ derivativeFrom a0 = proc a -> do
 -- * Events
 
 data Event a = Event a | NoEvent
- deriving Show
+ deriving (Eq, Show)
 
 instance Functor Event where
   fmap f NoEvent   = NoEvent
@@ -106,8 +110,14 @@ mergeBy _       le@(Event _) NoEvent      = le
 mergeBy _       NoEvent      re@(Event _) = re
 mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
 
+-- | Left-biased event merge (always prefer left event, if present).
 lMerge :: Event a -> Event a -> Event a
 lMerge = mergeBy (\e1 _ -> e1)
+
+-- | Right-biased event merge (always prefer right event, if present).
+rMerge :: Event a -> Event a -> Event a
+rMerge = flip lMerge
+
 
 -- ** Relation to other types
 
@@ -216,6 +226,9 @@ accumHoldBy :: Monad m => (b -> a -> b) -> b -> SF m (Event a) b
 accumHoldBy f b = feedback b $ arr $ \(a, b') ->
   let b'' = event b' (f b') a
   in (b'', b'')
+
+parB :: (Monad m) => [SF m a b] -> SF m a [b]
+parB = widthFirst . sequenceS
 
 dpSwitchB :: (Monad m , Traversable col)
           => col (SF m a b) -> SF m (a, col b) (Event c) -> (col (SF m a b) -> c -> SF m a (col b))

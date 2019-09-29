@@ -9,6 +9,7 @@ import Control.Monad.Trans.List
 
 -- Internal
 import Data.MonadicStreamFunction
+import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- * List monad
 

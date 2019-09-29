@@ -1,3 +1,7 @@
+2019-09-29 Ivan Perez <ivan.perez@keera.co.uk>
+        * src:/: Fixes error in List support implementation.
+        * dunai.cabal: exposes List support. Version bump (0.5.2).
+
 2018-11-03 Ivan Perez <ivan.perez@keera.co.uk>
         * src:/: Fixes failed patterns in do notation.
         * dunai.cabal: Version bump (0.5.1).

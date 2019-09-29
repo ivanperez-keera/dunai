@@ -1,5 +1,5 @@
 name:                dunai
-version:             0.5.1
+version:             0.5.2
 synopsis:            Generalised reactive framework supporting classic, arrowized and monadic FRP.
 homepage:            https://github.com/ivanperez-keera/dunai
 description:
@@ -57,6 +57,7 @@ library
   exposed-modules:   Control.Monad.Trans.MSF
                      Control.Monad.Trans.MSF.Except
                      Control.Monad.Trans.MSF.Maybe
+                     Control.Monad.Trans.MSF.List
                      Control.Monad.Trans.MSF.Random
                      Control.Monad.Trans.MSF.Reader
                      Control.Monad.Trans.MSF.RWS

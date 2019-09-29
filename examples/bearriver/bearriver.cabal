@@ -1,5 +1,5 @@
 name:                bearriver
-version:             0.10.4.3
+version:             0.10.4.4
 synopsis:            A replacement of Yampa based on Monadic Stream Functions.
 description:         A Yampa replacement built using Dunai.
 homepage:            keera.co.uk
@@ -23,7 +23,7 @@ library
                        FRP.Yampa.AffineSpace,
                        FRP.BearRiver
 
-  build-depends:       base >=4.6 && <5, transformers >=0.3, mtl, dunai, MonadRandom
+  build-depends:       base >=4.6 && <5, transformers >=0.3, mtl, dunai >= 0.5 && < 0.6, MonadRandom
   hs-source-dirs:      src/
   default-language:    Haskell2010
 
