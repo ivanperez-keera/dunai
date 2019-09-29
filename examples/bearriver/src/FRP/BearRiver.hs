@@ -1,4 +1,5 @@
 {-# LANGUAGE Arrows     #-}
+{-# LANGUAGE CPP        #-}
 {-# LANGUAGE RankNTypes #-}
 module FRP.BearRiver
   (module FRP.BearRiver, module X)
@@ -227,7 +228,11 @@ accumHoldBy f b = feedback b $ arr $ \(a, b') ->
   let b'' = event b' (f b') a
   in (b'', b'')
 
+#if MIN_VERSION_base(4,8,0)
 parB :: (Monad m) => [SF m a b] -> SF m a [b]
+#else
+parB :: (Functor m, Monad m) => [SF m a b] -> SF m a [b]
+#endif
 parB = widthFirst . sequenceS
 
 dpSwitchB :: (Monad m , Traversable col)
