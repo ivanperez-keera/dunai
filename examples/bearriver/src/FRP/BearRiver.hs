@@ -19,6 +19,7 @@ import           Control.Monad.Random
 import           Control.Monad.Trans.Maybe
 import           Control.Monad.Trans.MSF                        hiding (switch)
 import           Control.Monad.Trans.MSF.Except                 as MSF hiding (switch)
+import           Control.Monad.Trans.MSF.List                   (widthFirst, sequenceS)
 import           Control.Monad.Trans.MSF.Random
 import           Data.Functor.Identity
 import           Data.Maybe
@@ -225,6 +226,9 @@ accumHoldBy :: Monad m => (b -> a -> b) -> b -> SF m (Event a) b
 accumHoldBy f b = feedback b $ arr $ \(a, b') ->
   let b'' = event b' (f b') a
   in (b'', b'')
+
+parB :: (Monad m) => [SF m a b] -> SF m a [b]
+parB = widthFirst . sequenceS
 
 dpSwitchB :: (Monad m , Traversable col)
           => col (SF m a b) -> SF m (a, col b) (Event c) -> (col (SF m a b) -> c -> SF m a (col b))
