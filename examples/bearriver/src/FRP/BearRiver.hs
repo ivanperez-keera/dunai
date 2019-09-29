@@ -71,7 +71,7 @@ derivativeFrom a0 = proc a -> do
 -- * Events
 
 data Event a = Event a | NoEvent
- deriving Show
+ deriving (Eq, Show)
 
 instance Functor Event where
   fmap f NoEvent   = NoEvent
