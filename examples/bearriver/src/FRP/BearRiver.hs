@@ -49,7 +49,10 @@ constant = arr . const
 -- * Continuous time
 
 time :: Monad m => SF m () Time
-time = integral <<< constant 1
+time = localTime
+
+localTime :: Monad m => SF m () Time
+localTime = constant 1.0 >>> integral
 
 integral :: (Monad m, VectorSpace a s) => SF m a a
 integral = integralFrom zeroVector
