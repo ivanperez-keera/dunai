@@ -109,8 +109,14 @@ mergeBy _       le@(Event _) NoEvent      = le
 mergeBy _       NoEvent      re@(Event _) = re
 mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
 
+-- | Left-biased event merge (always prefer left event, if present).
 lMerge :: Event a -> Event a -> Event a
 lMerge = mergeBy (\e1 _ -> e1)
+
+-- | Right-biased event merge (always prefer right event, if present).
+rMerge :: Event a -> Event a -> Event a
+rMerge = flip lMerge
+
 
 -- ** Relation to other types
 
