@@ -1,4 +1,8 @@
 2019-09-29 Ivan Perez <ivan.perez@keera.co.uk>
+        * src:/: Fixes error in List on older versions of GHC.
+        * dunai.cabal: exposes List support. Version bump (0.5.2.1).
+
+2019-09-29 Ivan Perez <ivan.perez@keera.co.uk>
         * src:/: Fixes error in List support implementation.
         * dunai.cabal: exposes List support. Version bump (0.5.2).
 
