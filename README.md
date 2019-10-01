@@ -116,6 +116,10 @@ You may have to use `cabal sandbox add-source` and install all libs with one
 `cabal install` invocation to link against the same versions of all common
 dependencies.
 
+# Related Projects
+[ivanperez-keera/Yampa](https://github.com/ivanperez-keera/Yampa)
+[turion/rhine](https://github.com/turion/rhine)
+
 # Contributions
 
 We follow: http://nvie.com/posts/a-successful-git-branching-model/
