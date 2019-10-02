@@ -58,6 +58,8 @@ The best introduction to the fundamentals of Monadic Stream Functions is:
 
 The following papers are also related to MSFs:
 
+- [Fault Tolerant Functional Reactive Programming](https://dl.acm.org/citation.cfm?id=3236791)
+
 - [Back to the Future: time travel in FRP](http://dl.acm.org/citation.cfm?id=3122957) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
 
 - [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/citation.cfm?id=3110246)
