@@ -50,10 +50,10 @@ constant = arr . const
 
 -- * Continuous time
 
-time :: Monad m => SF m () Time
+time :: Monad m => SF m a Time
 time = localTime
 
-localTime :: Monad m => SF m () Time
+localTime :: Monad m => SF m a Time
 localTime = constant 1.0 >>> integral
 
 integral :: (Monad m, VectorSpace a s) => SF m a a
