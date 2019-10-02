@@ -58,6 +58,10 @@ The best introduction to the fundamentals of Monadic Stream Functions is:
 
 The following papers are also related to MSFs:
 
+- [Fault Tolerant Functional Reactive Programming](https://dl.acm.org/citation.cfm?id=3236791)
+
+- [Rhine: FRP with type-level clocks](https://dl.acm.org/citation.cfm?id=3242757)
+
 - [Back to the Future: time travel in FRP](http://dl.acm.org/citation.cfm?id=3122957) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
 
 - [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/citation.cfm?id=3110246)
@@ -117,6 +121,7 @@ You may have to use `cabal sandbox add-source` and install all libs with one
 dependencies.
 
 # Related Projects
+
 [ivanperez-keera/Yampa](https://github.com/ivanperez-keera/Yampa)
 
 [turion/rhine](https://github.com/turion/rhine)
