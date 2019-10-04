@@ -119,6 +119,12 @@ lMerge = mergeBy (\e1 _ -> e1)
 rMerge :: Event a -> Event a -> Event a
 rMerge = flip lMerge
 
+-- | Apply an 'MSF' to every input. Freezes temporarily if the input is
+-- 'NoEvent', and continues as soon as an 'Event' is received.
+mapEventS :: Monad m => MSF m a b -> MSF m (Event a) (Event b)
+mapEventS msf = proc eventA -> case eventA of
+  Event a -> arr Event <<< msf -< a
+  NoEvent -> returnA           -< NoEvent
 
 -- ** Relation to other types
 
@@ -222,6 +228,10 @@ a0 >-- sf = replaceOnce a0 >>> sf
 
 replaceOnce :: Monad m => a -> SF m a a
 replaceOnce a = dSwitch (arr $ const (a, Event ())) (const $ arr id)
+
+-- | Accumulator parameterized by the accumulation function.
+accumBy :: Monad m => (b -> a -> b) -> b -> SF m (Event a) (Event b)
+accumBy f b = mapEventS $ accumulateWith (flip f) b
 
 accumHoldBy :: Monad m => (b -> a -> b) -> b -> SF m (Event a) b
 accumHoldBy f b = feedback b $ arr $ \(a, b') ->
