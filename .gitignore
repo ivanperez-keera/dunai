@@ -9,6 +9,8 @@ cabal-dev
 *.dyn_hi
 .hpc
 .hsenv
+.ghc.*
+cabal.project.local
 .cabal-sandbox/
 cabal.sandbox.config
 *.prof

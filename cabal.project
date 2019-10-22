@@ -1,0 +1,12 @@
+packages:
+  ./.
+  examples/bearriver/
+  examples/bouncingball/
+  examples/classicfrp/
+--  examples/discrete/
+  examples/haskanoid/
+--  examples/keerahails/
+  examples/list/
+--  examples/paper/
+  examples/reversefrpzoo/wormholes/
+  examples/taggingmonad/
