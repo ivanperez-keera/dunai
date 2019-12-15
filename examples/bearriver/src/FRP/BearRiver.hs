@@ -238,6 +238,29 @@ accumHoldBy f b = feedback b $ arr $ \(a, b') ->
   let b'' = event b' (f b') a
   in (b'', b'')
 
+-- | Event source with consecutive occurrences at the given intervals.
+-- Should more than one event be scheduled to occur in any sampling interval,
+-- only the first will in fact occur to avoid an event backlog.
+
+-- After all, after, repeatedly etc. are defined in terms of afterEach.
+afterEach :: Monad m => [(Time,b)] -> SF m a (Event b)
+afterEach qxs = afterEachCat qxs >>> arr (fmap head)
+
+-- | Event source with consecutive occurrences at the given intervals.
+-- Should more than one event be scheduled to occur in any sampling interval,
+-- the output list will contain all events produced during that interval.
+afterEachCat :: Monad m => [(Time,b)] -> SF m a (Event [b])
+afterEachCat = afterEachCat' 0
+  where
+    afterEachCat' :: Monad m => Time -> [(Time,b)] -> SF m a (Event [b])
+    afterEachCat' _ []  = never
+    afterEachCat' t qxs = MSF $ \_ -> do
+      dt <- ask
+      let t' = t + dt
+          (qxsNow, qxsLater) = span (\p -> fst p <= t') qxs
+          ev = if null qxsNow then NoEvent else Event (map snd qxsNow)
+      return (ev, afterEachCat' t' qxsLater)
+
 #if MIN_VERSION_base(4,8,0)
 parB :: (Monad m) => [SF m a b] -> SF m a [b]
 #else
