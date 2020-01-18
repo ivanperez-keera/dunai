@@ -17,7 +17,7 @@ $ cabal install dunai
 
 ## Dependencies
 
-Dunai currently support GHC versions 7.6.3 to 8.4.3.
+Dunai currently supports GHC versions 7.6.3 to 8.4.3.
 
 # Examples
 
@@ -57,6 +57,10 @@ The best introduction to the fundamentals of Monadic Stream Functions is:
 - [Functional Reactive Programming, Refactored](https://dl.acm.org/authorize?N34896) ([official ACM page](http://dl.acm.org/citation.cfm?id=2976010)) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
 
 The following papers are also related to MSFs:
+
+- [Fault Tolerant Functional Reactive Programming](https://dl.acm.org/citation.cfm?id=3236791)
+
+- [Rhine: FRP with type-level clocks](https://dl.acm.org/citation.cfm?id=3242757)
 
 - [Back to the Future: time travel in FRP](http://dl.acm.org/citation.cfm?id=3122957) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
 
@@ -115,6 +119,12 @@ cabal install -f-wiimote -f-kinect -fbearriver examples/haskanoid
 You may have to use `cabal sandbox add-source` and install all libs with one
 `cabal install` invocation to link against the same versions of all common
 dependencies.
+
+# Related Projects
+
+[ivanperez-keera/Yampa](https://github.com/ivanperez-keera/Yampa)
+
+[turion/rhine](https://github.com/turion/rhine)
 
 # Contributions
 

@@ -1,4 +1,4 @@
-module FRP.Yampa (module X, SF) where
+module FRP.Yampa (module X, SF, FutureSF) where
 
 import           FRP.BearRiver         as X hiding (andThen, SF)
 import           FRP.Yampa.AffineSpace as X
@@ -11,4 +11,5 @@ import           FRP.Yampa.VectorSpace as X
 import           Data.Functor.Identity
 import qualified FRP.BearRiver         as BR
 
-type SF = BR.SF Identity
+type SF       = BR.SF Identity
+type FutureSF = BR.SF Identity
