@@ -76,10 +76,8 @@ library
                      Data.MonadicStreamFunction.ReactHandle
                      Data.MonadicStreamFunction.Util
 
-                     -- Auxiliary definitions
-                     Data.VectorSpace
-
   other-modules:     Control.Arrow.Util
+                     Data.VectorSpace
 
   build-depends:     base >=4.6 && < 5,
                      transformers,

@@ -33,7 +33,7 @@ import qualified Data.MonadicStreamFunction                     as MSF
 import qualified Control.Monad.Trans.MSF                        as MSF
 import           Data.MonadicStreamFunction.Instances.ArrowLoop
 import           Data.Traversable                               as T
-import           FRP.Yampa.VectorSpace                          as X
+import           Data.VectorSpace                               as X
 
 type Time  = Double
 type DTime = Double

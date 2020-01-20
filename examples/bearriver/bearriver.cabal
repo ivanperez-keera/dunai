@@ -15,15 +15,9 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     FRP.Yampa,
-                       FRP.Yampa.Point2,
-                       FRP.Yampa.VectorSpace,
-                       FRP.Yampa.Vector2,
-                       FRP.Yampa.Point3,
-                       FRP.Yampa.Vector3,
-                       FRP.Yampa.AffineSpace,
                        FRP.BearRiver
 
-  build-depends:       base >=4.6 && <5, transformers >=0.3, mtl, dunai >= 0.5.2 && < 0.6, MonadRandom
+  build-depends:       base >=4.6 && <5, transformers >=0.3, mtl, dunai >= 0.5.2 && < 0.6, MonadRandom, simple-affine-space
   hs-source-dirs:      src/
   default-language:    Haskell2010
 
