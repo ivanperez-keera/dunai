@@ -2,7 +2,7 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE InstanceSigs         #-}
-module ReactiveProgramming where
+module DunaiExamplesReactiveStreamsAndSinks where
 
 import Data.Functor.Contravariant
 import Data.MonadicStreamFunction

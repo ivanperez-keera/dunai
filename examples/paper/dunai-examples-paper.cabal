@@ -13,7 +13,10 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     DunaiExamplesConcepts
+                       DunaiExamplesReactiveStreamsAndSinks
+
   build-depends:       base >=4.6 && <5,
+                       TypeCompose,
                        dunai
 
   hs-source-dirs:      src
