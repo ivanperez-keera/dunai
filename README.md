@@ -69,7 +69,8 @@ The following papers are also related to MSFs:
 - [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/citation.cfm?id=3110246)
 
 ## Video
-- [Actors Design Patterns and Arrowised FRP](https://youtu.be/wO_jX8wGhU0?t=781). The minimal implementation of what signal function can be in more declarative approach.
+
+- [Actors Design Patterns and Arrowised FRP](https://youtu.be/wO_jX8wGhU0?t=781). Talk by Diego Alonso Blas, describing Monadic Stream Functions and an encoding in scala.
 
 # Structure and internals.
 
