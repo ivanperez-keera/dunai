@@ -50,7 +50,9 @@ emosewa si lleksaH
 ^C
 ```
 
-# Further reading
+# Further references
+
+## Reading
 
 The best introduction to the fundamentals of Monadic Stream Functions is:
 
@@ -65,6 +67,10 @@ The following papers are also related to MSFs:
 - [Back to the Future: time travel in FRP](http://dl.acm.org/citation.cfm?id=3122957) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
 
 - [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/citation.cfm?id=3110246)
+
+## Video
+
+- [Actors Design Patterns and Arrowised FRP](https://youtu.be/wO_jX8wGhU0?t=781). Talk by Diego Alonso Blas, describing Monadic Stream Functions and an encoding in scala.
 
 # Structure and internals.
 
