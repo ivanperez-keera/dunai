@@ -1,3 +1,14 @@
+\begin{code}
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE InstanceSigs         #-}
+module ReactiveProgramming where
+
+import Data.Functor.Contravariant
+import Data.MonadicStreamFunction
+import Data.MonadicStreamFunction.Instances.Num
+import Control.Compose
+\end{code}
 \section{Reactive Programming and Monadic Streams}
 \label{sec:reactiveprogramming}
 
@@ -67,7 +78,7 @@ If streams can be seen as MSF that do not depend on their inputs, \emph{sinks}
 can be seen as MSF do not produce any output:
 
 \begin{code}
-type Sink m b = MSF m b ()
+type Sink m = Flip (MSF m) ()
 \end{code}
 
 These represent dead-ends of information flow, useful when we are only
@@ -83,9 +94,9 @@ Monadic Streams, as defined above, are |Functors| and \linebreak
 turn, are \emph{contravariant functors}:
 
 \begin{code}
-instance Contravariant (Sink m) where
-  contramap :: (a -> b) -> Sink m b -> Sink m a
-  contramap f msf = arr f >>> msf
+instance Monad m => Contravariant (Sink m) where
+  contramap :: Monad m => (a -> b) -> Sink m b -> Sink m a
+  contramap f msf = Flip (arr f >>> unFlip msf)
 \end{code}
 
 \paragraph{Examples}
@@ -151,10 +162,10 @@ overload the standard numeric operators:
 %   negate           = fmap negate
 % \end{code}
 
-\begin{code}
+\begin{spec}
 mirroredMouseX  :: Stream IO Int
 mirroredMouseX  = 1024 - mouseX
-\end{code}
+\end{spec}
 
 \noindent Note that, in this new definition, $1024$ has type |Stream IO Int|.
 
@@ -162,9 +173,15 @@ Streams and sinks are MSFs, so we can use MSF combinators to transform them and
 connect them. The following reactive program chains a stream and a sink
 to print the mouse position:
 \begin{code}
-reactiveProgram = mouseX >>> arr show >>> printSink
+reactiveProgram = mouseX >>> arr show >>> unFlip printSink
 
 printSink   ::  Sink IO String
-printSink   =   liftS putStrLn
+printSink   =   Flip (arrM putStrLn)
 \end{code}
 
+
+\begin{code}
+-- Defined elsewhere, provided here to be able to compile the code.
+mouseX :: Stream IO Int
+mouseX = undefined
+\end{code}
