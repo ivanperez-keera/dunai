@@ -36,7 +36,7 @@ import qualified Data.MonadicStreamFunction                     as MSF
 import           Data.MonadicStreamFunction.Instances.ArrowLoop
 import           Data.MonadicStreamFunction.InternalCore
 import           Data.Traversable                               as T
-import           FRP.Yampa.VectorSpace                          as X
+import           Data.VectorSpace                               as X
 
 infixr 0 -->, -:>, >--, >=-
 
