@@ -90,7 +90,7 @@ library
 
 test-suite hlint
   type: exitcode-stdio-1.0
-  main-is: hlint.hs
+  main-is: HLintMain.hs
   hs-source-dirs: tests
   default-language:  Haskell2010
   if !flag(test-hlint)
