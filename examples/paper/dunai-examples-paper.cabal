@@ -13,7 +13,15 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     DunaiExamplesConcepts
+                       DunaiExamplesReactiveStreamsAndSinks
+                       DunaiExamplesExtensibleAFRP
+                       FRP
+
   build-depends:       base >=4.6 && <5,
+                       mtl,
+                       TypeCompose,
+                       simple-affine-space,
+                       bearriver,
                        dunai
 
   hs-source-dirs:      src

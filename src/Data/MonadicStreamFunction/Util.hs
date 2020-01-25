@@ -96,11 +96,11 @@ count :: (Num n, Monad m) => MSF m a n
 count = arr (const 1) >>> accumulateWith (+) 0
 
 -- | Sums the inputs, starting from zero.
-sumS :: (RModule v, Monad m) => MSF m v v
+sumS :: (VectorSpace v s, Monad m) => MSF m v v
 sumS = sumFrom zeroVector
 
 -- | Sums the inputs, starting from an initial vector.
-sumFrom :: (RModule v, Monad m) => v -> MSF m v v
+sumFrom :: (VectorSpace v s, Monad m) => v -> MSF m v v
 sumFrom = accumulateWith (^+^)
 
 -- ** Folding for monoids

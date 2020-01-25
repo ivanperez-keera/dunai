@@ -36,7 +36,7 @@ import qualified Data.MonadicStreamFunction                     as MSF
 import           Data.MonadicStreamFunction.Instances.ArrowLoop
 import           Data.MonadicStreamFunction.InternalCore
 import           Data.Traversable                               as T
-import           FRP.Yampa.VectorSpace                          as X
+import           Data.VectorSpace                               as X
 
 infixr 0 -->, -:>, >--, >=-
 
@@ -409,14 +409,14 @@ switch :: Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
 switch sf sfC = MSF $ \a -> do
   (o, ct) <- unMSF sf a
   case o of
-    (_, Event c) -> unMSF (sfC c) a
+    (_, Event c) -> local (const 0) (unMSF (sfC c) a)
     (b, NoEvent) -> return (b, switch ct sfC)
 
 dSwitch ::  Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
 dSwitch sf sfC = MSF $ \a -> do
   (o, ct) <- unMSF sf a
   case o of
-    (b, Event c) -> do (_,ct') <- unMSF (sfC c) a
+    (b, Event c) -> do (_,ct') <- local (const 0) (unMSF (sfC c) a)
                        return (b, ct')
     (b, NoEvent) -> return (b, dSwitch ct sfC)
 
@@ -540,8 +540,8 @@ reactimate senseI sense actuate sf = do
  where sfIO        = morphS (return.runIdentity) (runReaderS sf)
 
        -- Sense
-       senseSF     = switch senseFirst senseRest
-       senseFirst  = constM senseI >>> (arr $ \x -> ((0, x), Event x))
+       senseSF     = MSF.switch senseFirst senseRest
+       senseFirst  = constM senseI >>> (arr $ \x -> ((0, x), Just x))
        senseRest a = constM (sense True) >>> (arr id *** keepLast a)
 
        keepLast :: Monad m => a -> MSF m (Maybe a) a
@@ -551,8 +551,6 @@ reactimate senseI sense actuate sf = do
        -- actuateSF :: MSF IO b ()
        -- actuateSF    = arr (\x -> (True, x)) >>> liftMSF (lift . uncurry actuate) >>> exitIf
        actuateSF    = arr (\x -> (True, x)) >>> arrM (uncurry actuate)
-
-       switch sf sfC = MSF.switch (sf >>> second (arr eventToMaybe)) sfC
 
 -- * Debugging / Step by step simulation
 

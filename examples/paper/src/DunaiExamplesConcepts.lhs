@@ -34,11 +34,13 @@ Extending the previous example, we can write:
 The following example of palindromes demonstrates monadic and composition
 combinators:
 
+% liftS has been renamed to arrM
+
 \begin{code}
 testSerial  ::   MSF IO () ()
-testSerial  =    (liftS (\() -> getLine))
+testSerial  =    (arrM (\() -> getLine))
             >>>  (arr id &&& arr reverse)
-            >>>  (liftS print)
+            >>>  (arrM print)
 \end{code}
 
 % \begin{spec}

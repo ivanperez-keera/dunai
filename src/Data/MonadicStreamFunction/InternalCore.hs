@@ -116,7 +116,7 @@ feedback c sf = MSF $ \a -> do
 -- if the 'MSF' produces 'Nothing' at any point, so the output stream cannot
 -- consumed progressively.
 --
--- To explore the output progressively, use 'liftMSF' and '(>>>)'', together
+-- To explore the output progressively, use 'arrM' and '(>>>)'', together
 -- with some action that consumes/actuates on the output.
 --
 -- This is called 'runSF' in Liu, Cheng, Hudak, "Causal Commutative Arrows and

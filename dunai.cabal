@@ -1,5 +1,5 @@
 name:                dunai
-version:             0.5.2.1
+version:             0.6.0
 synopsis:            Generalised reactive framework supporting classic, arrowized and monadic FRP.
 homepage:            https://github.com/ivanperez-keera/dunai
 description:
@@ -76,15 +76,14 @@ library
                      Data.MonadicStreamFunction.ReactHandle
                      Data.MonadicStreamFunction.Util
 
-                     -- Auxiliary definitions
-                     Data.VectorSpace
-
   other-modules:     Control.Arrow.Util
 
   build-depends:     base >=4.6 && < 5,
                      transformers,
                      transformers-base,
-                     MonadRandom
+                     MonadRandom,
+                     simple-affine-space
+
   hs-source-dirs:    src
   default-language:  Haskell2010
   ghc-options:       -Wall -fno-warn-unused-do-bind

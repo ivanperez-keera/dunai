@@ -17,7 +17,7 @@ $ cabal install dunai
 
 ## Dependencies
 
-Dunai currently supports GHC versions 7.6.3 to 8.4.3.
+Dunai currently supports GHC versions 7.6.3 to 8.6.5.
 
 # Examples
 
@@ -50,7 +50,9 @@ emosewa si lleksaH
 ^C
 ```
 
-# Further reading
+# Further references
+
+## Reading
 
 The best introduction to the fundamentals of Monadic Stream Functions is:
 
@@ -65,6 +67,18 @@ The following papers are also related to MSFs:
 - [Back to the Future: time travel in FRP](http://dl.acm.org/citation.cfm?id=3122957) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
 
 - [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/citation.cfm?id=3110246)
+
+## Video
+
+- [Actors Design Patterns and Arrowised FRP](https://youtu.be/wO_jX8wGhU0?t=781). Talk by Diego Alonso Blas, describing Monadic Stream Functions and an encoding in scala.
+
+- [Functional Reactive Programming, Refactored](https://www.youtube.com/watch?v=FmwOd4z9LdM). Original talk describing MSFs. Haskell Symposium 2016.
+
+- [Back to the Future: Time Travel in FRP](https://www.youtube.com/watch?v=p2jJGjbjbig). Talk describing how to do time transformations in FRP and MSFs. Haskell Symposium 2017.
+
+- [Fault Tolerant Functional Reactive Programming](https://www.youtube.com/watch?v=owojLkI5YyY). Talk describing how MSFs can be used to add fault tolerance information. ICFP 2018.
+
+- [Rhine: FRP with Type-level Clocks](https://www.youtube.com/watch?v=Xvgz11D7xqs). Talk describing how MSFs can be extended with clocks. Haskell Symposium 2018.
 
 # Structure and internals.
 
