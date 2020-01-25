@@ -3,11 +3,15 @@
 {-# LANGUAGE Rank2Types     #-}
 {-# LANGUAGE ExplicitForAll #-}
 {-# LANGUAGE Arrows #-}
+module FRP where
+import Data.Semigroup
 import Data.MonadicStreamFunction
+import Data.MonadicStreamFunction.Core
+import Data.MonadicStreamFunction.InternalCore
 import Control.Monad.Identity
 import Control.Monad.Reader
 import Control.Monad.Writer
-import "bearriver" FRP.Yampa (SF, integral, DTime, Time, edge, tag, Event(..))
+import "bearriver" FRP.Yampa (SF, integral, DTime, Time, edge, tag, Event(..), switch)
 
 fallingMass :: Double -> Double -> SF () Double
 fallingMass p0 v0 = arr (const (-9.8))
@@ -34,7 +38,7 @@ liftLM :: Monad m0
        => (forall c. ReaderT DTime m0 c -> ReaderT DTime m0 c)
        -> MSF (ReaderT DTime m0) a b
        -> MSF (ReaderT DTime m0) a b
-liftLM = liftMSFPurer
+liftLM = morphS
 \end{code}
 
 
@@ -97,6 +101,9 @@ time deltas with the minimum and infinity as identity:
 data FutureTime  =  AtTime DTime |  Infinity
   deriving (Eq, Ord)
 
+instance Semigroup FutureTime where
+  (<>) = min
+
 instance Monoid FutureTime where
   mempty   = Infinity
   mappend  = min
@@ -109,7 +116,7 @@ contain the closest suggested sampling time.
 
 Using this approach, we can define a bouncing ball that never goes below the
 floor. We do so by calculating the expected time of impact (|nextT|) and by
-recording that time in the Writer context (|liftS . lift . tell|).  For
+recording that time in the Writer context (|arrM . lift . tell|).  For
 clarity, we use Paterson's arrow
 notation~\cite{2001:paterson:arrownotation}:
 
@@ -129,12 +136,8 @@ bouncingBall p0 v0 = switch
 
     arrM (lift . tell) -< AtTime nextT -- Put "next" time
 
-    returnA  -<  ((p,v), eventToMaybe (bounce `tag` (p,v))))
+    returnA  -<  ((p,v), (bounce `tag` (p,v))))
   (\(p,v) ->  bouncingBall p (-v))
-
-eventToMaybe :: Event a -> Maybe a
-eventToMaybe (Event x) = Just x
-eventToMaybe NoEvent   = Nothing
 \end{code}
 
 
@@ -167,7 +170,7 @@ ballInCircles = (\x -> (rad * cos x, rad * sin x)) <$> time
   where rad = 45 -- radius in pixels
 
 mousePos :: Signal (Double, Double)
-mousePos = liftS (\() -> getMousePos)
+mousePos = arrM (\() -> liftIO getMousePos)
 
 \end{code}
 % -- Predefined
