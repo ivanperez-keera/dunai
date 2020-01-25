@@ -79,6 +79,11 @@ instance Monad Event where
   Event x >>= f = f x
   NoEvent >>= _ = NoEvent
 
+runStateSF :: Monad m => s -> SF (StateT s m) a b -> SF m a b
+runStateSF s sf = runStateS__ (morphS commute sf) s
+    where   commute (ReaderT f)
+                = StateT (\s -> ReaderT (\r -> runStateT (f r) s))
+
 -- ** Lifting
 arrPrim :: Monad m => (a -> b) -> SF m a b
 arrPrim = arr
