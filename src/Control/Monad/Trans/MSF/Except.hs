@@ -173,6 +173,7 @@ instance Monad m => Applicative (MSFExcept m a b) where
 -- | Monad instance for 'MSFExcept'. Bind uses the exception as the 'return'
 -- value in the monad.
 instance Monad m => Monad (MSFExcept m a b) where
+  return = pure
   MSFExcept msf >>= f = MSFExcept $ handleExceptT msf $ runMSFExcept . f
 
 handleExceptT
