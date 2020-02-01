@@ -88,6 +88,9 @@ library
   default-language:  Haskell2010
   ghc-options:       -Wall -fno-warn-unused-do-bind
 
+  if impl(ghc <= 7.8.4)
+    build-depends: transformers-compat
+
 test-suite hlint
   type: exitcode-stdio-1.0
   main-is: HLintMain.hs
