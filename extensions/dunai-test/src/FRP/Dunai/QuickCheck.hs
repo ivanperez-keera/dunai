@@ -82,8 +82,7 @@ generateStream :: Arbitrary a
 generateStream = generateStreamWith (\_ _ -> arbitrary)
 
 -- | Generate random stream, parameterized by the value generator.
-generateStreamWith :: Arbitrary a
-                   => (Int -> DTime -> Gen a) -> Distribution -> Range -> Length -> Gen (SignalSampleStream a)
+generateStreamWith :: (Int -> DTime -> Gen a) -> Distribution -> Range -> Length -> Gen (SignalSampleStream a)
 generateStreamWith arb DistConstant range  len     = generateConstantStream arb =<< generateStreamLenDT range len
 generateStreamWith arb DistRandom   (m, n) Nothing = do
   l <- arbitrary
