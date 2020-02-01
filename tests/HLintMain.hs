@@ -3,7 +3,7 @@
 -- Module      :  Main (hlint)
 -- Copyright   :  (C) 2013 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
--- Maintainer  :  Edward Kmett <ekmett@gmail.com>
+-- Maintainer  :  Ivan Perez <ivan.perez@keera.co.uk>
 -- Stability   :  provisional
 -- Portability :  portable
 --
