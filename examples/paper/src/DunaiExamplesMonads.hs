@@ -33,24 +33,36 @@ ballToRight2      :: Monad m => MSF (GameEnv2 m) () Ball
 ballToRight2      =
   count >>> arrM addLeftPlayerPos >>> arrM checkHitR
 
-  where  checkHitR    :: n -> GameEnv2 m Int
+  where  checkHitR    :: Monad m => Int -> GameEnv2 m Int
          checkHitR n  = do
-           rp <- asks rightPlayerPos
+           rp <- lift (asks rightPlayerPos)
            when (rp > n) $ tell [ "Ball at " ++ show n ]
+           return n
 
-ballBounceOnce  ::  MSF (GameEnv2 m) () Ball
-ballBounceOnce  =   ballUntilRight `catchMaybe` ballLeft
+         addLeftPlayerPos = (\n -> (n +) <$> lift (asks leftPlayerPos))
 
-ballUntilRight  ::  MSF (MaybeT (GameEnv2 m)) () Ball
-ballUntilRight  =   liftST (ballToRight
-                    >>> (arr id &&& hitRight))
+
+hitRight2    ::  Monad m => MSF (GameEnv2 m) Ball Bool
+hitRight2    =   arrM (\i -> (i >=) <$> lift (asks rightPlayerPos))
+
+ballBounceOnce  :: Monad m =>  MSF (GameEnv2 m) () Ball
+ballBounceOnce  =   ballUntilRight `catchMaybe` ballLeft2
+  where
+    ballLeft2 = undefined
+
+ballUntilRight  ::  Monad m => MSF (MaybeT (GameEnv2 m)) () Ball
+ballUntilRight  =   liftTransS (ballToRight2
+                    >>> (arr id &&& hitRight2))
                     >>> arrM filterHit
   where
     filterHit (b, c) = MaybeT $ return $
       if c then Nothing else Just b
 
-game2 ::  Monad m => MSF m () Ball
-game2 =   ballUntilRight `catchMaybe` ballUntilLeft `catchMaybe` game2
+
+game2 ::  Monad m => MSF (GameEnv2 m) () Ball
+game2 =   ballUntilRight `catchMaybe` (ballUntilLeft `catchMaybe` game2)
+  where
+    ballUntilLeft = undefined
 
 type GameEnv3 m = ReaderT GameSettings (ListT m)
 
@@ -61,20 +73,36 @@ ballLeft   =   singleBallLeft <+> singleBallLeft
       count >>>
         arrM (\n -> (\p -> p - n) <$> asks rightPlayerPos)
 
-incOneRound  ::  Monad m => StateT Integer m ()
-incOneRound  =   modify (+1)
 
+ballToRight3  ::   Monad m => MSF (GameEnv3 m) () Ball
+ballToRight3  =
+  count >>> arrM (\n -> (n +) <$> asks leftPlayerPos)
+
+hitRight3 :: Monad m => MSF (GameEnv3 m) Ball Bool
+hitRight3 =  arrM (\i -> (i >=) <$> asks rightPlayerPos)
 
 game3  :: Monad m
        => MSF (GameEnv3 (StateT Integer m)) () Ball
-game3  =     ballToRight  `untilMaybe` hitRight
-  `catchMaybe`  ballToLeft   `untilMaybe` hitLeft
-  `catchMaybe`  (lift incOneRound `andThen` game3)
+game3  =        ballToRight3  `untilMaybe` hitRight3
+  `catchMaybe`  ballToLeft    `untilMaybe` hitLeft
+  `catchMaybe`  (incOneRoundS  `andThen` game3)
+
+ballToLeft :: Monad m => MSF (GameEnv3 m) () Ball
+ballToLeft = undefined
+
+hitLeft    :: Monad m => MSF (GameEnv3 m) Ball Bool
+hitLeft    = undefined
+
+incOneRound  :: Monad m => StateT Integer m ()
+incOneRound  = modify (+1)
+
+incOneRoundS :: Monad m => MSF (GameEnv3 (StateT Integer m)) a Int
+incOneRoundS = constM (lift $ lift incOneRound) >>> undefined
 
 mainMSF :: MSF IO () ()
-mainMSF = runStateS_ parallelGame 0 >>> arrM print
+mainMSF = (runStateS_ (widthFirst parallelGame) 0) >>> arrM print
  where
-   parallelGame :: Int
+   parallelGame :: Monad m => MSF (ListT (StateT Integer m)) () (Ball, Ball)
    parallelGame  =    runReaderS_ game3 (GameSettings 20 17)
                  &&&  runReaderS_ game3 (GameSettings 10  4)
 
