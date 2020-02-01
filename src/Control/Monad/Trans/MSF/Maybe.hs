@@ -65,11 +65,15 @@ catchMaybe msf1 msf2 = safely $ do
 
 -- * Converting to and from 'MaybeT'
 
+-- | Convert exceptions into `Nothing`, discarding the exception value.
+exceptToMaybeS :: (Functor m, Monad m) => MSF (ExceptT e m) a b -> MSF (MaybeT m) a b
+exceptToMaybeS = morphS $ MaybeT . fmap (either (const Nothing) Just) . runExceptT
+
 -- | Converts a list to an 'MSF' in 'MaybeT',
 --   which outputs an element of the list at each step,
 --   throwing 'Nothing' when the list ends.
-listToMaybeS :: Monad m => [b] -> MSF (MaybeT m) a b
-listToMaybeS = foldr iPost exit
+listToMaybeS :: (Functor m, Monad m) => [b] -> MSF (MaybeT m) a b
+listToMaybeS = exceptToMaybeS . runMSFExcept . listToMSFExcept
 
 -- * Running 'MaybeT'
 -- | Remove the 'MaybeT' layer by outputting 'Nothing' when the exception occurs.
