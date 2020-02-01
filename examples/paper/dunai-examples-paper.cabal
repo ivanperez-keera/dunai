@@ -15,10 +15,12 @@ library
   exposed-modules:     DunaiExamplesConcepts
                        DunaiExamplesReactiveStreamsAndSinks
                        DunaiExamplesExtensibleAFRP
+                       DunaiExamplesMonads
                        FRP
 
   build-depends:       base >=4.6 && <5,
                        mtl,
+                       transformers,
                        TypeCompose,
                        simple-affine-space,
                        bearriver,
