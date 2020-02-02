@@ -79,10 +79,62 @@ instance Monad Event where
   Event x >>= f = f x
   NoEvent >>= _ = NoEvent
 
-runStateSF :: Monad m => s -> SF (StateT s m) a b -> SF m a b
-runStateSF s sf = runStateS__ (morphS commute sf) s
-    where   commute (ReaderT f)
-                = StateT (\s -> ReaderT (\r -> runStateT (f r) s))
+-- ** Reader layer
+readerSF :: Monad m => SF m (r, a) b -> SF (ReaderT r m) a b
+readerSF sf = morphS commuteReaderReader (readerS sf)
+
+runReaderSF :: Monad m => SF (ReaderT r m) a b -> SF m (r, a) b
+runReaderSF sf = runReaderS (morphS commuteReaderReader sf)
+
+runReaderSF_ :: Monad m => r -> SF (ReaderT r m) a b -> SF m a b
+runReaderSF_ r sf = runReaderS_ (morphS commuteReaderReader sf) r
+
+liftReaderSF :: Monad m => SF m a b -> SF (ReaderT r m) a b
+liftReaderSF sf = morphS commuteReaderReader (liftTransS sf)
+
+commuteReaderReader (ReaderT f)
+    = ReaderT (\r1 -> ReaderT (\r2 -> runReaderT (f r2) r1))
+
+-- ** State layer
+stateSF :: Monad m => SF m (s, a) (s, b) -> SF (StateT s m) a b
+stateSF sf = morphS commuteReaderState (stateS sf)
+
+runStateSF :: Monad m => SF (StateT s m) a b -> SF m (s, a) (s, b)
+runStateSF sf = runStateS (morphS commuteStateReader sf)
+
+runStateSF_ :: Monad m => s -> SF (StateT s m) a b -> SF m a (s, b)
+runStateSF_ s sf = runStateS_ (morphS commuteStateReader sf) s
+
+runStateSF__ :: Monad m => s -> SF (StateT s m) a b -> SF m a b
+runStateSF__ s sf = runStateS__ (morphS commuteStateReader sf) s
+
+liftStateSF :: Monad m => SF m a b -> SF (StateT s m) a b
+liftStateSF sf = morphS commuteReaderState (liftTransS sf)
+
+commuteReaderState (StateT f)
+    = ReaderT (\r -> StateT (\s -> runReaderT (f s) r))
+
+commuteStateReader (ReaderT f)
+    = StateT (\s -> ReaderT (\r -> runStateT (f r) s))
+
+-- ** Writer layer
+writerSF :: (Monad m, Monoid w) => SF m a (w, b) -> SF (WriterT w m) a b
+writerSF sf = morphS commuteReaderWriter (writerS sf)
+
+runWriterSF :: (Monad m, Monoid w) => SF (WriterT w m) a b -> SF m a (w, b)
+runWriterSF sf = runWriterS (morphS commuteWriterReader sf)
+
+runWriterSF_ :: (Monad m, Monoid w) => SF (WriterT w m) a b -> SF m a b
+runWriterSF_ sf = runWriterSF sf >>> arr snd
+
+liftWriterSF :: (Monad m, Monoid w) => SF m a b -> SF (WriterT w m) a b
+liftWriterSF sf = morphS commuteReaderWriter (liftTransS sf)
+
+commuteReaderWriter (WriterT m)
+    = ReaderT (\r -> WriterT (runReaderT m r))
+
+commuteWriterReader (ReaderT f)
+    = WriterT (ReaderT (\r -> runWriterT (f r)))
 
 -- ** Lifting
 arrPrim :: Monad m => (a -> b) -> SF m a b
