@@ -86,12 +86,14 @@ This project is split in three parts:
 
 - _Dunai_: a reactive library that combines monads and arrows.
 - _BearRiver_: Yampa implemented on top of Dunai.
-- _Examples_: ballbounce, haskanoid
+- _Examples_: ballbounce
   - sample applications that work both on traditional Yampa and BearRiver.
 
 We need to add examples of apps written in classic FRP, reactive values, etc. A
 [new game](https://github.com/keera-studios/pang-a-lambda), in honor of Paul
-Hudak, has been designed to work best with this library.
+Hudak, has been designed to work best with this library. The game
+[haskanoid](https://github.com/ivanperez-keera/haskanoid) works both with Yampa
+and with Bearriver/dunai.
 
 # Performance
 
