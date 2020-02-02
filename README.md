@@ -17,7 +17,7 @@ $ cabal install dunai
 
 ## Dependencies
 
-Dunai currently supports GHC versions 7.6.3 to 8.6.5.
+Dunai currently supports GHC versions 7.6.3 to 8.8.2.
 
 # Examples
 
