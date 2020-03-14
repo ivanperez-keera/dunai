@@ -4,8 +4,6 @@ module FRP.Dunai.LTLFuture
     ( TPred(..)
     , tPredMap
     , evalT
-    , tauApp
-    , myHead
     )
   where
 
@@ -62,17 +60,6 @@ evalT op              (x:xs) = do
     (Def x,    _) -> return x
     (SoFar x, []) -> return x
     (SoFar x, xs) -> evalT op' xs
-
--- Tau-application (transportation to the future)
-tauApp :: forall m a . Monad m => TPred (ReaderT DTime m) a -> (DTime, a) -> m (TPred (ReaderT DTime m) a)
-tauApp pred (dtime, sample) = runReaderT f dtime
- where
-    f :: ReaderT DTime m (TPred (ReaderT DTime m) a)
-    f = (tPredMap (\s -> snd <$> unMSF s sample) pred)
-
-myHead :: [a] -> a
-myHead [] = error "My head: empty list"
-myHead (x:_) = x
 
 unStep :: (MultiRes, TPred (ReaderT DTime m) a) -> Bool
 unStep (Def x, _) = x
