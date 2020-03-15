@@ -545,7 +545,7 @@ reactimate senseI sense actuate sf = do
        senseRest a = constM (sense True) >>> (arr id *** keepLast a)
 
        keepLast :: Monad m => a -> MSF m (Maybe a) a
-       keepLast a = MSF $ \ma -> let a' = fromMaybe a ma in return (a', keepLast a')
+       keepLast a = MSF $ \ma -> let a' = fromMaybe a ma in a' `seq` return (a', keepLast a')
 
        -- Consume/render
        -- actuateSF :: MSF IO b ()
