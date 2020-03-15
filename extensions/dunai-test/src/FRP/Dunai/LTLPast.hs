@@ -1,7 +1,6 @@
 {-# LANGUAGE Arrows #-}
 module FRP.Dunai.LTLPast where
 
-------------------------------------------------------------------------------
 import Control.Monad.Trans.MSF.Maybe
 import Data.Maybe
 import Data.MonadicStreamFunction
@@ -26,7 +25,7 @@ untilSF =
       inMaybeT -< if c then Nothing else Just b
 
     cond ((i,u),o) = let n = o && i
-                     in ((n, (o && u)), n)
+                     in ((n, o && u), n)
 
 lastSF :: Monad m => MSF m Bool Bool
 lastSF = iPre False
@@ -64,7 +63,7 @@ impliesSF = arr $ \(i,p) -> not i || p
 type SPred m a = MSF m a Bool
 
 notSF' :: Monad m => SPred m a -> SPred m a
-notSF' sf = sf >>> arr (not)
+notSF' sf = sf >>> arr not
 
 andSF' :: Monad m => SPred m a -> SPred m a -> SPred m a
 andSF' sf1 sf2 = (sf1 &&& sf2) >>> arr (uncurry (&&))

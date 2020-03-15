@@ -18,4 +18,4 @@ traceMSFWith f = arr (\x -> trace (f x) x)
 
 traceMSFWithIO :: (a -> IO b)
                -> MSF IO a a
-traceMSFWithIO f = arrM (\x -> (f x >> return x))
+traceMSFWithIO f = arrM (\x -> f x >> return x)
