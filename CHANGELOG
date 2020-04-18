@@ -1,3 +1,10 @@
+2020-04-18 Ivan Perez <ivan.perez@keera.co.uk>
+        * src:/: Add new utilities. Fix behaviour of listToMaybeS.
+        * dunai.cabal: Version bump (0.7.0).
+        * README.md: support for GHC 8.8.
+        * Cleaning and hlinting changes.
+        * Thanks: @turion, @Linearity.
+
 2020-01-25 Ivan Perez <ivan.perez@keera.co.uk>
         * src:/: Remove Data.VectorSpace.
         * src:/: Fix error in documentation of embed.
@@ -5,7 +12,6 @@
         * README.md: support for GHC 8.6. Add links to videos. Fix typos.
         * Thanks: @chriz-keera, @turion, @Rizary, @dynomite567,
           @alexmarginean16.
-
 
 2019-09-29 Ivan Perez <ivan.perez@keera.co.uk>
         * src:/: Fixes error in List on older versions of GHC.
