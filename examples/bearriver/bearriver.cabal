@@ -1,7 +1,5 @@
 name:                bearriver
-version:             0.13.1.1
-synopsis:            A replacement of Yampa based on Monadic Stream Functions.
-description:         A Yampa replacement built using Dunai.
+version:             0.13.1.2
 homepage:            keera.co.uk
 license:             BSD3
 license-file:        LICENSE
@@ -13,11 +11,32 @@ build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
 
+synopsis:            FRP Yampa replacement implemented with Monadic Stream Functions.
+description:
+  <https://hackage.haskell.org/package/Yampa Yampa> is a popular Functional
+  Reactive Programming (FRP) implementation that has been used extensively for
+  all kinds of applications, including robotics and games.
+  .
+  <https://dl.acm.org/doi/10.1145/2976002.2976010 Monadic Stream Functions> are
+  a new abstraction for data processors that combine arrows and monads. The
+  library <https://hackage.haskell.org/package/dunai dunai> provides a default
+  implementation.
+  .
+  Bearriver (a tributary to the Yampa river) provides the same API as Yampa,
+  but implemented using dunai underneath. The goal is to facilitate
+  understanding what's different about Yampa, and other FRP and Reactive
+  Programming libraries, by creating wrappers around dunai defined precisely by
+  those differences.
+  .
+  Because dunai is particularly fast, especially with optimizations enabled,
+  this implementation is faster than traditional Yampa for medium-sized and
+  large applications.
+
 library
   exposed-modules:     FRP.Yampa,
                        FRP.BearRiver
 
-  build-depends:       base >=4.6 && <5, transformers >=0.3, mtl, dunai >= 0.6.0 && < 0.7, MonadRandom, simple-affine-space
+  build-depends:       base >=4.6 && <5, transformers >=0.3, mtl, dunai >= 0.6.0 && < 0.8, MonadRandom, simple-affine-space
   hs-source-dirs:      src/
   default-language:    Haskell2010
 
