@@ -11,6 +11,7 @@ ghc:
   - "8.2.2"
   - "8.4.4"
   - "8.6.5"
+  - "8.8.2"
 
 env:
   - PACKAGEDIR="."
@@ -38,9 +39,13 @@ matrix:
       env: PACKAGEDIR="examples/discrete"
     - ghc: 8.4.4
       env: PACKAGEDIR="examples/keerahails"
-    - ghc: 8.6.1
+    - ghc: 8.6.5
       env: PACKAGEDIR="examples/discrete"
-    - ghc: 8.6.1
+    - ghc: 8.6.5
+      env: PACKAGEDIR="examples/keerahails"
+    - ghc: 8.8.2
+      env: PACKAGEDIR="examples/discrete"
+    - ghc: 8.8.2
       env: PACKAGEDIR="examples/keerahails"
 
 before_install:

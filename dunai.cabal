@@ -1,5 +1,5 @@
 name:                dunai
-version:             0.6.0
+version:             0.7.0
 synopsis:            Generalised reactive framework supporting classic, arrowized and monadic FRP.
 homepage:            https://github.com/ivanperez-keera/dunai
 description:
@@ -88,9 +88,12 @@ library
   default-language:  Haskell2010
   ghc-options:       -Wall -fno-warn-unused-do-bind
 
+  if impl(ghc <= 7.8.4)
+    build-depends: transformers-compat
+
 test-suite hlint
   type: exitcode-stdio-1.0
-  main-is: hlint.hs
+  main-is: HLintMain.hs
   hs-source-dirs: tests
   default-language:  Haskell2010
   if !flag(test-hlint)
@@ -121,3 +124,16 @@ test-suite haddock-coverage
 source-repository head
   type:     git
   location: git@github.com:ivanperez-keera/dunai.git
+
+test-suite regression-tests
+  type: exitcode-stdio-1.0
+  main-is: RegressionTests.hs
+  ghc-options: -Wall
+  hs-source-dirs: tests
+  default-language:  Haskell2010
+  build-depends:
+    base >=4 && <5,
+    transformers,
+    dunai,
+    tasty,
+    tasty-hunit

@@ -24,7 +24,7 @@ groupDeltas xs ds = zip (0:ds) xs
 
 -- | Turn a stream with sampling times into a list of values.
 samples :: SignalSampleStream a -> [a]
-samples as = map snd as
+samples = map snd
 
 firstSample :: SignalSampleStream a -> a
 firstSample = head . samples
@@ -65,26 +65,25 @@ refineWith interpolate maxDT a0 ((dt, a):as)
 
 -- ** Clipping (dropping samples)
 
-sClipAfterFrame  :: Int -> SignalSampleStream a -> SignalSampleStream a
-sClipAfterFrame  n xs = take n xs
+sClipAfterFrame :: Int -> SignalSampleStream a -> SignalSampleStream a
+sClipAfterFrame = take
 
 sClipAfterTime dt [] = []
 sClipAfterTime dt ((dt',x):xs)
   | dt < dt'  = []
-  | otherwise = ((dt',x):sClipAfterTime (dt - dt') xs)
+  | otherwise = (dt', x) : sClipAfterTime (dt - dt') xs
 
 sClipBeforeFrame :: Int -> SignalSampleStream a -> SignalSampleStream a
-sClipBeforeFrame 0 (x:xs) = (x:xs)
-sClipBeforeFrame n (x:[]) = (x:[])
-sClipBeforeFrame n (_:x:xs) = sClipBeforeFrame (n-1) (x:xs)
+sClipBeforeFrame 0 xs@(_:_) = xs
+sClipBeforeFrame n xs@[x]   = xs
+sClipBeforeFrame n xs       = sClipBeforeFrame (n-1) xs
 
 sClipBeforeTime  :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sClipBeforeTime dt xs
   | dt <= 0   = xs
   | otherwise = case xs of
-                  (x:[])           -> (x:[])
-                  (_:(dt',x'):xs') -> if | dt < dt'  -> -- (dt' - dt, x'):xs'
-                                                        ((dt'- dt, x'):xs')
+                  [x]              -> xs
+                  (_:(dt',x'):xs') -> if | dt < dt'  -> ((dt'- dt, x'):xs')
                                          | otherwise -> sClipBeforeTime (dt - dt') ((0,x'):xs')
 
 

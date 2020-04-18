@@ -1,6 +1,7 @@
 {-# LANGUAGE Arrows              #-}
 {-# LANGUAGE CPP                 #-}
 {-# LANGUAGE Rank2Types          #-}
+{-# LANGUAGE TupleSections       #-}
 -- | 'MSF's in the 'ExceptT' monad are monadic stream functions
 --   that can throw exceptions,
 --   i.e. return an exception value instead of a continuation.
@@ -173,6 +174,7 @@ instance Monad m => Applicative (MSFExcept m a b) where
 -- | Monad instance for 'MSFExcept'. Bind uses the exception as the 'return'
 -- value in the monad.
 instance Monad m => Monad (MSFExcept m a b) where
+  return = pure
   MSFExcept msf >>= f = MSFExcept $ handleExceptT msf $ runMSFExcept . f
 
 handleExceptT
@@ -224,6 +226,17 @@ step f = try $ proc a -> do
   (b, e) <- arrM (lift . f) -< a
   _      <- throwOn'        -< (n > (1 :: Int), e)
   returnA                   -< b
+
+-- | Advances a single tick outputting the value,
+--   and then throws '()'.
+step_ :: Monad m => b -> MSFExcept m a b ()
+step_ = step . const . return . (, ())
+
+-- | Converts a list to an 'MSFExcept',
+--   which outputs an element of the list at each step,
+--   throwing '()' when the list ends.
+listToMSFExcept :: Monad m => [b] -> MSFExcept m a b ()
+listToMSFExcept = mapM_ step_
 
 -- * Utilities definable in terms of 'MSFExcept'
 

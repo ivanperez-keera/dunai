@@ -3,6 +3,7 @@ dist-*
 cabal-dev
 *.o
 *.hi
+*.hie
 *.chi
 *.chs.h
 *.dyn_o
@@ -16,3 +17,7 @@ cabal.sandbox.config
 *.hp
 *.eventlog
 .stack-work/
+cabal.project.local
+cabal.project.local~
+.HTF/
+.ghc.environment.*

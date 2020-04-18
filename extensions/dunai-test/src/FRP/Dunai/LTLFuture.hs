@@ -1,16 +1,12 @@
-{-# LANGUAGE GADTs  #-}
+{-# LANGUAGE GADTs               #-}
 {-# LANGUAGE ScopedTypeVariables #-}
--- TODO
+module FRP.Dunai.LTLFuture
+    ( TPred(..)
+    , tPredMap
+    , evalT
+    )
+  where
 
--- Important question: because this FRP implement uses CPS,
--- it is stateful, and sampling twice in one time period
--- is not necessarily the same as sampling once. This means that
--- tauApp, or next, might not work correctly. It's important to
--- see what is going on there... :(
-
-module FRP.Dunai.LTLFuture where
-
-------------------------------------------------------------------------------
 import Control.Monad.Trans.MSF.Reader
 import Data.MonadicStreamFunction
 import Data.MonadicStreamFunction.InternalCore (unMSF)
@@ -30,17 +26,20 @@ data TPred m a where
   Next       :: TPred m a -> TPred m a
   Until      :: TPred m a -> TPred m a -> TPred m a
 
--- | Apply a transformation to the leaves (to the SFs)
-tPredMap :: Monad m => (MSF m a Bool -> m (MSF m a Bool)) -> TPred m a -> m (TPred m a)
+-- | Apply a transformation to the leaves of a temporal predicate (to the SFs).
+tPredMap :: Monad m
+         => (MSF m a Bool -> m (MSF m a Bool))  -- ^ Transformation to apply
+         -> TPred m a                           -- ^ Temporal predicate
+         -> m (TPred m a)
 tPredMap f (Prop sf)       = Prop       <$> f sf
-tPredMap f (And t1 t2)     = And        <$> (tPredMap f t1) <*> (tPredMap f t2)
-tPredMap f (Or t1 t2)      = Or         <$> (tPredMap f t1) <*> (tPredMap f t2)
-tPredMap f (Not t1)        = Not        <$> (tPredMap f t1)
-tPredMap f (Implies t1 t2) = Implies    <$> (tPredMap f t1) <*> (tPredMap f t2)
-tPredMap f (Always t1)     = Always     <$> (tPredMap f t1)
-tPredMap f (Eventually t1) = Eventually <$> (tPredMap f t1)
-tPredMap f (Next t1)       = Next       <$> (tPredMap f t1)
-tPredMap f (Until t1 t2)   = Until      <$> (tPredMap f t1) <*> (tPredMap f t2)
+tPredMap f (And t1 t2)     = And        <$> tPredMap f t1 <*> tPredMap f t2
+tPredMap f (Or t1 t2)      = Or         <$> tPredMap f t1 <*> tPredMap f t2
+tPredMap f (Not t1)        = Not        <$> tPredMap f t1
+tPredMap f (Implies t1 t2) = Implies    <$> tPredMap f t1 <*> tPredMap f t2
+tPredMap f (Always t1)     = Always     <$> tPredMap f t1
+tPredMap f (Eventually t1) = Eventually <$> tPredMap f t1
+tPredMap f (Next t1)       = Next       <$> tPredMap f t1
+tPredMap f (Until t1 t2)   = Until      <$> tPredMap f t1 <*> tPredMap f t2
 
 -- * Temporal Evaluation
 
@@ -48,30 +47,94 @@ tPredMap f (Until t1 t2)   = Until      <$> (tPredMap f t1) <*> (tPredMap f t2)
 --
 -- Returns 'True' if the temporal proposition is currently true.
 evalT :: Monad m => TPred (ReaderT DTime m) a -> SignalSampleStream a -> m Bool
-evalT (Prop sf)       = \stream -> (myHead . fst)  <$> evalSF sf stream
-evalT (And t1 t2)     = \stream -> (&&) <$> (evalT t1 stream)           <*> (evalT t2 stream)
-evalT (Or  t1 t2)     = \stream -> (||) <$> (evalT t1 stream)           <*> (evalT t2 stream)
-evalT (Not  t1)       = \stream -> not  <$> (evalT t1 stream)
-evalT (Implies t1 t2) = \stream -> (||) <$> (not <$> (evalT t1 stream)) <*> (evalT t2 stream)
-evalT (Always  t1)    = \stream -> (&&) <$> (evalT t1 stream)           <*> (evalT (Next (Always t1)) stream)
-evalT (Eventually t1) = \stream -> (||) <$> (evalT t1 stream)           <*> (evalT (Next (Eventually t1)) stream)
-evalT (Until t1 t2)   = \stream -> (||) <$> ((&&) <$> (evalT t1 stream) <*> (evalT (Next (Until t1 t2)) stream)) <*> (evalT t2 stream)
-evalT (Next t1)       = \stream -> case stream of
-                                    ([])   -> return False  -- This is important.
-                                    (a:[]) -> return True   -- This is important. It determines how
-                                                            -- eventually, always and next behave at the
-                                                            -- end of the stream, which affects that is and isn't
-                                                            -- a tautology. It should be reviewed very carefully.
-                                    (a1:as) -> tauApp t1 a1 >>= (`evalT` as)
+evalT (Prop sf)       [] = return False
+evalT (And t1 t2)     [] = (&&) <$> evalT t1 [] <*> evalT t2 []
+evalT (Or  t1 t2)     [] = (||) <$> evalT t1 [] <*> evalT t2 []
+evalT (Not t1)        [] = not  <$> evalT t1 []
+evalT (Implies t1 t2) [] = (||) <$> (not <$> evalT t1 []) <*> evalT t2 []
+evalT (Always t1)     [] = return True
+evalT (Eventually t1) [] = return False
+evalT (Next t1)       [] = return False
+evalT (Until t1 t2)   [] = (||) <$> evalT t1 [] <*> evalT t2 []
+evalT op              (x:xs) = do
+  (r, op') <- stepF op x
+  case (r, xs) of
+    (Def x,    _) -> return x
+    (SoFar x, []) -> return x
+    (SoFar x, xs) -> evalT op' xs
 
--- Tau-application (transportation to the future)
-tauApp :: forall m a . Monad m => TPred (ReaderT DTime m) a -> (DTime, a) -> m (TPred (ReaderT DTime m) a)
-tauApp pred (dtime, sample) = runReaderT f dtime
- where
-    f :: ReaderT DTime m (TPred (ReaderT DTime m) a)
-    f = (tPredMap (\s -> snd <$> unMSF s sample) pred)
+-- ** Multi-valued temporal evaluation
 
+-- | Multi-valued logic result
+data MultiRes
+    = Def Bool    -- ^ Definite value known
+    | SoFar Bool  -- ^ Value so far, but could change
 
-myHead :: [a] -> a
-myHead [] = error "My head: empty list"
-myHead (x:_) = x
+-- | Multi-valued implementation of @and@.
+andM :: MultiRes -> MultiRes -> MultiRes
+andM (Def False)   _             = Def False
+andM _             (Def False)   = Def False
+andM (Def True)    x             = x
+andM x             (Def True)    = x
+andM (SoFar False) (SoFar x)     = SoFar False
+andM (SoFar x)     (SoFar False) = SoFar False
+andM (SoFar True)  (SoFar x)     = SoFar x
+andM (SoFar x)     (SoFar True)  = SoFar x
+
+-- | Multi-valued implementation of @or@.
+orM :: MultiRes -> MultiRes -> MultiRes
+orM (Def False)   x             = x
+orM _             (Def False)   = Def False
+orM (Def True)    x             = x
+orM x             (Def True)    = x
+orM (SoFar False) (SoFar x)     = SoFar False
+orM (SoFar x)     (SoFar False) = SoFar False
+orM (SoFar True)  (SoFar x)     = SoFar x
+orM (SoFar x)     (SoFar True)  = SoFar x
+
+-- | Perform one step of evaluation of a temporal predicate.
+stepF :: Monad m
+      => TPred (ReaderT DTime m) a
+      -> (DTime, a)
+      -> m (MultiRes, TPred (ReaderT DTime m) a)
+
+stepF (Prop sf) x  = do
+  (b, sf') <- unMSF (runReaderS sf) x
+  return (Def b, Prop (readerS sf'))
+
+stepF (Always sf) x = do
+  (b, sf') <- stepF sf x
+  case b of
+    Def True    -> pure (SoFar True, Always sf')
+    Def False   -> pure (Def False, Always sf')
+    SoFar True  -> pure (SoFar True, Always sf')
+    SoFar False -> pure (SoFar False, Always sf')
+
+stepF (Eventually sf) x = do
+  (b, sf') <- stepF sf x
+  case b of
+    Def   True  -> pure (SoFar True,  Always sf')
+    Def   False -> pure (SoFar False, Always sf')
+    SoFar True  -> pure (SoFar True,  Always sf')
+    SoFar False -> pure (SoFar False, Always sf')
+
+stepF (Not sf) x = do
+  (b, sf') <- stepF sf x
+  case b of
+    Def x   -> pure (Def (not x), Not sf')
+    SoFar x -> pure (SoFar (not x), Not sf')
+
+stepF (And sf1 sf2) x = do
+  (b1, sf1') <- stepF sf1 x
+  (b2, sf2') <- stepF sf2 x
+  let r = andM b1 b2
+  pure (r, And sf1' sf2')
+
+stepF (Or sf1 sf2) x = do
+  (b1, sf1') <- stepF sf1 x
+  (b2, sf2') <- stepF sf2 x
+  let r = orM b1 b2
+  pure (r, Or sf1' sf2')
+
+stepF (Implies sf1 sf2) x =
+  stepF (Not sf1 `Or` sf2) x
