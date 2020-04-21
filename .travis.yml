@@ -16,6 +16,7 @@ ghc:
 env:
   - PACKAGEDIR="."
   - PACKAGEDIR="examples/bearriver"
+  - PACKAGEDIR="extensions/dunai-test"
   - PACKAGEDIR="examples/bouncingball"
   - PACKAGEDIR="examples/classicfrp"
   - PACKAGEDIR="examples/discrete"
