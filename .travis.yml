@@ -17,6 +17,7 @@ env:
   - PACKAGEDIR="."
   - PACKAGEDIR="examples/bearriver"
   - PACKAGEDIR="examples/bouncingball"
+  - PACKAGEDIR="examples/classicfrp"
   - PACKAGEDIR="examples/discrete"
   - PACKAGEDIR="examples/keerahails"
   - PACKAGEDIR="examples/list"
