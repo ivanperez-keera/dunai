@@ -175,16 +175,19 @@ afterEachCat = afterEachCat' 0
 
 
 -- * Events
-
 instance Functor Event where
-  fmap f NoEvent   = NoEvent
-  fmap f (Event c) = Event (f c)
+   f `fmap` (Event c) = Event (f c)
+   _ `fmap` _         = NoEvent
 
 instance Applicative Event where
   pure = Event
-
   Event f <*> Event x = Event (f x)
   _       <*> _       = NoEvent
+
+instance Monad Event where
+  return          = pure
+  (Event x) >>= f = f x
+  _         >>= _ = NoEvent
 
 -- | Apply an 'MSF' to every input. Freezes temporarily if the input is
 -- 'NoEvent', and continues as soon as an 'Event' is received.
