@@ -1,0 +1,1 @@
+packages: dunai.cabal extensions/dunai-test/dunai-test.cabal examples/*/*.cabal examples/*/*/*.cabal
