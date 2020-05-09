@@ -9,7 +9,7 @@ module FRP.Dunai.LTLFuture
   where
 
 #if !MIN_VERSION_base(4,8,0)
-import Control.Applicative ((<$>), (<*>), pure)
+import Control.Applicative (Applicative, (<$>), (<*>), pure)
 #endif
 
 import Control.Monad.Trans.MSF.Reader
@@ -32,7 +32,7 @@ data TPred m a where
   Until      :: TPred m a -> TPred m a -> TPred m a
 
 -- | Apply a transformation to the leaves of a temporal predicate (to the SFs).
-tPredMap :: Monad m
+tPredMap :: (Functor m, Applicative m, Monad m)
          => (MSF m a Bool -> m (MSF m a Bool))  -- ^ Transformation to apply
          -> TPred m a                           -- ^ Temporal predicate
          -> m (TPred m a)
@@ -51,7 +51,8 @@ tPredMap f (Until t1 t2)   = Until      <$> tPredMap f t1 <*> tPredMap f t2
 -- | Evaluates a temporal predicate at time T=0 against a sample stream.
 --
 -- Returns 'True' if the temporal proposition is currently true.
-evalT :: Monad m => TPred (ReaderT DTime m) a -> SignalSampleStream a -> m Bool
+evalT :: (Functor m, Applicative m, Monad m)
+      => TPred (ReaderT DTime m) a -> SignalSampleStream a -> m Bool
 evalT (Prop sf)       [] = return False
 evalT (And t1 t2)     [] = (&&) <$> evalT t1 [] <*> evalT t2 []
 evalT (Or  t1 t2)     [] = (||) <$> evalT t1 [] <*> evalT t2 []
@@ -98,7 +99,7 @@ orM (SoFar True)  (SoFar x)     = SoFar x
 orM (SoFar x)     (SoFar True)  = SoFar x
 
 -- | Perform one step of evaluation of a temporal predicate.
-stepF :: Monad m
+stepF :: (Applicative m, Monad m)
       => TPred (ReaderT DTime m) a
       -> (DTime, a)
       -> m (MultiRes, TPred (ReaderT DTime m) a)
