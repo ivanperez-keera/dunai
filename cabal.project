@@ -1,1 +1,9 @@
-packages: dunai.cabal extensions/dunai-test/dunai-test.cabal examples/*/*.cabal examples/*/*/*.cabal
+packages:
+  .
+  extensions/dunai-test/
+  examples/bearriver/
+  examples/classicfrp/
+  examples/paper/
+  examples/bouncingball/
+  examples/reversefrpzoo/wormholes/
+  examples/taggingmonad/
