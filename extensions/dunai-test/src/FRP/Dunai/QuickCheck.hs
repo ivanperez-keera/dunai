@@ -15,7 +15,7 @@ module FRP.Dunai.QuickCheck where
 --   paper was: uniDistStream. This has been fixed.
 
 #if !MIN_VERSION_base(4,8,0)
-import Control.Applicative ((<$>))
+import Control.Applicative ((<$>), pure)
 #endif
 
 import Data.Random.Normal

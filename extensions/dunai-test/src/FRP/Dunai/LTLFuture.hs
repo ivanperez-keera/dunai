@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP                 #-}
 {-# LANGUAGE GADTs               #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module FRP.Dunai.LTLFuture
@@ -6,6 +7,10 @@ module FRP.Dunai.LTLFuture
     , evalT
     )
   where
+
+#if !MIN_VERSION_base(4,8,0)
+import Control.Applicative ((<$>), pure)
+#endif
 
 import Control.Monad.Trans.MSF.Reader
 import Data.MonadicStreamFunction
