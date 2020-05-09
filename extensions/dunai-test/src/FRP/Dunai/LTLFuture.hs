@@ -99,7 +99,7 @@ orM (SoFar True)  (SoFar x)     = SoFar x
 orM (SoFar x)     (SoFar True)  = SoFar x
 
 -- | Perform one step of evaluation of a temporal predicate.
-stepF :: Monad m
+stepF :: (Applicative m, Monad m)
       => TPred (ReaderT DTime m) a
       -> (DTime, a)
       -> m (MultiRes, TPred (ReaderT DTime m) a)
