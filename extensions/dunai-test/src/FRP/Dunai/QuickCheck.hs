@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP                 #-}
 {-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -12,6 +13,10 @@ module FRP.Dunai.QuickCheck where
 
 -- - The function uniDistStreamMaxDT had the wrong type and the name on the
 --   paper was: uniDistStream. This has been fixed.
+
+#if !MIN_VERSION_base(4,8,0)
+import Control.Applicative ((<$>), pure)
+#endif
 
 import Data.Random.Normal
 import Data.MonadicStreamFunction
