@@ -1,0 +1,9 @@
+packages:
+  .
+  extensions/dunai-test/
+  examples/bearriver/
+  examples/classicfrp/
+  examples/paper/
+  examples/bouncingball/
+  examples/reversefrpzoo/wormholes/
+  examples/taggingmonad/
