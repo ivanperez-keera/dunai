@@ -15,11 +15,13 @@ ghc:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -qq libsdl-gfx1.2-dev libwxgtk3.0-dev libbluetooth-dev libcwiid-dev libwxgtk-media3.0-dev libsdl-ttf2.0-dev libwxgtk-webview3.0-dev
+  - sudo apt-get install -qq libsdl-gfx1.2-dev libbluetooth-dev libcwiid-dev libsdl-ttf2.0-dev
 
-script: cabal new-build all && cabal new-test all
+script:
+  - cabal new-build all && cabal new-test all
 
-install: skip
+install:
+  - skip
 
 deploy:
   provider: hackage
