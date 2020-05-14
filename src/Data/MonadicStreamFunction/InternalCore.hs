@@ -55,7 +55,7 @@ import Prelude hiding ((.), id, sum)
 -- 'MSF's should be applied to streams or executed indefinitely or until they
 -- terminate. See 'reactimate' and 'reactimateB' for details. In general,
 -- calling the value constructor 'MSF' or the function 'unMSF' is discouraged.
-data MSF m a b = MSF { unMSF :: a -> m (b, MSF m a b) }
+newtype MSF m a b = MSF { unMSF :: a -> m (b, MSF m a b) }
 
 -- Instances
 
