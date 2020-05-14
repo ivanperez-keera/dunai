@@ -102,7 +102,7 @@ instance GameMonad Identity where
 instance (Functor m, Applicative m, Monad m) => GameMonad (ReaderT PureGameEnv m) where
   getMousePos = pureMousePos <$> ask
 
-data PureGameEnv = PureGameEnv { pureMousePos :: (Int, Int)}
+newtype PureGameEnv = PureGameEnv { pureMousePos :: (Int, Int)}
 
 instance (Functor m, Monad m) => GameMonad (StateT [PureGameEnv] m) where
   getMousePos = StateT $ \ls -> case ls of

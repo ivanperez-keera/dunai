@@ -1,3 +1,6 @@
+2020-05-14 Baldur Blöndal <baldurpet@gmail.com>
+	* src:/: Made MSF a newtype.
+
 2020-04-18 Ivan Perez <ivan.perez@keera.co.uk>
         * src:/: Add new utilities. Fix behaviour of listToMaybeS.
         * dunai.cabal: Version bump (0.7.0).
