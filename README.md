@@ -80,6 +80,9 @@ The following papers are also related to MSFs:
 
 - [Rhine: FRP with Type-level Clocks](https://www.youtube.com/watch?v=Xvgz11D7xqs). Talk describing how MSFs can be extended with clocks. Haskell Symposium 2018.
 
+## Games
+- [The Bearriver Arcade](https://github.com/walseb/The_Bearriver_Arcade). A few arcade games made using bearriver.
+
 # Structure and internals.
 
 This project is split in three parts:
