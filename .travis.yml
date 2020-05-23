@@ -23,7 +23,13 @@ script:
 install:
   - skip
 
+# This step requires the use of edge: true in deploy. For details, see
+# https://docs.travis-ci.com/user/deployment-v2
+before_deploy:
+  - cd dunai/
+
 deploy:
+  edge: true
   provider: hackage
   username: keera_studios_ci_dunai
   password:
