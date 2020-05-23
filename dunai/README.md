@@ -127,17 +127,11 @@ FRP.BearRiver and Data.MonadicStreamFunction.
 You can try it with:
 
 ```
-git clone https://github.com/ivanperez-keera/dunai.git
-cd dunai
+git clone https://github.com/ivanperez-keera/haskanoid.git
+cd haskanoid/
 cabal sandbox init
-cabal install
-cabal install examples/bearriver
-cabal install -f-wiimote -f-kinect -fbearriver examples/haskanoid
+cabal install -f-wiimote -f-kinect -fbearriver haskanoid/
 ```
-
-You may have to use `cabal sandbox add-source` and install all libs with one
-`cabal install` invocation to link against the same versions of all common
-dependencies.
 
 # Related Projects
 
