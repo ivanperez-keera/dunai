@@ -464,14 +464,21 @@ dpSwitchB sfs sfF sfCs = MSF $ \a -> do
 -- ** Parallel composition over collections
 
 parC :: Monad m => SF m a b -> SF m [a] [b]
-parC sf = parC' [sf]
+parC sf = parC0 sf
+  where
+    parC0 :: Monad m => SF m a b -> SF m [a] [b]
+    parC0 sf0 = MSF $ \as -> do
+      os <- T.mapM (\(a,sf) -> unMSF sf a) $ zip as (replicate (length as) sf0)
+      let bs  = fmap fst os
+          cts = fmap snd os
+      return (bs, parC' cts)
 
-parC' :: Monad m => [SF m a b] -> SF m [a] [b]
-parC' sfs = MSF $ \as -> do
-  os <- T.mapM (\(a,sf) -> unMSF sf a) $ zip as sfs
-  let bs  = fmap fst os
-      cts = fmap snd os
-  return (bs, parC' cts)
+    parC' :: Monad m => [SF m a b] -> SF m [a] [b]
+    parC' sfs = MSF $ \as -> do
+      os <- T.mapM (\(a,sf) -> unMSF sf a) $ zip as sfs
+      let bs  = fmap fst os
+          cts = fmap snd os
+      return (bs, parC' cts)
 
 -- * Discrete to continuous-time signal functions
 
