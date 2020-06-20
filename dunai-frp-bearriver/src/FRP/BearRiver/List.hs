@@ -15,7 +15,7 @@ import           FRP.BearRiver
 newtype ListSF a b = ListSF { listSF :: SF a (b, Bool, [ListSF a b]) }
 
 dlSwitch :: [ListSF a b] -> SF a [b]
-dlSwitch' sfs = MStreamF $ \a -> do
+dlSwitch sfs = MStreamF $ \a -> do
   -- results of applying the initial input
   bsfs0 <- mapM ((`unMStreamF` a).listSF) sfs
 
@@ -32,4 +32,4 @@ dlSwitch' sfs = MStreamF $ \a -> do
                 filter (\(_sf,(_b,d,_nfs)) -> not d) bsfs0
 
       cts   = osfs ++ nsfs
-  in (dlSwitch' cts, bs)
+  in (dlSwitch cts, bs)
