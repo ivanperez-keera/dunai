@@ -82,6 +82,7 @@ The following papers are also related to MSFs:
 
 ## Games
 - [The Bearriver Arcade](https://github.com/walseb/The_Bearriver_Arcade). Fun arcade games made using bearriver.
+- [Haskanoid](https://github.com/ivanperez-keera/haskanoid). Haskell breakout game implemented using the Functional Reactive Programming library Yampa.
 
 # Structure and internals.
 
