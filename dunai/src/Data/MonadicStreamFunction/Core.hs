@@ -50,6 +50,7 @@ module Data.MonadicStreamFunction.Core
   , feedback
     -- * Simulation
   , reactimate
+  , vain
   , embed
   , module Control.Arrow
   )
@@ -63,7 +64,7 @@ import Control.Monad.Trans.Class
 import Data.Tuple (swap)
 import Prelude hiding ((.), id, sum)
 
-import Data.MonadicStreamFunction.InternalCore (MSF, morphGS, feedback, reactimate, embed)
+import Data.MonadicStreamFunction.InternalCore (MSF, morphGS, feedback, reactimate, vain, embed)
 
 -- * Definitions
 
