@@ -444,9 +444,6 @@ link sf sfC = MSF $ \a -> do
     Right c -> local (const 0) (unMSF (sfC c) a)
     Left b  -> return (Left b, link ct sfC)
 
-
-
-
 -- * Parallel composition and switching
 
 -- ** Parallel composition and switching over collections with broadcasting
