@@ -1,18 +1,17 @@
+{-# LANGUAGE RankNTypes #-}
 module FRP.BearRiver.Monad
-    (   liftTransSF,
+    (   liftSF,
+        hoistSF,
         readerSF,
         runReaderSF,
         runReaderSF_,
-        liftReaderSF,
         stateSF,
         runStateSF,
         runStateSF_,
         execStateSF,
-        liftStateSF,
         writerSF,
         runWriterSF,
-        runWriterSF_,
-        liftWriterSF    ) where
+        runWriterSF_    ) where
 
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.MSF
@@ -21,8 +20,16 @@ import FRP.BearRiver
 -- * Monad transformations
 
 -- | Lift inner monadic actions in SFs
-liftTransSF :: (MonadTrans t, Monad m, Monad (t m)) => SF m a b -> SF (t m) a b
-liftTransSF sf = readerS (liftTransS (runReaderS sf))
+liftSF :: (Monad m, MonadTrans t, Monad (t m)) => SF m a b -> SF (t m) a b
+liftSF = hoistSF lift
+
+-- | Hoist an 'SF' along a monad morphism.
+hoistSF
+  :: (Monad m1, Monad m2)
+  => (forall c. m1 c -> m2 c)
+  -> SF m1 a b
+  -> SF m2 a b
+hoistSF hoist = morphS $ mapReaderT hoist
 
 -- ** Reader layer
 
@@ -40,11 +47,6 @@ runReaderSF sf = runReaderS (morphS commuteReaderReader sf)
 -- input, from an SF in the 'Reader' monad
 runReaderSF_ :: Monad m => r -> SF (ReaderT r m) a b -> SF m a b
 runReaderSF_ r sf = runReaderS_ (morphS commuteReaderReader sf) r
-
--- | Lift an 'SF' in a certain monad to one in the same monad transformed
--- with 'ReaderT'
-liftReaderSF :: Monad m => SF m a b -> SF (ReaderT r m) a b
-liftReaderSF sf = morphS commuteReaderReader (liftTransS sf)
 
 -- | Transform an action in a monad transformer stack with two 'ReaderT' layers
 -- into one in another stack where the layers are swapped
@@ -75,11 +77,6 @@ runStateSF_ s sf = runStateS_ (morphS commuteStateReader sf) s
 execStateSF :: Monad m => s -> SF (StateT s m) a b -> SF m a b
 execStateSF s sf = runStateS__ (morphS commuteStateReader sf) s
 
--- | Lift an 'SF' in a certain monad to one in the same monad transformed
--- with 'StateT'
-liftStateSF :: Monad m => SF m a b -> SF (StateT s m) a b
-liftStateSF sf = morphS commuteReaderState (liftTransS sf)
-
 -- | Transform an action in a monad transformer stack with a 'StateT' layer
 -- on top of a 'ReaderT' layer into one in another stack where the layers are
 -- swapped
@@ -109,11 +106,6 @@ runWriterSF sf = runWriterS (morphS commuteWriterReader sf)
 -- | Build an 'SF' that discards the log from one on the 'Writer' monad.
 runWriterSF_ :: (Monad m, Monoid w) => SF (WriterT w m) a b -> SF m a b
 runWriterSF_ sf = runWriterSF sf >>> arr snd
-
--- | Lift an 'SF' in a certain monad to one in the same monad transformed
--- with 'WriterT'
-liftWriterSF :: (Monad m, Monoid w) => SF m a b -> SF (WriterT w m) a b
-liftWriterSF sf = morphS commuteReaderWriter (liftTransS sf)
 
 -- | Transform an action in a monad transformer stack with a 'WriterT' layer
 -- on top of a 'ReaderT' layer into one in another stack where the layers are
