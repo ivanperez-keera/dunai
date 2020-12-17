@@ -134,7 +134,9 @@ reactimate sf = do
   (_, sf') <- unMSF sf ()
   reactimate sf'
 
+-- | Transform an 'MSF' into one with an additional output signal carrying
+-- its current continuation.
 vain :: Monad m => MSF m a b -> MSF m a (b, MSF m a b)
-vain msf0 = MSF { unMSF = f }
-    where   f a = do    (b, msf1)   <- unMSF msf0 a
-                        return ((b, msf1), vain msf1)
+vain msf0 = MSF $ \a -> do
+  (b, msf1) <- unMSF msf0 a
+  return ((b, msf1), vain msf1)

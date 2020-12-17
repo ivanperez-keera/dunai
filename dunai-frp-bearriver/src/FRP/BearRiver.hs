@@ -422,14 +422,24 @@ e `gate` True  = e
 
 -- ** Basic switchers
 
-switch :: Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
+-- | A signal function in two operating modes, one before some event and one
+-- after. During the switching time step the output is that of the second mode.
+switch :: Monad m =>
+            SF m a (b, Event c)     -- ^ 'SF' that outputs switching event stream
+              -> (c -> SF m a b)    -- ^ function that gives the second mode
+              -> SF m a b           -- ^ the combined 'SF'
 switch sf sfC = MSF $ \a -> do
   (o, ct) <- unMSF sf a
   case o of
     (_, Event c) -> local (const 0) (unMSF (sfC c) a)
     (b, NoEvent) -> return (b, switch ct sfC)
 
-dSwitch ::  Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
+-- | A variant of 'switch' where the output during the switching time step is
+-- that of the first mode, not the second mode.
+dSwitch ::  Monad m =>
+              SF m a (b, Event c)   -- ^ 'SF' that outputs switching event stream
+                -> (c -> SF m a b)  -- ^ function that gives the second mode
+                -> SF m a b         -- ^ the combined 'SF'
 dSwitch sf sfC = MSF $ \a -> do
   (o, ct) <- unMSF sf a
   case o of
@@ -437,7 +447,13 @@ dSwitch sf sfC = MSF $ \a -> do
                        return (b, ct')
     (b, NoEvent) -> return (b, dSwitch ct sfC)
 
-link :: Monad m => SF m a (Either b c) -> (c -> SF m a (Either b d)) -> SF m a (Either b d)
+-- | A variant of 'switch' where the resulting 'SF' indicates a subsequent
+-- event after the switching event, allowing it to be further 'link'ed with
+-- other modes that it switches into
+link :: Monad m =>
+          SF m a (Either b c)               -- ^ 'SF' with either normal or switching-event output
+            -> (c -> SF m a (Either b d))   -- ^ function that gives the next mode
+            -> SF m a (Either b d)          -- ^ the combined 'SF', also with 'Either' output
 link sf sfC = MSF $ \a -> do
   (o, ct) <- unMSF sf a
   case o of
