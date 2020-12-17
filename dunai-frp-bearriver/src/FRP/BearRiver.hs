@@ -79,7 +79,6 @@ instance Monad Event where
   Event x >>= f = f x
   NoEvent >>= _ = NoEvent
 
-
 -- ** Lifting
 arrPrim :: Monad m => (a -> b) -> SF m a b
 arrPrim = arr
