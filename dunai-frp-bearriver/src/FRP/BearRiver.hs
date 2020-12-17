@@ -1,7 +1,6 @@
 {-# LANGUAGE Arrows     #-}
 {-# LANGUAGE CPP        #-}
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TupleSections #-}
 module FRP.BearRiver
   (module FRP.BearRiver, module X)
  where
@@ -80,65 +79,6 @@ instance Monad Event where
   Event x >>= f = f x
   NoEvent >>= _ = NoEvent
 
-liftTransSF :: (MonadTrans t, Monad m, Monad (t m)) => SF m a b -> SF (t m) a b
-liftTransSF sf = readerS (liftTransS (runReaderS sf))
-
--- ** Reader layer
-readerSF :: Monad m => SF m (r, a) b -> SF (ReaderT r m) a b
-readerSF sf = morphS commuteReaderReader (readerS sf)
-
-runReaderSF :: Monad m => SF (ReaderT r m) a b -> SF m (r, a) b
-runReaderSF sf = runReaderS (morphS commuteReaderReader sf)
-
-runReaderSF_ :: Monad m => r -> SF (ReaderT r m) a b -> SF m a b
-runReaderSF_ r sf = runReaderS_ (morphS commuteReaderReader sf) r
-
-liftReaderSF :: Monad m => SF m a b -> SF (ReaderT r m) a b
-liftReaderSF sf = morphS commuteReaderReader (liftTransS sf)
-
-commuteReaderReader (ReaderT f)
-    = ReaderT (\r1 -> ReaderT (\r2 -> runReaderT (f r2) r1))
-
--- ** State layer
-stateSF :: Monad m => SF m (s, a) (s, b) -> SF (StateT s m) a b
-stateSF sf = morphS commuteReaderState (stateS sf)
-
-runStateSF :: Monad m => SF (StateT s m) a b -> SF m (s, a) (s, b)
-runStateSF sf = runStateS (morphS commuteStateReader sf)
-
-runStateSF_ :: Monad m => s -> SF (StateT s m) a b -> SF m a (s, b)
-runStateSF_ s sf = runStateS_ (morphS commuteStateReader sf) s
-
-runStateSF__ :: Monad m => s -> SF (StateT s m) a b -> SF m a b
-runStateSF__ s sf = runStateS__ (morphS commuteStateReader sf) s
-
-liftStateSF :: Monad m => SF m a b -> SF (StateT s m) a b
-liftStateSF sf = morphS commuteReaderState (liftTransS sf)
-
-commuteReaderState (StateT f)
-    = ReaderT (\r -> StateT (\s -> runReaderT (f s) r))
-
-commuteStateReader (ReaderT f)
-    = StateT (\s -> ReaderT (\r -> runStateT (f r) s))
-
--- ** Writer layer
-writerSF :: (Monad m, Monoid w) => SF m a (w, b) -> SF (WriterT w m) a b
-writerSF sf = morphS commuteReaderWriter (writerS sf)
-
-runWriterSF :: (Monad m, Monoid w) => SF (WriterT w m) a b -> SF m a (w, b)
-runWriterSF sf = runWriterS (morphS commuteWriterReader sf)
-
-runWriterSF_ :: (Monad m, Monoid w) => SF (WriterT w m) a b -> SF m a b
-runWriterSF_ sf = runWriterSF sf >>> arr snd
-
-liftWriterSF :: (Monad m, Monoid w) => SF m a b -> SF (WriterT w m) a b
-liftWriterSF sf = morphS commuteReaderWriter (liftTransS sf)
-
-commuteReaderWriter (WriterT m)
-    = ReaderT (\r -> WriterT (runReaderT m r))
-
-commuteWriterReader (ReaderT f)
-    = WriterT (ReaderT (\r -> runWriterT (f r)))
 
 -- ** Lifting
 arrPrim :: Monad m => (a -> b) -> SF m a b
@@ -217,9 +157,6 @@ never = constant NoEvent
 -- is given by the function argument.
 now :: Monad m => b -> SF m a (Event b)
 now b0 = Event b0 --> never
-
-nowM :: Monad m => m b -> SF m a (Event b)
-nowM m0 = never >>> replaceOnceM (fmap Event m0)
 
 after :: Monad m
       => Time -- ^ The time /q/ after which the event should be produced
@@ -624,7 +561,7 @@ reactimate senseI sense actuate sf = do
   -- runMaybeT $ MSF.reactimate $ liftMSFTrans (senseSF >>> sfIO) >>> actuateSF
   MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
   return ()
- where sfIO        = {-morphS (return.runIdentity)-} (runReaderS sf)
+ where sfIO        = runReaderS sf
 
        -- Sense
        senseSF     = MSF.switch senseFirst senseRest
@@ -679,8 +616,111 @@ evalFuture sf = flip (evalAt sf)
 replaceOnce :: Monad m => a -> SF m a a
 replaceOnce a = dSwitch (arr $ const (a, Event ())) (const $ arr id)
 
-replaceOnceM :: Monad m => m a -> SF m a a
-replaceOnceM m = dSwitch (liftTransS (constM ((, Event ()) <$> m))) (const $ arr id)
-
 -- ** Tuples
 dup  x     = (x,x)
+
+-- * Monad transformations
+
+-- | Lift inner monadic actions in SFs
+liftTransSF :: (MonadTrans t, Monad m, Monad (t m)) => SF m a b -> SF (t m) a b
+liftTransSF sf = readerS (liftTransS (runReaderS sf))
+
+-- ** Reader layer
+
+-- | Build an 'SF' in the 'Reader' monad from one that takes the reader
+-- environment as an extra input. This is the opposite of 'runReaderSF'.
+readerSF :: Monad m => SF m (r, a) b -> SF (ReaderT r m) a b
+readerSF sf = morphS commuteReaderReader (readerS sf)
+
+-- | Build an 'SF' that takes an environment as an extra input from one on the
+-- 'Reader' monad. This is the opposite of 'readerSF'.
+runReaderSF :: Monad m => SF (ReaderT r m) a b -> SF m (r, a) b
+runReaderSF sf = runReaderS (morphS commuteReaderReader sf)
+
+-- | Build an 'SF' /function/ that takes a fixed environment as additional
+-- input, from an SF in the 'Reader' monad
+runReaderSF_ :: Monad m => r -> SF (ReaderT r m) a b -> SF m a b
+runReaderSF_ r sf = runReaderS_ (morphS commuteReaderReader sf) r
+
+-- | Lift an 'SF' in a certain monad to one in the same monad transformed
+-- with 'ReaderT'
+liftReaderSF :: Monad m => SF m a b -> SF (ReaderT r m) a b
+liftReaderSF sf = morphS commuteReaderReader (liftTransS sf)
+
+-- | Transform an action in a monad transformer stack with two 'ReaderT' layers
+-- into one in another stack where the layers are swapped
+commuteReaderReader (ReaderT f)
+    = ReaderT (\r1 -> ReaderT (\r2 -> runReaderT (f r2) r1))
+
+-- ** State layer
+
+-- | Build an 'SF' in the 'State' monad from one that takes the state as an
+-- extra input. This is the opposite of 'runStateSF'
+stateSF :: Monad m => SF m (s, a) (s, b) -> SF (StateT s m) a b
+stateSF sf = morphS commuteReaderState (stateS sf)
+
+-- | Build an 'SF' that takes a state as an extra input from one on the
+-- 'State' monad. This is the opposite of 'stateSF'.
+runStateSF :: Monad m => SF (StateT s m) a b -> SF m (s, a) (s, b)
+runStateSF sf = runStateS (morphS commuteStateReader sf)
+
+-- | Build an 'SF' /function/ that takes a fixed state as additional input,
+-- from an 'SF' in the 'State' monad, and outputs the new state with every
+-- transformation step.
+runStateSF_ :: Monad m => s -> SF (StateT s m) a b -> SF m a (s, b)
+runStateSF_ s sf = runStateS_ (morphS commuteStateReader sf) s
+
+-- | Build an 'SF' /function/ that takes a fixed state as additional
+-- input, from an 'SF' in the 'State' monad.
+execStateSF :: Monad m => s -> SF (StateT s m) a b -> SF m a b
+execStateSF s sf = runStateS__ (morphS commuteStateReader sf) s
+
+-- | Lift an 'SF' in a certain monad to one in the same monad transformed
+-- with 'StateT'
+liftStateSF :: Monad m => SF m a b -> SF (StateT s m) a b
+liftStateSF sf = morphS commuteReaderState (liftTransS sf)
+
+-- | Transform an action in a monad transformer stack with a 'StateT' layer
+-- on top of a 'ReaderT' layer into one in another stack where the layers are
+-- swapped
+commuteReaderState (StateT f)
+    = ReaderT (\r -> StateT (\s -> runReaderT (f s) r))
+
+-- | Transform an action in a monad transformer stack with a 'ReaderT' layer
+-- on top of a 'StateT' layer into one in another stack where the layers are
+-- swapped
+commuteStateReader (ReaderT f)
+    = StateT (\s -> ReaderT (\r -> runStateT (f r) s))
+
+-- ** Writer layer
+
+-- | Build an 'SF' in the 'Writer' monad from one that produces the log as an
+-- extra output. This is the opposite of 'runWriterSF'.
+writerSF :: (Monad m, Monoid w) => SF m a (w, b) -> SF (WriterT w m) a b
+writerSF sf = morphS commuteReaderWriter (writerS sf)
+
+-- | Build an 'SF' that produces the log as an extra output from one on the
+-- 'Writer' monad. This is the opposite of 'writerSF'
+runWriterSF :: (Monad m, Monoid w) => SF (WriterT w m) a b -> SF m a (w, b)
+runWriterSF sf = runWriterS (morphS commuteWriterReader sf)
+
+-- | Build an 'SF' that discards the log from one on the 'Writer' monad.
+runWriterSF_ :: (Monad m, Monoid w) => SF (WriterT w m) a b -> SF m a b
+runWriterSF_ sf = runWriterSF sf >>> arr snd
+
+-- | Lift an 'SF' in a certain monad to one in the same monad transformed
+-- with 'WriterT'
+liftWriterSF :: (Monad m, Monoid w) => SF m a b -> SF (WriterT w m) a b
+liftWriterSF sf = morphS commuteReaderWriter (liftTransS sf)
+
+-- | Transform an action in a monad transformer stack with a 'WriterT' layer
+-- on top of a 'ReaderT' layer into one in another stack where the layers are
+-- swapped
+commuteReaderWriter (WriterT m)
+    = ReaderT (\r -> WriterT (runReaderT m r))
+
+-- | Transform an action in a monad transformer stack with a 'ReaderT' layer
+-- on top of a 'WriterT' layer into one in another stack where the layers are
+-- swapped
+commuteWriterReader (ReaderT f)
+    = WriterT (ReaderT (\r -> runWriterT (f r)))
