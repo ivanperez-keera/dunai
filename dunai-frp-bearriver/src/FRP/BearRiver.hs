@@ -648,6 +648,7 @@ liftReaderSF sf = morphS commuteReaderReader (liftTransS sf)
 
 -- | Transform an action in a monad transformer stack with two 'ReaderT' layers
 -- into one in another stack where the layers are swapped
+commuteReaderReader :: ReaderT r1 (ReaderT r2 m) a -> ReaderT r2 (ReaderT r1 m) a
 commuteReaderReader (ReaderT f)
     = ReaderT (\r1 -> ReaderT (\r2 -> runReaderT (f r2) r1))
 
@@ -682,12 +683,14 @@ liftStateSF sf = morphS commuteReaderState (liftTransS sf)
 -- | Transform an action in a monad transformer stack with a 'StateT' layer
 -- on top of a 'ReaderT' layer into one in another stack where the layers are
 -- swapped
+commuteReaderState :: StateT s (ReaderT r m) a -> ReaderT r (StateT s m) a
 commuteReaderState (StateT f)
     = ReaderT (\r -> StateT (\s -> runReaderT (f s) r))
 
 -- | Transform an action in a monad transformer stack with a 'ReaderT' layer
 -- on top of a 'StateT' layer into one in another stack where the layers are
 -- swapped
+commuteStateReader :: ReaderT r (StateT s m) a -> StateT s (ReaderT r m) a
 commuteStateReader (ReaderT f)
     = StateT (\s -> ReaderT (\r -> runStateT (f r) s))
 
@@ -715,11 +718,13 @@ liftWriterSF sf = morphS commuteReaderWriter (liftTransS sf)
 -- | Transform an action in a monad transformer stack with a 'WriterT' layer
 -- on top of a 'ReaderT' layer into one in another stack where the layers are
 -- swapped
+commuteReaderWriter :: WriterT w (ReaderT r m) a -> ReaderT r (WriterT w m) a
 commuteReaderWriter (WriterT m)
     = ReaderT (\r -> WriterT (runReaderT m r))
 
 -- | Transform an action in a monad transformer stack with a 'ReaderT' layer
 -- on top of a 'WriterT' layer into one in another stack where the layers are
 -- swapped
+commuteWriterReader :: ReaderT r (WriterT w m) a -> WriterT w (ReaderT r m) a
 commuteWriterReader (ReaderT f)
     = WriterT (ReaderT (\r -> runWriterT (f r)))
