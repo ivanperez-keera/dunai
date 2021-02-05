@@ -171,10 +171,10 @@ after q x = feedback q go
 
 repeatedly :: Monad m => Time -> b -> SF m a (Event b)
 repeatedly q x
-    | q > 0     = afterEach qxs
+    | q > 0     = afterEach $ qxs q
     | otherwise = error "bearriver: repeatedly: Non-positive period."
   where
-    qxs = (q,x):qxs
+    qxs q'= (q',x):qxs (q' + q)
 
 -- | Event source with consecutive occurrences at the given intervals.
 -- Should more than one event be scheduled to occur in any sampling interval,
