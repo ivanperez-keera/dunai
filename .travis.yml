@@ -12,6 +12,7 @@ ghc:
   - "8.4.4"
   - "8.6.5"
   - "8.8.2"
+  - "8.10.4"
 
 before_install:
   - sudo apt-get update -qq
