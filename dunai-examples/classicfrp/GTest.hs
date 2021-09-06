@@ -62,7 +62,7 @@ render (px,py) = do
 
 reactimate' :: Signal Identity (Int, Int) -> IO ()
 reactimate' sf =
-  MSF.reactimate $ sense >>> liftMSFPurer (return.runIdentity) sfIO >>> actuate
+  MSF.reactimate $ sense >>> morphS (return.runIdentity) sfIO >>> actuate
  where sfIO    = runReaderS sf
        sense   = arr (const (0.2, ()))
        actuate = arrM render

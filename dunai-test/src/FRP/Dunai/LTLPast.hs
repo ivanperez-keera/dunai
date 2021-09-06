@@ -36,7 +36,7 @@ sofarSF = feedback True $ arr $ \(n,o) -> let n' = o && n in (n', n')
 everSF :: Monad m => MSF m Bool Bool
 everSF = feedback False $ arr $ \(n,o) -> let n' = o || n in (n', n')
 
-untilSF :: Monad m => MSF m (Bool, Bool) Bool
+untilSF :: (Functor m, Monad m) => MSF m (Bool, Bool) Bool
 untilSF =
     catchMaybe (untilMaybeB (feedback True $ arr cond))
                (snd ^>> sofarSF)

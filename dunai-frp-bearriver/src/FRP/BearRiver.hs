@@ -53,6 +53,32 @@ type ClockInfo m = ReaderT DTime m
 data Event a = Event a | NoEvent
  deriving (Eq, Show)
 
+-- | The type 'Event' is isomorphic to 'Maybe'. The 'Functor' instance of
+-- 'Event' is analogous to the 'Functo' instance of 'Maybe', where the given
+-- function is applied to the value inside the 'Event', if any.
+instance Functor Event where
+  fmap _ NoEvent   = NoEvent
+  fmap f (Event c) = Event (f c)
+
+-- | The type 'Event' is isomorphic to 'Maybe'. The 'Applicative' instance of
+-- 'Event' is analogous to the 'Applicative' instance of 'Maybe', where the
+-- lack of a value (i.e., 'NoEvent') causes '(<*>)' to produce no value
+-- ('NoEvent').
+instance Applicative Event where
+  pure = Event
+
+  Event f <*> Event x = Event (f x)
+  _       <*> _       = NoEvent
+
+-- | The type 'Event' is isomorphic to 'Maybe'. The 'Monad' instance of 'Event'
+-- is analogous to the 'Monad' instance of 'Maybe', where the lack of a value
+-- (i.e., 'NoEvent') causes bind to produce no value ('NoEvent').
+instance Monad Event where
+  return = pure
+
+  Event x >>= f = f x
+  NoEvent >>= _ = NoEvent
+
 -- ** Lifting
 arrPrim :: Monad m => (a -> b) -> SF m a b
 arrPrim = arr
@@ -175,16 +201,6 @@ afterEachCat = afterEachCat' 0
 
 
 -- * Events
-
-instance Functor Event where
-  fmap f NoEvent   = NoEvent
-  fmap f (Event c) = Event (f c)
-
-instance Applicative Event where
-  pure = Event
-
-  Event f <*> Event x = Event (f x)
-  _       <*> _       = NoEvent
 
 -- | Apply an 'MSF' to every input. Freezes temporarily if the input is
 -- 'NoEvent', and continues as soon as an 'Event' is received.
@@ -448,14 +464,21 @@ dpSwitchB sfs sfF sfCs = MSF $ \a -> do
 -- ** Parallel composition over collections
 
 parC :: Monad m => SF m a b -> SF m [a] [b]
-parC sf = parC' [sf]
+parC sf = parC0 sf
+  where
+    parC0 :: Monad m => SF m a b -> SF m [a] [b]
+    parC0 sf0 = MSF $ \as -> do
+      os <- T.mapM (\(a,sf) -> unMSF sf a) $ zip as (replicate (length as) sf0)
+      let bs  = fmap fst os
+          cts = fmap snd os
+      return (bs, parC' cts)
 
-parC' :: Monad m => [SF m a b] -> SF m [a] [b]
-parC' sfs = MSF $ \as -> do
-  os <- T.mapM (\(a,sf) -> unMSF sf a) $ zip as sfs
-  let bs  = fmap fst os
-      cts = fmap snd os
-  return (bs, parC' cts)
+    parC' :: Monad m => [SF m a b] -> SF m [a] [b]
+    parC' sfs = MSF $ \as -> do
+      os <- T.mapM (\(a,sf) -> unMSF sf a) $ zip as sfs
+      let bs  = fmap fst os
+          cts = fmap snd os
+      return (bs, parC' cts)
 
 -- * Discrete to continuous-time signal functions
 
