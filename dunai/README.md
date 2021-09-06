@@ -62,6 +62,8 @@ The following papers are also related to MSFs:
 
 - [Fault Tolerant Functional Reactive Programming](https://dl.acm.org/citation.cfm?id=3236791)
 
+- [Fault Tolerant Functional Reactive Programming (extended version)](https://www.cambridge.org/core/journals/journal-of-functional-programming/article/abs/faulttolerant-functional-reactive-programming-extended-version/F0C270C83E218FA5627D96A7FD6C56E9)
+
 - [Rhine: FRP with type-level clocks](https://dl.acm.org/citation.cfm?id=3242757)
 
 - [Back to the Future: time travel in FRP](http://dl.acm.org/citation.cfm?id=3122957) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
