@@ -1,3 +1,9 @@
+2021-09-06 Ivan Perez <ivan.perez@keera.co.uk>
+        * src:/: Code cleaning.
+        * dunai.cabal: Version bump (0.8.0).
+        * README.md: support for GHC 8.10.
+        * Thanks: @walseb, @turion, @bgluzman, @mezzomondo.
+
 2020-04-18 Ivan Perez <ivan.perez@keera.co.uk>
         * src:/: Add new utilities. Fix behaviour of listToMaybeS.
         * dunai.cabal: Version bump (0.7.0).
