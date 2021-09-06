@@ -1,5 +1,5 @@
 name:                bearriver
-version:             0.13.1.2
+version:             0.13.1.3
 homepage:            keera.co.uk
 license:             BSD3
 license-file:        LICENSE
@@ -36,7 +36,7 @@ library
   exposed-modules:     FRP.Yampa,
                        FRP.BearRiver
 
-  build-depends:       base >=4.6 && <5, transformers >=0.3, mtl, dunai >= 0.6.0 && < 0.8, MonadRandom, simple-affine-space
+  build-depends:       base >=4.6 && <5, transformers >=0.3, mtl, dunai >= 0.6.0 && < 0.9, MonadRandom, simple-affine-space
   hs-source-dirs:      src/
   default-language:    Haskell2010
 
