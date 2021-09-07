@@ -1,3 +1,1 @@
 resolver: lts-11.7
-
-extra-deps: [simple-affine-space-0.1]
