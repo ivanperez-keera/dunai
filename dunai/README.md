@@ -10,9 +10,8 @@ be implemented.
 # Installation
 
 ```
-$ cabal sandbox init         # Optional, but recommended
 $ cabal update
-$ cabal install dunai
+$ cabal install --lib dunai
 ```
 
 ## Dependencies
@@ -33,6 +32,7 @@ To test Dunai:
   MSF itself.
 
 ```haskell
+$ ghci
 ghci> import Data.MonadicStreamFunction
 ghci> embed (arr (+1)) [1,2,3,4,5]
 [2,3,4,5,6]
@@ -132,8 +132,7 @@ You can try it with:
 ```
 git clone https://github.com/ivanperez-keera/haskanoid.git
 cd haskanoid/
-cabal sandbox init
-cabal install -f-wiimote -f-kinect -fbearriver haskanoid/
+cabal install -f-wiimote -f-kinect -fbearriver
 ```
 
 # Related Projects
