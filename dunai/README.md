@@ -10,9 +10,9 @@ be implemented.
 # Installation
 
 ```
-$ cabal sandbox init         # Optional, but recommended
-$ cabal update
-$ cabal install dunai
+$ cabal init
+$ cabal v2-update
+$ cabal v2-install dunai
 ```
 
 ## Dependencies
@@ -132,8 +132,8 @@ You can try it with:
 ```
 git clone https://github.com/ivanperez-keera/haskanoid.git
 cd haskanoid/
-cabal sandbox init
-cabal install -f-wiimote -f-kinect -fbearriver haskanoid/
+cabal init
+cabal v2-install -f-wiimote -f-kinect -fbearriver haskanoid/
 ```
 
 # Related Projects
