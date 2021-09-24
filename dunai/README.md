@@ -20,35 +20,149 @@ Dunai currently supports GHC versions 7.6.3 to 8.10.4.
 
 # Examples
 
-To test Dunai:
-
-- Use `embed :: MSF m a b -> [a] -> m [b]` to collect
-  a list with the results.
-
-- Use `embed_ :: MSF m a () -> [a] -> m ()` to perform side effects without
-  collecting the results.
-
-- Use `reactimate :: MSF m () () -> m ()` when data is collected/provided by the
-  MSF itself.
-
+Open a GHCi session and import the main Dunai module. If all goes well, we
+should see no error messages:
 ```haskell
 $ ghci
 ghci> import Data.MonadicStreamFunction
+```
+
+An MSF is a time-varying transformation applied to a series of inputs as they
+come along, one by one.
+
+Use the primitive `arr :: (a -> b) -> MSF m a b` to turn any pure function into
+an MSF that applies the given function to every input. The function `embed ::
+MSF m a b -> [a] -> m [b]` runs an MSF with a series of inputs, collecting the
+outputs:
+
+```haskell
 ghci> embed (arr (+1)) [1,2,3,4,5]
 [2,3,4,5,6]
-ghci> embed_ (arr (+1) >>> liftS print) [1,2,3,4,5]
+```
+
+MSFs can have side effects; hence the `m` that accompanies the type `MSF` in
+the signatures of `arr` and `embed`. The function `arrM` turns a _monadic
+function_ of type `a -> m b` into an MSF that will constantly apply the
+function to each input.
+
+For example, the function `print` takes a value and prints it to the terminal
+(a side effect in the `IO` monad), producing an empty `()` output. Elevating
+or lifting `print` into an `MSF` will turn it into a processor that prints each
+input passed to it:
+
+```haskell
+ghci> :type print
+print :: Show a => a -> IO ()
+ghci> :type arrM print
+arrM print :: Show a => MSF IO a ()
+```
+
+If we now run that MSF with five inputs, all are printed to the terminal:
+
+```haskell
+ghci> embed (arrM print) [1,2,3,4,5]
+1
+2
+3
+4
+5
+[(), (), (), (), ()]
+```
+
+As we can see, after all side effects, `embed` collects all the outputs, which
+GHCi shows at the end.
+
+When we only care about the side effects and not the output list, we can
+discard it with `Control.Monad.void`. (Dunai provides an auxiliary function
+`embed_` for the same purpose.)
+
+```haskell
+ghci> import Control.Monad (void)
+ghci> void $ embed (arrM print) [1,2,3,4,5]
+1
+2
+3
+4
+5
+```
+
+MSFs can be piped into one another with the functions `(>>>)` or `(.)`, so that
+the output of one MSF is fed as input to another MSF _at each point_:
+
+```haskell
+ghci> void $ embed (arr (+1) >>> arrM print) [1,2,3,4,5]
 2
 3
 4
 5
 6
-ghci> reactimate (arrM_ getLine >>> arr reverse >>> liftS putStrLn)
+```
+
+A monadic computation without arguments can be lifted into an MSF with the
+function `constM`:
+
+```haskell
+ghci> :type getLine
+getLine :: IO String
+ghci> :type constM getLine
+constM getLine :: MSF IO a String
+```
+
+This MSF will get a line of text from the terminal every time it is called,
+which we can pipe into an MSF that will print it back.
+
+```haskell
+ghci> void $ embed (constM getLine >>> arrM putStrLn) [(), ()]
+What the user types, the computer repeats.
+What the user types, the computer repeats.
+Once again, the computer repeats.
+Once again, the computer repeats.
+```
+
+Notice how we did not care about the values in the input list to `embed`: the
+only thing that matters is how many elements it has, which determines how many
+times `embed` will run the MSF.
+
+Simulations can run indefinitely with the function `reactimate :: MSF m () ()
+-> m ()`, which is useful when the input to the MSFs being executed is being
+produced by another MSFs, like in the case above with `constM getLine`
+producing inputs consumed by `arrM putStrLn`:
+
+```haskell
+ghci> reactimate (constM getLine >>> arr reverse >>> arrM putStrLn)
 Hello
 olleH
 Haskell is awesome
 emosewa si lleksaH
 ^C
 ```
+
+Dunai has a very extensive API and supports many programming styles. MSFs are
+applicatives, so we can transform them using applicative style, and they are
+categories, so they can be piped into one another with `Control.Category.(.)`.
+For example, the line above can also be written as:
+
+```haskell
+ghci> reactimate (arrM putStrLn . (reverse <$> constM getLine))
+```
+
+which is equivalent to:
+
+```haskell
+ghci> reactimate (arrM putStrLn . fmap reverse . constM getLine)
+```
+
+Other writing styles (e.g., arrow notation) are also supported. This
+versatility makes it possible for you to use the notation you feel most
+comfortable with.
+
+MSFs are immensely expressive. With MSFs, you can implement stream programming,
+functional reactive programming (both classic and arrowized), reactive
+programming, and reactive values, among many others. The real power of MSFs
+comes from the ability to carry out temporal transformations (e.g., delays), to
+apply different transformations at different points in time, and to work with
+different monads. See the documentation below to understand how capable they
+are.
 
 # Further references
 
