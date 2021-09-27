@@ -209,11 +209,9 @@ This project is split in three parts:
 - _Examples_: ballbounce
   - sample applications that work both on traditional Yampa and BearRiver.
 
-We need to add examples of apps written in classic FRP, reactive values, etc. A
-[new game](https://github.com/keera-studios/pang-a-lambda), in honor of Paul
-Hudak, has been designed to work best with this library. The game
-[haskanoid](https://github.com/ivanperez-keera/haskanoid) works both with Yampa
-and with Bearriver/dunai.
+We need to add examples of apps written in classic FRP, reactive values, etc.
+The game [haskanoid](https://github.com/ivanperez-keera/haskanoid) works both
+with Yampa and with Bearriver/dunai.
 
 # Performance
 
