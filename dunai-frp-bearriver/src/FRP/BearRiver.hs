@@ -448,7 +448,7 @@ parB :: (Functor m, Monad m) => [SF m a b] -> SF m a [b]
 #endif
 parB = widthFirst . sequenceS
 
-dpSwitchB :: (Monad m , Traversable col)
+dpSwitchB :: (Functor m, Monad m , Traversable col)
           => col (SF m a b) -> SF m (a, col b) (Event c) -> (col (SF m a b) -> c -> SF m a (col b))
           -> SF m a (col b)
 dpSwitchB sfs sfF sfCs = MSF $ \a -> do
@@ -456,9 +456,9 @@ dpSwitchB sfs sfF sfCs = MSF $ \a -> do
   let bs   = fmap fst res
       sfs' = fmap snd res
   (e,sfF') <- unMSF sfF (a, bs)
-  let ct = case e of
-             Event c -> sfCs sfs' c
-             NoEvent -> dpSwitchB sfs' sfF' sfCs
+  ct <- case e of
+          Event c -> snd <$> unMSF (sfCs sfs c) a
+          NoEvent -> return (dpSwitchB sfs' sfF' sfCs)
   return (bs, ct)
 
 -- ** Parallel composition over collections
@@ -564,7 +564,20 @@ reactimate senseI sense actuate sf = do
 
        -- Sense
        senseSF     = MSF.switch senseFirst senseRest
-       senseFirst  = constM senseI >>> (arr $ \x -> ((0, x), Just x))
+
+       -- Sense: First sample
+       senseFirst = ftp >>> arrM senseOnce
+
+       -- senseOnce :: Bool -> SF m () a
+       senseOnce True  = senseI >>= \x -> return ((0, x), Nothing)
+       senseOnce False = return ((0, undefined), Just undefined)
+
+       -- First time point: outputs True at the first sample, and False after
+       -- that. Conceptually this is like True --> constant False
+       -- ftp :: Monad m => SF m a Bool
+       ftp = feedback True $ arr $ \(_, x) -> (x, False)
+
+       -- Sense: Remaining samples
        senseRest a = constM (sense True) >>> (arr id *** keepLast a)
 
        keepLast :: Monad m => a -> MSF m (Maybe a) a

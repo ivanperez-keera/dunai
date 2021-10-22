@@ -8,15 +8,6 @@ constantly :: Arrow a => b -> a c b
 constantly = arr . const
 {-# INLINE constantly #-}
 
--- import Control.Category (id)
--- import Prelude hiding (id)
-
--- (&&&!) :: Arrow a => a b c -> a b () -> a b c
--- a1 &&&! a2 = (a1 &&& a2) >>> arr fst
-
--- sink :: Arrow a => a b c -> a c () -> a b c
--- a1 `sink` a2 = a1 >>> (id &&& a2) >>> arr fst
-
 -- * Apply functions at the end.
 --
 -- | Alternative name for '^<<'.
