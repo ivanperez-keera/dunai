@@ -448,7 +448,7 @@ parB :: (Functor m, Monad m) => [SF m a b] -> SF m a [b]
 #endif
 parB = widthFirst . sequenceS
 
-dpSwitchB :: (Monad m , Traversable col)
+dpSwitchB :: (Functor m, Monad m , Traversable col)
           => col (SF m a b) -> SF m (a, col b) (Event c) -> (col (SF m a b) -> c -> SF m a (col b))
           -> SF m a (col b)
 dpSwitchB sfs sfF sfCs = MSF $ \a -> do
@@ -456,9 +456,9 @@ dpSwitchB sfs sfF sfCs = MSF $ \a -> do
   let bs   = fmap fst res
       sfs' = fmap snd res
   (e,sfF') <- unMSF sfF (a, bs)
-  let ct = case e of
-             Event c -> sfCs sfs' c
-             NoEvent -> dpSwitchB sfs' sfF' sfCs
+  ct <- case e of
+          Event c -> snd <$> unMSF (sfCs sfs c) a
+          NoEvent -> return (dpSwitchB sfs' sfF' sfCs)
   return (bs, ct)
 
 -- ** Parallel composition over collections
