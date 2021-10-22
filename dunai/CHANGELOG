@@ -1,3 +1,10 @@
+2021-10-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * src:/: Code cleaning.
+        * dunai.cabal: Version bump (0.8.1).
+        * README.md: update example to new API, fix broken link, update badge,
+          fix typo.
+        * Thanks: @DireWolf707.
+
 2021-09-06 Ivan Perez <ivan.perez@keera.co.uk>
         * src:/: Code cleaning.
         * dunai.cabal: Version bump (0.8.0).
