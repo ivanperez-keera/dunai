@@ -191,14 +191,25 @@ afterEachCat :: Monad m => [(Time,b)] -> SF m a (Event [b])
 afterEachCat = afterEachCat' 0
   where
     afterEachCat' :: Monad m => Time -> [(Time,b)] -> SF m a (Event [b])
-    afterEachCat' _ []  = never
+    afterEachCat' _ [] = never
     afterEachCat' t qxs = MSF $ \_ -> do
       dt <- ask
-      let t' = t + dt
-          (qxsNow, qxsLater) = span (\p -> fst p <= t') qxs
-          ev = if null qxsNow then NoEvent else Event (map snd qxsNow)
-      return (ev, afterEachCat' t' qxsLater)
+      let (ev, t', qxs') = fireEvents [] (t + dt) qxs
+          ev' = if null ev
+                  then NoEvent
+                  else Event (reverse ev)
 
+      return (ev', afterEachCat' t' qxs')
+
+    fireEvents :: [b] -> Time -> [(Time,b)] -> ([b], Time, [(Time,b)])
+    fireEvents ev t [] = (ev, t, [])
+    fireEvents ev t (qx:qxs)
+      | fst qx < 0 = error "bearriver: afterEachCat: Non-positive period."
+      | otherwise =
+          let overdue = t - fst qx in
+          if overdue >= 0
+            then fireEvents (snd qx:ev) overdue qxs
+            else (ev, t, qx:qxs)
 
 -- * Events
 
