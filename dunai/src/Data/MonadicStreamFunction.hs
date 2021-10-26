@@ -57,3 +57,4 @@ import Data.MonadicStreamFunction.Util
 import Data.MonadicStreamFunction.Instances.ArrowChoice ()
 import Data.MonadicStreamFunction.Instances.ArrowLoop   ()
 import Data.MonadicStreamFunction.Instances.ArrowPlus   ()
+import Data.MonadicStreamFunction.Instances.Profunctor  ()
