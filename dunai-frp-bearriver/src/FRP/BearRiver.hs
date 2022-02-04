@@ -199,7 +199,6 @@ afterEachCat = afterEachCat' 0
           ev = if null qxsNow then NoEvent else Event (map snd qxsNow)
       return (ev, afterEachCat' t' qxsLater)
 
-
 -- * Events
 
 -- | Apply an 'MSF' to every input. Freezes temporarily if the input is
@@ -555,12 +554,12 @@ occasionally tAvg b
 
 -- ** Reactimation
 
-reactimate :: Monad m => m a -> (Bool -> m (DTime, Maybe a)) -> (Bool -> b -> m Bool) -> SF Identity a b -> m ()
+reactimate :: Monad m => m a -> (Bool -> m (DTime, Maybe a)) -> (Bool -> b -> m Bool) -> SF m a b -> m ()
 reactimate senseI sense actuate sf = do
   -- runMaybeT $ MSF.reactimate $ liftMSFTrans (senseSF >>> sfIO) >>> actuateSF
   MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
   return ()
- where sfIO        = morphS (return.runIdentity) (runReaderS sf)
+ where sfIO        = runReaderS sf
 
        -- Sense
        senseSF     = MSF.switch senseFirst senseRest
