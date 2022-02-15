@@ -23,7 +23,7 @@ type ReactHandle m = IORef (MSF m () ())
 
 
 -- | Needs to be called before the external main loop is dispatched.
-reactInit :: MonadIO m => MSF m () () -> m (ReactHandle m)
+reactInit :: MonadIO m => MSF n () () -> m (ReactHandle n)
 reactInit = liftIO . newIORef
 
 
