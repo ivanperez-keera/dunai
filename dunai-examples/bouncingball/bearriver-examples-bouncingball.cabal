@@ -20,7 +20,8 @@ executable dunai-examples-bearriver-bouncingball
   build-depends:     base >=4.6 && < 5,
                      SDL,
                      SDL-gfx,
-                     bearriver
+                     bearriver,
+                     clock
 
                      -- transformers, mtl,
 
@@ -31,7 +32,8 @@ executable dunai-examples-bearriver-bouncingball-yampa
   build-depends:     base >=4.6 && < 5,
                      SDL,
                      SDL-gfx,
-                     Yampa
+                     Yampa,
+                     clock
 
 source-repository head
   type:     git
