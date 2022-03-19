@@ -1,3 +1,6 @@
+2022-03-19 Ivan Perez <ivan.perez@keera.co.uk>
+        * dunai.cabal: Syntax rules (#271).
+
 2021-10-21 Ivan Perez <ivan.perez@keera.co.uk>
         * src:/: Code cleaning.
         * dunai.cabal: Version bump (0.8.1).
