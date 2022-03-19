@@ -26,6 +26,9 @@
 -- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 -- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+cabal-version:       >=1.10
+build-type:          Simple
+
 name:                dunai
 version:             0.8.1
 synopsis:            Generalised reactive framework supporting classic, arrowized and monadic FRP.
@@ -65,9 +68,7 @@ author:              Ivan Perez, Manuel Bärenz
 maintainer:          ivan.perez@keera.co.uk
 -- copyright:
 category:            Reactivity, FRP
-build-type:          Simple
 -- extra-source-files:
-cabal-version:       >=1.10
 
 -- You can disable the hlint test suite with -f-test-hlint
 flag test-hlint
