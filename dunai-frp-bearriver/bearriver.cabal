@@ -26,6 +26,9 @@
 -- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 -- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+cabal-version:       >=1.10
+build-type:          Simple
+
 name:                bearriver
 version:             0.13.3
 homepage:            keera.co.uk
@@ -35,9 +38,7 @@ author:              Ivan Perez and Manuel Bärenz
 maintainer:          ivan.perez@keera.co.uk
 -- copyright:
 category:            FRP
-build-type:          Simple
 -- extra-source-files:
-cabal-version:       >=1.10
 
 synopsis:            FRP Yampa replacement implemented with Monadic Stream Functions.
 description:
