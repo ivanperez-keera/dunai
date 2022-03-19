@@ -71,6 +71,11 @@ description:
   (mirror: <http://www.cs.nott.ac.uk/~psxip1/#FRPRefactored>).
 
 
+source-repository head
+  type:     git
+  location: git@github.com:ivanperez-keera/dunai.git
+
+
 -- You can disable the hlint test suite with -f-test-hlint
 flag test-hlint
   description: Enable hlint test suite
@@ -150,10 +155,6 @@ test-suite haddock-coverage
       filepath,
       process,
       regex-posix
-
-source-repository head
-  type:     git
-  location: git@github.com:ivanperez-keera/dunai.git
 
 test-suite regression-tests
   type: exitcode-stdio-1.0
