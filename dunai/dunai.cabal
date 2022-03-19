@@ -31,8 +31,15 @@ build-type:          Simple
 
 name:                dunai
 version:             0.8.1
-synopsis:            Generalised reactive framework supporting classic, arrowized and monadic FRP.
+author:              Ivan Perez, Manuel Bärenz
+maintainer:          ivan.perez@keera.co.uk
 homepage:            https://github.com/ivanperez-keera/dunai
+license:             BSD3
+license-file:        LICENSE
+copyright:           Copyright (c) 2016 - Ivan Perez and Manuel Bärenz
+category:            Reactivity, FRP
+synopsis:
+  Generalised reactive framework supporting classic, arrowized and monadic FRP.
 description:
   Dunai is a DSL for strongly-typed CPS-based composable transformations.
   .
@@ -62,13 +69,7 @@ description:
   For a very detailed introduction to MSFs, see:
   <http://dl.acm.org/citation.cfm?id=2976010>
   (mirror: <http://www.cs.nott.ac.uk/~psxip1/#FRPRefactored>).
-license:             BSD3
-license-file:        LICENSE
-author:              Ivan Perez, Manuel Bärenz
-maintainer:          ivan.perez@keera.co.uk
--- copyright:
-category:            Reactivity, FRP
--- extra-source-files:
+
 
 -- You can disable the hlint test suite with -f-test-hlint
 flag test-hlint
