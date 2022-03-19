@@ -52,6 +52,10 @@ description:         Testing and debugging library for Dunai.
   A detailed explanation of these ideas is included in the ICFP 2017 paper
   <https://dl.acm.org/citation.cfm?id=3110246 Testing and Debugging Functional Reactive Programming>.
 
+source-repository head
+  type:     git
+  location: git@github.com:ivanperez-keera/dunai.git
+
 library
   exposed-modules:     FRP.Dunai.Debug
                        FRP.Dunai.LTLFuture
