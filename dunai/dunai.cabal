@@ -91,16 +91,16 @@ flag test-doc-coverage
 library
   exposed-modules:   Control.Monad.Trans.MSF
                      Control.Monad.Trans.MSF.Except
-                     Control.Monad.Trans.MSF.Maybe
                      Control.Monad.Trans.MSF.List
+                     Control.Monad.Trans.MSF.Maybe
                      Control.Monad.Trans.MSF.Random
                      Control.Monad.Trans.MSF.Reader
                      Control.Monad.Trans.MSF.RWS
                      Control.Monad.Trans.MSF.State
                      Control.Monad.Trans.MSF.Writer
                      Data.MonadicStreamFunction
-                     Data.MonadicStreamFunction.Core
                      Data.MonadicStreamFunction.Async
+                     Data.MonadicStreamFunction.Core
                      Data.MonadicStreamFunction.Instances.ArrowChoice
                      Data.MonadicStreamFunction.Instances.ArrowLoop
                      Data.MonadicStreamFunction.Instances.ArrowPlus
