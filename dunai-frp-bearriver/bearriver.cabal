@@ -31,15 +31,13 @@ build-type:          Simple
 
 name:                bearriver
 version:             0.13.3
+author:              Ivan Perez, Manuel Bärenz
+maintainer:          ivan.perez@keera.co.uk
 homepage:            keera.co.uk
 license:             BSD3
 license-file:        LICENSE
-author:              Ivan Perez and Manuel Bärenz
-maintainer:          ivan.perez@keera.co.uk
--- copyright:
+copyright:           Copyright (c) 2016 - Ivan Perez and Manuel Bärenz
 category:            FRP
--- extra-source-files:
-
 synopsis:            FRP Yampa replacement implemented with Monadic Stream Functions.
 description:
   <https://hackage.haskell.org/package/Yampa Yampa> is a popular Functional
