@@ -33,7 +33,7 @@ name:          bearriver
 version:       0.13.3
 author:        Ivan Perez, Manuel Bärenz
 maintainer:    ivan.perez@keera.co.uk
-homepage:      keera.co.uk
+homepage:      https://github.com/ivanperez-keera/dunai
 license:       BSD3
 license-file:  LICENSE
 copyright:     Copyright (c) 2016 - Ivan Perez and Manuel Bärenz
