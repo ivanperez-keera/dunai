@@ -33,7 +33,7 @@ name:          dunai-test
 version:       0.8.1
 author:        Ivan Perez
 maintainer:    ivan.perez@keera.co.uk
-homepage:      http://github.com/ivanperez-keera/dunai
+homepage:      https://github.com/ivanperez-keera/dunai
 license:       BSD3
 license-file:  LICENSE
 copyright:     Copyright (c) 2017 - Ivan Perez
