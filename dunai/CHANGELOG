@@ -1,5 +1,6 @@
-2022-03-19 Ivan Perez <ivan.perez@keera.co.uk>
+2022-03-21 Ivan Perez <ivan.perez@keera.co.uk>
         * dunai.cabal: Syntax rules (#271).
+        * src/: Fix haddock syntax error in documentation of switch (#274).
 
 2021-10-21 Ivan Perez <ivan.perez@keera.co.uk>
         * src:/: Code cleaning.
