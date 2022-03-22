@@ -265,7 +265,11 @@ reactimateExcept msfe = do
 reactimateB :: Monad m => MSF m () Bool -> m ()
 reactimateB sf = reactimateExcept $ try $ liftTransS sf >>> throwOn ()
 
--- * Analog to Yampa's switch, with Maybe instead of Event
+-- | Run first MSF until the second value in the output tuple is @Just c@ (for
+-- some @c@), then start the second MSF.
+--
+-- Analog to Yampa's [@switch@](https://hackage.haskell.org/package/Yampa/docs/FRP-Yampa-Switches.html#v:switch),
+-- with 'Maybe' instead of @Event@.
 switch :: Monad m => MSF m a (b, Maybe c) -> (c -> MSF m a b) -> MSF m a b
 switch sf f = catchS ef  f
   where
