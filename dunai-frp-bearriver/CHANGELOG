@@ -2,4 +2,5 @@
         * bearriver.cabal: Declare changelog file (#273), declare subdir of
           source-repository (#272).
         * CHANGELOG: Add CHANGELOG file (#273).
-        * src/: Hide conflicting function in import (#275).
+        * src/: Hide conflicting function in import (#275), fix error in
+          reactimate (#266).
