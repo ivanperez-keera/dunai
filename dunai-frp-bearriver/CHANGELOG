@@ -1,0 +1,3 @@
+2022-04-02 Ivan Perez <ivan.perez@keera.co.uk>
+        * bearriver.cabal: Declare changelog file (#273).
+        * CHANGELOG: Add CHANGELOG file (#273).

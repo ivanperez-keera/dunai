@@ -54,6 +54,10 @@ description:
   <https://dl.acm.org/citation.cfm?id=3110246 Testing and Debugging Functional Reactive Programming>.
 
 
+extra-source-files:
+  CHANGELOG
+
+
 source-repository head
   type:     git
   location: git@github.com:ivanperez-keera/dunai.git
