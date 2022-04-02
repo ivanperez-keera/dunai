@@ -3,4 +3,5 @@
           source-repository (#272).
         * CHANGELOG: Add CHANGELOG file (#273).
         * src/: Hide conflicting function in import (#275), fix error in
-          reactimate (#266).
+          reactimate (#266), fix error in implementation of afterEachCat
+          (#243).
