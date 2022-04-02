@@ -31,8 +31,8 @@ bouncingBall p0 v0 =
          (\(p,v) -> bouncingBall p (-v))
 
 fallingBall p0 v0 = proc () -> do
-  v <- (v0 +) ^<< integral -< (-99.8)
-  p <- (p0 +) ^<< integral -< v
+  v <- (v0 +) ^<< integral          -< (-99.8)
+  p <- (p0 +) ^<< integralLinear v0 -< v
   returnA -< (p, v)
 
 -- bouncingBall p0 v0 =
@@ -58,3 +58,20 @@ render (p,_) = do
   SDL.flip screen
 
   threadDelay 1000
+
+-- * Auxiliary functions
+
+-- | Integrate a linearly changing input.
+--
+-- Alternative to 'integrate' that is numerically more accurate when
+-- integrating linearly changing inputs. Uses the average between the last
+-- input and the current input as the value to integrate.
+#ifdef BEARRIVER
+integralLinear :: (Monad m, VectorSpace a s) => a -> SF m a a
+#else
+integralLinear :: VectorSpace a s => a -> SF a a
+#endif
+integralLinear initial = average >>> integral
+  where
+    -- Average of the current and the last values
+    average = (arr id &&& iPre initial) >>^ (\(x, y) -> (x ^+^ y) ^/ 2)
