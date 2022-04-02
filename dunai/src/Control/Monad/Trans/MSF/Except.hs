@@ -277,6 +277,18 @@ switch sf f = catchS ef  f
            (b,me)  <- liftTransS sf -< a
            inExceptT -< ExceptT $ return $ maybe (Right b) Left me
 
+-- | Run first MSF until the second value in the output tuple is @Just c@ (for
+-- some @c@), then start the second MSF.
+--
+-- Analog to Yampa's [@dswitch@](https://hackage.haskell.org/package/Yampa/docs/FRP-Yampa-Switches.html#v:dSwitch),
+-- with 'Maybe' instead of @Event@.
+dSwitch :: Monad m => MSF m a (b, Maybe c) -> (c -> MSF m a b) -> MSF m a b
+dSwitch sf f = catchS ef f
+  where
+    ef = feedback Nothing $ proc (a, me) -> do
+           throwMaybe    -< me
+           liftTransS sf -< a
+
 -- | More general lifting combinator that enables recovery. Note that, unlike a
 -- polymorphic lifting function @forall a . m a -> m1 a@, this auxiliary
 -- function needs to be a bit more structured, and produces a Maybe value. The

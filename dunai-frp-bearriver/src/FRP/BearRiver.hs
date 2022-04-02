@@ -18,10 +18,12 @@ import qualified Control.Category                               as Category
 import           Control.Monad                                  (mapM)
 import           Control.Monad.Random
 import           Control.Monad.Trans.Maybe
-import           Control.Monad.Trans.MSF                        hiding (switch)
+import           Control.Monad.Trans.MSF                        hiding (dSwitch,
+                                                                 switch)
 import qualified Control.Monad.Trans.MSF                        as MSF
 import           Control.Monad.Trans.MSF.Except                 as MSF hiding
-                                                                        (switch)
+                                                                       (dSwitch,
+                                                                        switch)
 import           Control.Monad.Trans.MSF.List                   (sequenceS,
                                                                  widthFirst)
 import           Control.Monad.Trans.MSF.Random
