@@ -1,5 +1,6 @@
 2022-04-02 Ivan Perez <ivan.perez@keera.co.uk>
-        * dunai.cabal: Syntax rules (#271), declare CHANGELOG (#273).
+        * dunai.cabal: Syntax rules (#271), declare CHANGELOG (#273),
+          declare subdir of source-repository (#272).
         * src/: Fix haddock syntax error in documentation of switch (#274).
 
 2021-10-21 Ivan Perez <ivan.perez@keera.co.uk>
