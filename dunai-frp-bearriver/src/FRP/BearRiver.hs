@@ -33,6 +33,7 @@ import           Data.MonadicStreamFunction                     as X hiding (rea
                                                                       repeatedly,
                                                                       sum,
                                                                       switch,
+                                                                      dSwitch,
                                                                       trace)
 import qualified Data.MonadicStreamFunction                     as MSF
 import           Data.MonadicStreamFunction.Instances.ArrowLoop
@@ -565,19 +566,10 @@ reactimate senseI sense actuate sf = do
  where sfIO        = morphS (return.runIdentity) (runReaderS sf)
 
        -- Sense
-       senseSF     = MSF.switch senseFirst senseRest
+       senseSF     = MSF.dSwitch senseFirst senseRest
 
        -- Sense: First sample
-       senseFirst = ftp >>> arrM senseOnce
-
-       -- senseOnce :: Bool -> SF m () a
-       senseOnce True  = senseI >>= \x -> return ((0, x), Nothing)
-       senseOnce False = return ((0, undefined), Just undefined)
-
-       -- First time point: outputs True at the first sample, and False after
-       -- that. Conceptually this is like True --> constant False
-       -- ftp :: Monad m => SF m a Bool
-       ftp = feedback True $ arr $ \(_, x) -> (x, False)
+       senseFirst = constM senseI >>> arr (\x -> ((0, x), Just x))
 
        -- Sense: Remaining samples
        senseRest a = constM (sense True) >>> (arr id *** keepLast a)
