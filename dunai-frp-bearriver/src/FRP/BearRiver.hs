@@ -1,6 +1,9 @@
 {-# LANGUAGE Arrows     #-}
 {-# LANGUAGE CPP        #-}
 {-# LANGUAGE RankNTypes #-}
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
 module FRP.BearRiver
   (module FRP.BearRiver, module X)
  where

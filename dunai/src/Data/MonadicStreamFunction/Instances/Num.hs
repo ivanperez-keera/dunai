@@ -1,8 +1,13 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
--- | Number instances for 'MSF's that produce numbers. This allows you to use
---   numeric operators with 'MSF's that output numbers, for example,
---   you can write:
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- Number instances for 'MSF's that produce numbers. This allows you to use
+-- numeric operators with 'MSF's that output numbers, for example, you can
+-- write:
 --
 -- @
 -- msf1 :: MSF Input Double -- defined however you want

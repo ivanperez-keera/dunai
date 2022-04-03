@@ -2,11 +2,15 @@
 {-# LANGUAGE CPP           #-}
 {-# LANGUAGE Rank2Types    #-}
 {-# LANGUAGE TupleSections #-}
--- | 'MSF's in the 'ExceptT' monad are monadic stream functions
---   that can throw exceptions,
---   i.e. return an exception value instead of a continuation.
---   This module gives ways to throw exceptions in various ways,
---   and to handle them through a monadic interface.
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- 'MSF's in the 'ExceptT' monad are monadic stream functions that can throw
+-- exceptions, i.e. return an exception value instead of a continuation. This
+-- module gives ways to throw exceptions in various ways, and to handle them
+-- through a monadic interface.
 module Control.Monad.Trans.MSF.Except
   ( module Control.Monad.Trans.MSF.Except
   , module Control.Monad.Trans.Except

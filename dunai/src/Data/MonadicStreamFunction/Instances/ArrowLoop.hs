@@ -1,11 +1,16 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE RecursiveDo  #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
--- | Instance of 'ArrowLoop' for Monadic Stream Functions ('MSF').
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
 --
---   Import this module to include that (orphan) instance.
+-- Instance of 'ArrowLoop' for Monadic Stream Functions ('MSF').
 --
---   This is only defined for monads that are instances of 'MonadFix'.
+-- Import this module to include that (orphan) instance.
+--
+-- This is only defined for monads that are instances of 'MonadFix'.
 module Data.MonadicStreamFunction.Instances.ArrowLoop where
 
 import Data.MonadicStreamFunction.Core

@@ -1,6 +1,11 @@
 {-# LANGUAGE Arrows     #-}
 {-# LANGUAGE Rank2Types #-}
--- | Useful auxiliary functions and definitions.
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- Useful auxiliary functions and definitions.
 module Data.MonadicStreamFunction.Util where
 
 -- External

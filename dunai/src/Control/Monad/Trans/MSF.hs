@@ -1,5 +1,10 @@
 {-# LANGUAGE Rank2Types #-}
--- | This module reexports nearly all submodules. RWS is not exported since
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- This module reexports nearly all submodules. RWS is not exported since
 -- names collide with Reader, State and Writer.
 module Control.Monad.Trans.MSF
     ( module Control.Monad.Trans.MSF.Except

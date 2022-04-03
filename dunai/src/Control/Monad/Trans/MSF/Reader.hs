@@ -1,5 +1,10 @@
 {-# LANGUAGE Rank2Types #-}
--- | 'MSF's with a 'Reader' monadic layer.
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- 'MSF's with a 'Reader' monadic layer.
 --
 -- This module contains functions to work with 'MSF's that include a 'Reader'
 -- monadic layer. This includes functions to create new 'MSF's that include an

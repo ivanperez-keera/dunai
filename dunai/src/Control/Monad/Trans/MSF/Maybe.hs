@@ -1,10 +1,13 @@
 {-# LANGUAGE Arrows     #-}
 {-# LANGUAGE Rank2Types #-}
-{- |
-The 'Maybe' monad is very versatile. It can stand for default arguments,
-for absent values, and for (nondescript) exceptions.
-The latter viewpoint is most natural in the context of 'MSF's.
--}
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- The 'Maybe' monad is very versatile. It can stand for default arguments,
+-- for absent values, and for (nondescript) exceptions. The latter viewpoint
+-- is most natural in the context of 'MSF's.
 module Control.Monad.Trans.MSF.Maybe
   ( module Control.Monad.Trans.MSF.Maybe
   , module Control.Monad.Trans.Maybe

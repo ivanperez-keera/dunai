@@ -1,8 +1,13 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
--- | Instance of 'ArrowChoice' for Monadic Stream Functions ('MSF').
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
 --
---   Import this module to include that (orphan) instance.
+-- Instance of 'ArrowChoice' for Monadic Stream Functions ('MSF').
+--
+-- Import this module to include that (orphan) instance.
 module Data.MonadicStreamFunction.Instances.ArrowChoice where
 
 import Control.Arrow

@@ -1,3 +1,7 @@
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
 module Data.MonadicStreamFunction.CausalCommutative where
 
 -- Shows that our arrows are instances of Causal Commutative Arrows
