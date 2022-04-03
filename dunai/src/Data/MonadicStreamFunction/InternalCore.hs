@@ -36,7 +36,6 @@
 -- having orphan instances'), the main module Data.MonadicStreamFunction
 -- exports everything. Users should *never* import this module here
 -- individually, but the main module instead.
-
 module Data.MonadicStreamFunction.InternalCore where
 
 -- External

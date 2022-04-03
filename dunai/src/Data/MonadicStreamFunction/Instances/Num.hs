@@ -1,6 +1,5 @@
 {-# LANGUAGE TypeFamilies         #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
-
 -- | Number instances for 'MSF's that produce numbers. This allows you to use
 --   numeric operators with 'MSF's that output numbers, for example,
 --   you can write:
@@ -20,7 +19,6 @@
 --
 -- Instances are provided for the type classes 'Num', 'Fractional'
 -- and 'Floating'.
-
 module Data.MonadicStreamFunction.Instances.Num where
 
 import Control.Arrow.Util

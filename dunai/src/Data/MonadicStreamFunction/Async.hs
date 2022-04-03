@@ -1,6 +1,5 @@
 -- | This module contains operations on monadic streams that are asynchronous,
 --   i.e. that change the speed at which data enters or leaves the 'MSF'.
-
 module Data.MonadicStreamFunction.Async where
 
 -- Internal

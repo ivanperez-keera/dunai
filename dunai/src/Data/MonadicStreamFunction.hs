@@ -35,7 +35,6 @@
 --   - "Data.MonadicStreamFunction.Instances.ArrowChoice"
 --   - "Data.MonadicStreamFunction.Instances.ArrowLoop"
 --   - "Data.MonadicStreamFunction.Instances.ArrowPlus"
-
 module Data.MonadicStreamFunction
   ( module Control.Arrow
   , module Data.MonadicStreamFunction.Core
@@ -44,16 +43,13 @@ module Data.MonadicStreamFunction
  where
 
 -- External
-
 import Control.Arrow
 
 -- Internal
-
 import Data.MonadicStreamFunction.Core
 import Data.MonadicStreamFunction.Util
 
 -- Internal (Instances)
-
 import Data.MonadicStreamFunction.Instances.ArrowChoice ()
 import Data.MonadicStreamFunction.Instances.ArrowLoop   ()
 import Data.MonadicStreamFunction.Instances.ArrowPlus   ()

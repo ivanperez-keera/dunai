@@ -1,5 +1,4 @@
 {-# LANGUAGE Rank2Types #-}
-
 -- | This module reexports nearly all submodules. RWS is not exported since
 -- names collide with Reader, State and Writer.
 module Control.Monad.Trans.MSF

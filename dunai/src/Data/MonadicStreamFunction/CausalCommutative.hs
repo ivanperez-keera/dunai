@@ -5,7 +5,6 @@ module Data.MonadicStreamFunction.CausalCommutative where
 -- See "Causal Commutative Arrows and Their Optimization" by
 -- Hai Liu, Eric Cheng, Paul Hudak
 
-
 import Control.Arrow
 import Control.Monad.Fix
 

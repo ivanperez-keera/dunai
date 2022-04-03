@@ -13,7 +13,6 @@ module Control.Monad.Trans.MSF.Except
   ) where
 
 -- External
-
 import           Control.Applicative
 import qualified Control.Category           as Category
 import           Control.Monad              (liftM, ap)

@@ -1,5 +1,4 @@
 {-# LANGUAGE Rank2Types          #-}
-
 -- | 'MSF's with a 'Reader' monadic layer.
 --
 -- This module contains functions to work with 'MSF's that include a 'Reader'

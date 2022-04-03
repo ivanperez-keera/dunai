@@ -6,7 +6,6 @@
 --
 --   Under the hood, 'RandT' is basically just 'StateT',
 --   with the current random number generator as mutable state.
-
 module Control.Monad.Trans.MSF.Random
   (
     runRandS
