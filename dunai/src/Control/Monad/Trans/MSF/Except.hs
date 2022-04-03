@@ -21,7 +21,8 @@ import           Control.Applicative
 import qualified Control.Category           as Category
 import           Control.Monad              (ap, liftM)
 import           Control.Monad.Trans.Class
-import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen, liftPass) -- Avoid conflicting exports
+import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen,
+                                             liftPass)
 import           Control.Monad.Trans.Maybe
 
 -- Internal

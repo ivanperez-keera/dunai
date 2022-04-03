@@ -26,9 +26,9 @@ module Control.Monad.Trans.MSF.State
 
 -- External
 import Control.Applicative
-import Control.Monad.Trans.State.Strict
-  hiding (liftCallCC, liftCatch, liftListen, liftPass) -- Avoid conflicting exports
-import Data.Tuple (swap)
+import Control.Monad.Trans.State.Strict hiding (liftCallCC, liftCatch,
+                                         liftListen, liftPass)
+import Data.Tuple                       (swap)
 
 -- Internal
 import Data.MonadicStreamFunction.Core

@@ -19,8 +19,7 @@ module Control.Monad.Trans.MSF.Reader
   ) where
 
 -- External
-import Control.Monad.Trans.Reader
-  hiding (liftCallCC, liftCatch) -- Avoid conflicting exports
+import Control.Monad.Trans.Reader hiding (liftCallCC, liftCatch)
 
 -- Internal
 import Data.MonadicStreamFunction

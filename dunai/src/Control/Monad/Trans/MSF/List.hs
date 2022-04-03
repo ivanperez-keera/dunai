@@ -13,8 +13,7 @@ module Control.Monad.Trans.MSF.List
 import Control.Applicative ((<$>))
 #endif
 
-import Control.Monad.Trans.List
-  hiding (liftCallCC, liftCatch) -- Avoid conflicting exports
+import Control.Monad.Trans.List hiding (liftCallCC, liftCatch)
 
 -- Internal
 import Data.MonadicStreamFunction

@@ -44,13 +44,13 @@
 module Data.MonadicStreamFunction.InternalCore where
 
 -- External
-import Control.Arrow
 import Control.Applicative
-import Control.Category (Category(..))
+import Control.Arrow
+import Control.Category          (Category (..))
 import Control.Monad
 import Control.Monad.Base
 import Control.Monad.Trans.Class
-import Prelude hiding ((.), id, sum)
+import Prelude                   hiding (id, sum, (.))
 
 -- * Definitions
 

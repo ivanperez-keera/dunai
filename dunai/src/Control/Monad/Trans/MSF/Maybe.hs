@@ -15,8 +15,8 @@ module Control.Monad.Trans.MSF.Maybe
   ) where
 
 -- External
-import Control.Monad.Trans.Maybe
-  hiding (liftCallCC, liftCatch, liftListen, liftPass) -- Avoid conflicting exports
+import Control.Monad.Trans.Maybe hiding (liftCallCC, liftCatch, liftListen,
+                                  liftPass)
 
 -- Internal
 import Control.Monad.Trans.MSF.Except

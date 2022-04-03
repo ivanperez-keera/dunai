@@ -62,11 +62,11 @@ module Data.MonadicStreamFunction.Core
 
 import Control.Applicative
 import Control.Arrow
-import Control.Category as C
+import Control.Category          as C
 import Control.Monad.Base
 import Control.Monad.Trans.Class
-import Data.Tuple (swap)
-import Prelude hiding ((.), id, sum)
+import Data.Tuple                (swap)
+import Prelude                   hiding (id, sum, (.))
 
 import Data.MonadicStreamFunction.InternalCore (MSF, embed, feedback, morphGS, reactimate)
 

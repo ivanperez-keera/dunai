@@ -15,7 +15,7 @@ import Control.Monad
 import Control.Monad.Base
 import Data.Monoid
 import Data.VectorSpace
-import Prelude hiding (id, (.))
+import Prelude            hiding (id, (.))
 
 -- Internal
 import Control.Monad.Trans.MSF.State

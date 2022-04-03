@@ -10,7 +10,7 @@ module Data.MonadicStreamFunction.Async where
 -- Internal
 import Data.MonadicStreamFunction.Core
 import Data.MonadicStreamFunction.InternalCore
-import Data.MonadicStreamFunction.Util (MStream)
+import Data.MonadicStreamFunction.Util         (MStream)
 
 {- |
 Concatenates a monadic stream of lists to a monadic stream.
