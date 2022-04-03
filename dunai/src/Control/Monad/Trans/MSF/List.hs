@@ -49,4 +49,3 @@ mapMSF = MSF . consume
       (b, sf')   <- unMSF sf a
       (bs, sf'') <- consume sf' as
       b `seq` return (b:bs, sf'')
-
