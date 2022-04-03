@@ -2,7 +2,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
-{-# OPTIONS_GHC -fno-warn-orphans  #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 -- | 'VectorSpace' instances for 'MSF's that produce vector spaces. This allows
 -- you to use vector operators with 'MSF's that output vectors, for example, you
 -- can write:
