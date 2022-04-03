@@ -15,34 +15,35 @@ module FRP.BearRiver
 -- switches, etc.) our goal is to show that the approach is promising and that
 -- there do not seem to exist any obvious limitations.
 
+-- External imports
 import           Control.Applicative
-import           Control.Arrow                                  as X
-import qualified Control.Category                               as Category
-import           Control.Monad                                  (mapM)
+import           Control.Arrow             as X
+import qualified Control.Category          as Category
+import           Control.Monad             (mapM)
 import           Control.Monad.Random
 import           Control.Monad.Trans.Maybe
-import           Control.Monad.Trans.MSF                        hiding (dSwitch,
-                                                                 switch)
-import qualified Control.Monad.Trans.MSF                        as MSF
-import           Control.Monad.Trans.MSF.Except                 as MSF hiding
-                                                                       (dSwitch,
-                                                                        switch)
-import           Control.Monad.Trans.MSF.List                   (sequenceS,
-                                                                 widthFirst)
-import           Control.Monad.Trans.MSF.Random
 import           Data.Functor.Identity
 import           Data.Maybe
-import           Data.MonadicStreamFunction                     as X hiding (reactimate,
-                                                                      repeatedly,
-                                                                      sum,
-                                                                      switch,
-                                                                      dSwitch,
-                                                                      trace)
-import qualified Data.MonadicStreamFunction                     as MSF
-import           Data.MonadicStreamFunction.Instances.ArrowLoop
+import           Data.Traversable          as T
+import           Data.VectorSpace          as X
+
+-- Internal imports
+import           Control.Monad.Trans.MSF                 hiding (dSwitch,
+                                                          switch)
+import qualified Control.Monad.Trans.MSF                 as MSF
+import           Control.Monad.Trans.MSF.Except          as MSF hiding (dSwitch,
+                                                                 switch)
+import           Control.Monad.Trans.MSF.List            (sequenceS, widthFirst)
+import           Control.Monad.Trans.MSF.Random
+import           Data.MonadicStreamFunction              as X hiding (dSwitch,
+                                                               reactimate,
+                                                               repeatedly, sum,
+                                                               switch, trace)
+import qualified Data.MonadicStreamFunction              as MSF
 import           Data.MonadicStreamFunction.InternalCore
-import           Data.Traversable                               as T
-import           Data.VectorSpace                               as X
+
+-- Internal imports (instances)
+import Data.MonadicStreamFunction.Instances.ArrowLoop
 
 infixr 0 -->, -:>, >--, >=-
 

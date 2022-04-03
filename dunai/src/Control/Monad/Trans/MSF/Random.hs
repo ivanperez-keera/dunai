@@ -27,8 +27,8 @@ module Control.Monad.Trans.MSF.Random
 import Control.Monad.Random
 
 -- Internal
-import Data.MonadicStreamFunction
 import Control.Monad.Trans.MSF.State
+import Data.MonadicStreamFunction
 
 -- | Run an 'MSF' in the 'RandT' random number monad transformer
 --   by supplying an initial random generator.

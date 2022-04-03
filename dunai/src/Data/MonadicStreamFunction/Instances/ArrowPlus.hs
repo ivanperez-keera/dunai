@@ -12,9 +12,9 @@
 module Data.MonadicStreamFunction.Instances.ArrowPlus where
 
 -- base
+import Control.Applicative
 import Control.Arrow
 import Control.Monad
-import Control.Applicative
 
 -- dunai
 import Data.MonadicStreamFunction.Core

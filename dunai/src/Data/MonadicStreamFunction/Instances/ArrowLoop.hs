@@ -13,12 +13,12 @@
 -- This is only defined for monads that are instances of 'MonadFix'.
 module Data.MonadicStreamFunction.Instances.ArrowLoop where
 
-import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.InternalCore
-
 -- External
 import Control.Arrow
 import Control.Monad.Fix
+
+import Data.MonadicStreamFunction.Core
+import Data.MonadicStreamFunction.InternalCore
 
 -- | 'ArrowLoop' instance for MSFs. The monad must be an instance of
 -- 'MonadFix'.

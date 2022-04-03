@@ -19,7 +19,7 @@ module Control.Monad.Trans.MSF.Except
 -- External
 import           Control.Applicative
 import qualified Control.Category           as Category
-import           Control.Monad              (liftM, ap)
+import           Control.Monad              (ap, liftM)
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen, liftPass) -- Avoid conflicting exports
 import           Control.Monad.Trans.Maybe
