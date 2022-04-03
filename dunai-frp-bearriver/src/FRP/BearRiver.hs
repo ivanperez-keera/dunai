@@ -1,6 +1,9 @@
 {-# LANGUAGE Arrows     #-}
 {-# LANGUAGE CPP        #-}
 {-# LANGUAGE RankNTypes #-}
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
 module FRP.BearRiver
   (module FRP.BearRiver, module X)
  where
@@ -12,47 +15,56 @@ module FRP.BearRiver
 -- switches, etc.) our goal is to show that the approach is promising and that
 -- there do not seem to exist any obvious limitations.
 
+-- External imports
 import           Control.Applicative
-import           Control.Arrow                                  as X
-import qualified Control.Category                               as Category
-import           Control.Monad                                  (mapM)
+import           Control.Arrow             as X
+import qualified Control.Category          as Category
+import           Control.Monad             (mapM)
 import           Control.Monad.Random
 import           Control.Monad.Trans.Maybe
-import           Control.Monad.Trans.MSF                        hiding (dSwitch,
-                                                                 switch)
-import qualified Control.Monad.Trans.MSF                        as MSF
-import           Control.Monad.Trans.MSF.Except                 as MSF hiding
-                                                                       (dSwitch,
-                                                                        switch)
-import           Control.Monad.Trans.MSF.List                   (sequenceS,
-                                                                 widthFirst)
-import           Control.Monad.Trans.MSF.Random
 import           Data.Functor.Identity
 import           Data.Maybe
-import           Data.MonadicStreamFunction                     as X hiding (reactimate,
-                                                                      repeatedly,
-                                                                      sum,
-                                                                      switch,
-                                                                      dSwitch,
-                                                                      trace)
-import qualified Data.MonadicStreamFunction                     as MSF
-import           Data.MonadicStreamFunction.Instances.ArrowLoop
+import           Data.Traversable          as T
+import           Data.VectorSpace          as X
+
+-- Internal imports
+import           Control.Monad.Trans.MSF                 hiding (dSwitch,
+                                                          switch)
+import qualified Control.Monad.Trans.MSF                 as MSF
+import           Control.Monad.Trans.MSF.Except          as MSF hiding (dSwitch,
+                                                                 switch)
+import           Control.Monad.Trans.MSF.List            (sequenceS, widthFirst)
+import           Control.Monad.Trans.MSF.Random
+import           Data.MonadicStreamFunction              as X hiding (dSwitch,
+                                                               reactimate,
+                                                               repeatedly, sum,
+                                                               switch, trace)
+import qualified Data.MonadicStreamFunction              as MSF
 import           Data.MonadicStreamFunction.InternalCore
-import           Data.Traversable                               as T
-import           Data.VectorSpace                               as X
+
+-- Internal imports (instances)
+import Data.MonadicStreamFunction.Instances.ArrowLoop
 
 infixr 0 -->, -:>, >--, >=-
 
 -- * Basic definitions
 
+-- | Absolute time.
 type Time  = Double
 
+-- | Time deltas or increments (conceptually positive).
 type DTime = Double
 
+-- | Extensible signal function (signal function with a notion of time, but
+-- which can be extended with actions).
 type SF m        = MSF (ClockInfo m)
 
+-- | Information on the progress of time.
 type ClockInfo m = ReaderT DTime m
 
+-- | A value that may or may not exist.
+--
+-- Used to represent discrete-time signals.
 data Event a = Event a | NoEvent
  deriving (Eq, Show)
 

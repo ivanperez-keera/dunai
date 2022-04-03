@@ -1,5 +1,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
--- | A ListSF is a signal function that produces additional information about
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- A ListSF is a signal function that produces additional information about
 -- spawning and discarding SFs.
 --
 -- Each ListSF produces, apart from the normal output signal, two additional

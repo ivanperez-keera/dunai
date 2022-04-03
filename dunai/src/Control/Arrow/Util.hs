@@ -1,4 +1,9 @@
--- | Utility functions to work with 'Arrow's.
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- Utility functions to work with 'Arrow's.
 module Control.Arrow.Util where
 
 import Control.Arrow

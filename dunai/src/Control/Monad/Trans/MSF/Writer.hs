@@ -1,4 +1,9 @@
--- | 'MSF's with a 'Writer' monadic layer.
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- 'MSF's with a 'Writer' monadic layer.
 --
 -- This module contains functions to work with 'MSF's that include a 'Writer'
 -- monadic layer. This includes functions to create new 'MSF's that include an
@@ -17,9 +22,8 @@ module Control.Monad.Trans.MSF.Writer
   ) where
 
 -- External
-import Control.Monad.Trans.Writer.Strict
-  hiding (liftCallCC, liftCatch, pass) -- Avoid conflicting exports
-import Data.Functor ((<$>))
+import Control.Monad.Trans.Writer.Strict hiding (liftCallCC, liftCatch, pass)
+import Data.Functor                      ((<$>))
 import Data.Monoid
 
 -- Internal

@@ -1,6 +1,10 @@
-{-# LANGUAGE Rank2Types          #-}
-
--- | 'MSF's with a 'Reader' monadic layer.
+{-# LANGUAGE Rank2Types #-}
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- 'MSF's with a 'Reader' monadic layer.
 --
 -- This module contains functions to work with 'MSF's that include a 'Reader'
 -- monadic layer. This includes functions to create new 'MSF's that include an
@@ -15,8 +19,7 @@ module Control.Monad.Trans.MSF.Reader
   ) where
 
 -- External
-import Control.Monad.Trans.Reader
-  hiding (liftCallCC, liftCatch) -- Avoid conflicting exports
+import Control.Monad.Trans.Reader hiding (liftCallCC, liftCatch)
 
 -- Internal
 import Data.MonadicStreamFunction

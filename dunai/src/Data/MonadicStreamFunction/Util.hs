@@ -1,6 +1,11 @@
 {-# LANGUAGE Arrows     #-}
 {-# LANGUAGE Rank2Types #-}
--- | Useful auxiliary functions and definitions.
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- Useful auxiliary functions and definitions.
 module Data.MonadicStreamFunction.Util where
 
 -- External
@@ -9,14 +14,13 @@ import Control.Category
 import Control.Monad
 import Control.Monad.Base
 import Data.Monoid
+import Data.VectorSpace
+import Prelude            hiding (id, (.))
 
 -- Internal
+import Control.Monad.Trans.MSF.State
 import Data.MonadicStreamFunction.Core
 import Data.MonadicStreamFunction.Instances.ArrowChoice ()
-import Data.VectorSpace
-import Prelude hiding (id, (.))
-
-import Control.Monad.Trans.MSF.State
 
 -- * Streams and sinks
 

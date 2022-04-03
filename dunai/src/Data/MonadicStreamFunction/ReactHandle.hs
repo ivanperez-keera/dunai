@@ -1,9 +1,13 @@
--- | 'ReactHandle's.
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- 'ReactHandle's.
 --
 -- Sometimes it is beneficial to give control to an external main loop,
 -- for example OpenGL or a hardware-clocked audio server like JACK.
 -- This module makes Dunai compatible with external main loops.
-
 module Data.MonadicStreamFunction.ReactHandle where
 
 -- External
@@ -13,7 +17,6 @@ import Data.IORef
 -- Internal
 import Data.MonadicStreamFunction
 import Data.MonadicStreamFunction.InternalCore
-
 
 -- | A storage for the current state of an 'MSF'.
 -- The 'MSF' may not require input or produce output data,

@@ -1,24 +1,28 @@
-{-# LANGUAGE Arrows              #-}
-{-# LANGUAGE CPP                 #-}
-{-# LANGUAGE Rank2Types          #-}
-{-# LANGUAGE TupleSections       #-}
--- | 'MSF's in the 'ExceptT' monad are monadic stream functions
---   that can throw exceptions,
---   i.e. return an exception value instead of a continuation.
---   This module gives ways to throw exceptions in various ways,
---   and to handle them through a monadic interface.
+{-# LANGUAGE Arrows        #-}
+{-# LANGUAGE CPP           #-}
+{-# LANGUAGE Rank2Types    #-}
+{-# LANGUAGE TupleSections #-}
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- 'MSF's in the 'ExceptT' monad are monadic stream functions that can throw
+-- exceptions, i.e. return an exception value instead of a continuation. This
+-- module gives ways to throw exceptions in various ways, and to handle them
+-- through a monadic interface.
 module Control.Monad.Trans.MSF.Except
   ( module Control.Monad.Trans.MSF.Except
   , module Control.Monad.Trans.Except
   ) where
 
 -- External
-
 import           Control.Applicative
 import qualified Control.Category           as Category
-import           Control.Monad              (liftM, ap)
+import           Control.Monad              (ap, liftM)
 import           Control.Monad.Trans.Class
-import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen, liftPass) -- Avoid conflicting exports
+import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen,
+                                             liftPass)
 import           Control.Monad.Trans.Maybe
 
 -- Internal
@@ -177,6 +181,8 @@ instance Monad m => Monad (MSFExcept m a b) where
   return = pure
   MSFExcept msf >>= f = MSFExcept $ handleExceptT msf $ runMSFExcept . f
 
+-- | Execute an MSF and, if it throws an exception, recover by switing to a
+-- second MSF.
 handleExceptT
   :: Monad m
   => MSF (ExceptT e1 m) a b
@@ -305,6 +311,7 @@ transG transformInput transformOutput msf = go
                  Just msf'' -> return (b2, transG transformInput transformOutput msf'')
                  Nothing    -> return (b2, go)
 
+-- | Use a generic handler to handle exceptions in MSF processing actions.
 handleGen :: (a -> m1 (b1, MSF m1 a b1) -> m2 (b2, MSF m2 a b2))
           -> MSF m1 a b1
           -> MSF m2 a b2

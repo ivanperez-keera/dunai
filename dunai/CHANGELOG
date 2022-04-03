@@ -2,7 +2,7 @@
         * dunai.cabal: Syntax rules (#271), declare CHANGELOG (#273),
           declare subdir of source-repository (#272).
         * src/: Fix haddock syntax error in documentation of switch (#274),
-          introduce new dSwitch function (#275).
+          introduce new dSwitch function (#275), syntax rules (#277).
 
 2021-10-21 Ivan Perez <ivan.perez@keera.co.uk>
         * src:/: Code cleaning.
