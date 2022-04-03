@@ -49,14 +49,22 @@ infixr 0 -->, -:>, >--, >=-
 
 -- * Basic definitions
 
+-- | Absolute time.
 type Time  = Double
 
+-- | Time deltas or increments (conceptually positive).
 type DTime = Double
 
+-- | Extensible signal function (signal function with a notion of time, but
+-- which can be extended with actions).
 type SF m        = MSF (ClockInfo m)
 
+-- | Information on the progress of time.
 type ClockInfo m = ReaderT DTime m
 
+-- | A value that may or may not exist.
+--
+-- Used to represent discrete-time signals.
 data Event a = Event a | NoEvent
  deriving (Eq, Show)
 

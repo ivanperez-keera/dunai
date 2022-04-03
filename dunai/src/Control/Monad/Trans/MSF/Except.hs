@@ -180,6 +180,8 @@ instance Monad m => Monad (MSFExcept m a b) where
   return = pure
   MSFExcept msf >>= f = MSFExcept $ handleExceptT msf $ runMSFExcept . f
 
+-- | Execute an MSF and, if it throws an exception, recover by switing to a
+-- second MSF.
 handleExceptT
   :: Monad m
   => MSF (ExceptT e1 m) a b
@@ -308,6 +310,7 @@ transG transformInput transformOutput msf = go
                  Just msf'' -> return (b2, transG transformInput transformOutput msf'')
                  Nothing    -> return (b2, go)
 
+-- | Use a generic handler to handle exceptions in MSF processing actions.
 handleGen :: (a -> m1 (b1, MSF m1 a b1) -> m2 (b2, MSF m2 a b2))
           -> MSF m1 a b1
           -> MSF m2 a b2
