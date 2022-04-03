@@ -1,4 +1,4 @@
-{-# LANGUAGE InstanceSigs         #-}
+{-# LANGUAGE InstanceSigs #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 -- | Instance of 'ArrowChoice' for Monadic Stream Functions ('MSF').
 --

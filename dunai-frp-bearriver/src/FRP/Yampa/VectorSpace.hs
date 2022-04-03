@@ -1,4 +1,6 @@
-{-# LANGUAGE MultiParamTypeClasses, FunctionalDependencies, FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances      #-}
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE MultiParamTypeClasses  #-}
 -----------------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.VectorSpace

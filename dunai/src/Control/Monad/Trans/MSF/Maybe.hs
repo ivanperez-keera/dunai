@@ -1,5 +1,5 @@
-{-# LANGUAGE Arrows              #-}
-{-# LANGUAGE Rank2Types          #-}
+{-# LANGUAGE Arrows     #-}
+{-# LANGUAGE Rank2Types #-}
 {- |
 The 'Maybe' monad is very versatile. It can stand for default arguments,
 for absent values, and for (nondescript) exceptions.

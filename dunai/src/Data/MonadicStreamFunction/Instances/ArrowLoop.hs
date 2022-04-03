@@ -1,5 +1,5 @@
-{-# LANGUAGE InstanceSigs         #-}
-{-# LANGUAGE RecursiveDo          #-}
+{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE RecursiveDo  #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 -- | Instance of 'ArrowLoop' for Monadic Stream Functions ('MSF').
 --

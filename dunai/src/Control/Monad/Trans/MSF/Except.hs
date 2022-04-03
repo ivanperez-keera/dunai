@@ -1,7 +1,7 @@
-{-# LANGUAGE Arrows              #-}
-{-# LANGUAGE CPP                 #-}
-{-# LANGUAGE Rank2Types          #-}
-{-# LANGUAGE TupleSections       #-}
+{-# LANGUAGE Arrows        #-}
+{-# LANGUAGE CPP           #-}
+{-# LANGUAGE Rank2Types    #-}
+{-# LANGUAGE TupleSections #-}
 -- | 'MSF's in the 'ExceptT' monad are monadic stream functions
 --   that can throw exceptions,
 --   i.e. return an exception value instead of a continuation.
