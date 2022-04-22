@@ -30,7 +30,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          dunai
-version:       0.8.1
+version:       0.8.2
 author:        Ivan Perez, Manuel Bärenz
 maintainer:    ivan.perez@keera.co.uk
 homepage:      https://github.com/ivanperez-keera/dunai
