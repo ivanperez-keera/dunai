@@ -1,4 +1,4 @@
-2022-04-02 Ivan Perez <ivan.perez@keera.co.uk>
-        * dunai-test.cabal: Declare changelog file (#273), declare subdir of
-          source-repository (#272).
+2022-04-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * dunai-test.cabal: Version bump (0.8.2) (#280), declare changelog file
+          (#273), declare subdir of source-repository (#272).
         * CHANGELOG: Add CHANGELOG file (#273).
