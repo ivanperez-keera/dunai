@@ -1,19 +1,24 @@
 {-# LANGUAGE ExplicitForAll #-}
 {-# LANGUAGE Rank2Types     #-}
--- | Monadic Stream Functions are synchronized stream functions
---   with side effects.
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
 --
---   'MSF's are defined by a function
---   @unMSF :: MSF m a b -> a -> m (b, MSF m a b)@
---   that executes one step of a simulation, and produces an output in a
---   monadic context, and a continuation to be used for future steps.
+-- Monadic Stream Functions are synchronized stream functions with side
+-- effects.
 --
---   'MSF's are a generalisation of the implementation mechanism used by Yampa,
---   Wormholes and other FRP and reactive implementations.
+-- 'MSF's are defined by a function
+-- @unMSF :: MSF m a b -> a -> m (b, MSF m a b)@
+-- that executes one step of a simulation, and produces an output in a monadic
+-- context, and a continuation to be used for future steps.
 --
---   This modules defines only the minimal core. Hopefully, other functions can be
---   defined in terms of the functions in this module without accessing the
---   MSF constuctor.
+-- 'MSF's are a generalisation of the implementation mechanism used by Yampa,
+-- Wormholes and other FRP and reactive implementations.
+--
+-- This modules defines only the minimal core. Hopefully, other functions can
+-- be defined in terms of the functions in this module without accessing the
+-- MSF constuctor.
 
 
 -- NOTE TO IMPLEMENTORS:
@@ -36,17 +41,16 @@
 -- having orphan instances'), the main module Data.MonadicStreamFunction
 -- exports everything. Users should *never* import this module here
 -- individually, but the main module instead.
-
 module Data.MonadicStreamFunction.InternalCore where
 
 -- External
-import Control.Arrow
 import Control.Applicative
-import Control.Category (Category(..))
+import Control.Arrow
+import Control.Category          (Category (..))
 import Control.Monad
 import Control.Monad.Base
 import Control.Monad.Trans.Class
-import Prelude hiding ((.), id, sum)
+import Prelude                   hiding (id, sum, (.))
 
 -- * Definitions
 

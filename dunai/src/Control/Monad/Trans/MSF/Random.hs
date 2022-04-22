@@ -1,12 +1,15 @@
--- | In this module, 'MSF's in a monad supporting random number generation
---   (i.e. having the 'RandT' layer in its stack) can be run.
---   Running means supplying an initial random number generator,
---   where the update of the generator at every random number generation
---   is already taken care of.
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
 --
---   Under the hood, 'RandT' is basically just 'StateT',
---   with the current random number generator as mutable state.
-
+-- In this module, 'MSF's in a monad supporting random number generation (i.e.
+-- having the 'RandT' layer in its stack) can be run. Running means supplying
+-- an initial random number generator, where the update of the generator at
+-- every random number generation is already taken care of.
+--
+-- Under the hood, 'RandT' is basically just 'StateT', with the current random
+-- number generator as mutable state.
 module Control.Monad.Trans.MSF.Random
   (
     runRandS
@@ -24,8 +27,8 @@ module Control.Monad.Trans.MSF.Random
 import Control.Monad.Random
 
 -- Internal
-import Data.MonadicStreamFunction
 import Control.Monad.Trans.MSF.State
+import Data.MonadicStreamFunction
 
 -- | Run an 'MSF' in the 'RandT' random number monad transformer
 --   by supplying an initial random generator.

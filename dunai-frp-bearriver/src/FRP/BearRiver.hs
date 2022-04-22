@@ -1,6 +1,9 @@
 {-# LANGUAGE Arrows     #-}
 {-# LANGUAGE CPP        #-}
 {-# LANGUAGE RankNTypes #-}
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
 module FRP.BearRiver
   (module FRP.BearRiver, module X)
  where
@@ -12,44 +15,56 @@ module FRP.BearRiver
 -- switches, etc.) our goal is to show that the approach is promising and that
 -- there do not seem to exist any obvious limitations.
 
+-- External imports
 import           Control.Applicative
-import           Control.Arrow                                  as X
-import qualified Control.Category                               as Category
-import           Control.Monad                                  (mapM)
+import           Control.Arrow             as X
+import qualified Control.Category          as Category
+import           Control.Monad             (mapM)
 import           Control.Monad.Random
 import           Control.Monad.Trans.Maybe
-import           Control.Monad.Trans.MSF                        hiding (switch)
-import qualified Control.Monad.Trans.MSF                        as MSF
-import           Control.Monad.Trans.MSF.Except                 as MSF hiding
-                                                                        (switch)
-import           Control.Monad.Trans.MSF.List                   (sequenceS,
-                                                                 widthFirst)
-import           Control.Monad.Trans.MSF.Random
 import           Data.Functor.Identity
 import           Data.Maybe
-import           Data.MonadicStreamFunction                     as X hiding (reactimate,
-                                                                      repeatedly,
-                                                                      sum,
-                                                                      switch,
-                                                                      trace)
-import qualified Data.MonadicStreamFunction                     as MSF
-import           Data.MonadicStreamFunction.Instances.ArrowLoop
+import           Data.Traversable          as T
+import           Data.VectorSpace          as X
+
+-- Internal imports
+import           Control.Monad.Trans.MSF                 hiding (dSwitch,
+                                                          switch)
+import qualified Control.Monad.Trans.MSF                 as MSF
+import           Control.Monad.Trans.MSF.Except          as MSF hiding (dSwitch,
+                                                                 switch)
+import           Control.Monad.Trans.MSF.List            (sequenceS, widthFirst)
+import           Control.Monad.Trans.MSF.Random
+import           Data.MonadicStreamFunction              as X hiding (dSwitch,
+                                                               reactimate,
+                                                               repeatedly, sum,
+                                                               switch, trace)
+import qualified Data.MonadicStreamFunction              as MSF
 import           Data.MonadicStreamFunction.InternalCore
-import           Data.Traversable                               as T
-import           Data.VectorSpace                               as X
+
+-- Internal imports (instances)
+import Data.MonadicStreamFunction.Instances.ArrowLoop
 
 infixr 0 -->, -:>, >--, >=-
 
 -- * Basic definitions
 
+-- | Absolute time.
 type Time  = Double
 
+-- | Time deltas or increments (conceptually positive).
 type DTime = Double
 
+-- | Extensible signal function (signal function with a notion of time, but
+-- which can be extended with actions).
 type SF m        = MSF (ClockInfo m)
 
+-- | Information on the progress of time.
 type ClockInfo m = ReaderT DTime m
 
+-- | A value that may or may not exist.
+--
+-- Used to represent discrete-time signals.
 data Event a = Event a | NoEvent
  deriving (Eq, Show)
 
@@ -191,14 +206,25 @@ afterEachCat :: Monad m => [(Time,b)] -> SF m a (Event [b])
 afterEachCat = afterEachCat' 0
   where
     afterEachCat' :: Monad m => Time -> [(Time,b)] -> SF m a (Event [b])
-    afterEachCat' _ []  = never
+    afterEachCat' _ [] = never
     afterEachCat' t qxs = MSF $ \_ -> do
       dt <- ask
-      let t' = t + dt
-          (qxsNow, qxsLater) = span (\p -> fst p <= t') qxs
-          ev = if null qxsNow then NoEvent else Event (map snd qxsNow)
-      return (ev, afterEachCat' t' qxsLater)
+      let (ev, t', qxs') = fireEvents [] (t + dt) qxs
+          ev' = if null ev
+                  then NoEvent
+                  else Event (reverse ev)
 
+      return (ev', afterEachCat' t' qxs')
+
+    fireEvents :: [b] -> Time -> [(Time,b)] -> ([b], Time, [(Time,b)])
+    fireEvents ev t [] = (ev, t, [])
+    fireEvents ev t (qx:qxs)
+      | fst qx < 0 = error "bearriver: afterEachCat: Non-positive period."
+      | otherwise =
+          let overdue = t - fst qx in
+          if overdue >= 0
+            then fireEvents (snd qx:ev) overdue qxs
+            else (ev, t, qx:qxs)
 
 -- * Events
 
@@ -563,19 +589,10 @@ reactimate senseI sense actuate sf = do
  where sfIO        = morphS (return.runIdentity) (runReaderS sf)
 
        -- Sense
-       senseSF     = MSF.switch senseFirst senseRest
+       senseSF     = MSF.dSwitch senseFirst senseRest
 
        -- Sense: First sample
-       senseFirst = ftp >>> arrM senseOnce
-
-       -- senseOnce :: Bool -> SF m () a
-       senseOnce True  = senseI >>= \x -> return ((0, x), Nothing)
-       senseOnce False = return ((0, undefined), Just undefined)
-
-       -- First time point: outputs True at the first sample, and False after
-       -- that. Conceptually this is like True --> constant False
-       -- ftp :: Monad m => SF m a Bool
-       ftp = feedback True $ arr $ \(_, x) -> (x, False)
+       senseFirst = constM senseI >>> arr (\x -> ((0, x), Just x))
 
        -- Sense: Remaining samples
        senseRest a = constM (sense True) >>> (arr id *** keepLast a)

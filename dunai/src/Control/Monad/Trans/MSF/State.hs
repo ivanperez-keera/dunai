@@ -1,5 +1,10 @@
 {-# LANGUAGE Rank2Types #-}
--- | 'MSF's with a 'State' monadic layer.
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- 'MSF's with a 'State' monadic layer.
 --
 -- This module contains functions to work with 'MSF's that include a 'State'
 -- monadic layer. This includes functions to create new 'MSF's that include an
@@ -21,9 +26,9 @@ module Control.Monad.Trans.MSF.State
 
 -- External
 import Control.Applicative
-import Control.Monad.Trans.State.Strict
-  hiding (liftCallCC, liftCatch, liftListen, liftPass) -- Avoid conflicting exports
-import Data.Tuple (swap)
+import Control.Monad.Trans.State.Strict hiding (liftCallCC, liftCatch,
+                                         liftListen, liftPass)
+import Data.Tuple                       (swap)
 
 -- Internal
 import Data.MonadicStreamFunction.Core

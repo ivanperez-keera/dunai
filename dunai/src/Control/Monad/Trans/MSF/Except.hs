@@ -1,24 +1,28 @@
-{-# LANGUAGE Arrows              #-}
-{-# LANGUAGE CPP                 #-}
-{-# LANGUAGE Rank2Types          #-}
-{-# LANGUAGE TupleSections       #-}
--- | 'MSF's in the 'ExceptT' monad are monadic stream functions
---   that can throw exceptions,
---   i.e. return an exception value instead of a continuation.
---   This module gives ways to throw exceptions in various ways,
---   and to handle them through a monadic interface.
+{-# LANGUAGE Arrows        #-}
+{-# LANGUAGE CPP           #-}
+{-# LANGUAGE Rank2Types    #-}
+{-# LANGUAGE TupleSections #-}
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- 'MSF's in the 'ExceptT' monad are monadic stream functions that can throw
+-- exceptions, i.e. return an exception value instead of a continuation. This
+-- module gives ways to throw exceptions in various ways, and to handle them
+-- through a monadic interface.
 module Control.Monad.Trans.MSF.Except
   ( module Control.Monad.Trans.MSF.Except
   , module Control.Monad.Trans.Except
   ) where
 
 -- External
-
 import           Control.Applicative
 import qualified Control.Category           as Category
-import           Control.Monad              (liftM, ap)
+import           Control.Monad              (ap, liftM)
 import           Control.Monad.Trans.Class
-import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen, liftPass) -- Avoid conflicting exports
+import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen,
+                                             liftPass)
 import           Control.Monad.Trans.Maybe
 
 -- Internal
@@ -177,6 +181,8 @@ instance Monad m => Monad (MSFExcept m a b) where
   return = pure
   MSFExcept msf >>= f = MSFExcept $ handleExceptT msf $ runMSFExcept . f
 
+-- | Execute an MSF and, if it throws an exception, recover by switing to a
+-- second MSF.
 handleExceptT
   :: Monad m
   => MSF (ExceptT e1 m) a b
@@ -265,13 +271,29 @@ reactimateExcept msfe = do
 reactimateB :: Monad m => MSF m () Bool -> m ()
 reactimateB sf = reactimateExcept $ try $ liftTransS sf >>> throwOn ()
 
--- * Analog to Yampa's switch, with Maybe instead of Event
+-- | Run first MSF until the second value in the output tuple is @Just c@ (for
+-- some @c@), then start the second MSF.
+--
+-- Analog to Yampa's [@switch@](https://hackage.haskell.org/package/Yampa/docs/FRP-Yampa-Switches.html#v:switch),
+-- with 'Maybe' instead of @Event@.
 switch :: Monad m => MSF m a (b, Maybe c) -> (c -> MSF m a b) -> MSF m a b
 switch sf f = catchS ef  f
   where
     ef = proc a -> do
            (b,me)  <- liftTransS sf -< a
            inExceptT -< ExceptT $ return $ maybe (Right b) Left me
+
+-- | Run first MSF until the second value in the output tuple is @Just c@ (for
+-- some @c@), then start the second MSF.
+--
+-- Analog to Yampa's [@dswitch@](https://hackage.haskell.org/package/Yampa/docs/FRP-Yampa-Switches.html#v:dSwitch),
+-- with 'Maybe' instead of @Event@.
+dSwitch :: Monad m => MSF m a (b, Maybe c) -> (c -> MSF m a b) -> MSF m a b
+dSwitch sf f = catchS ef f
+  where
+    ef = feedback Nothing $ proc (a, me) -> do
+           throwMaybe    -< me
+           liftTransS sf -< a
 
 -- | More general lifting combinator that enables recovery. Note that, unlike a
 -- polymorphic lifting function @forall a . m a -> m1 a@, this auxiliary
@@ -289,6 +311,7 @@ transG transformInput transformOutput msf = go
                  Just msf'' -> return (b2, transG transformInput transformOutput msf'')
                  Nothing    -> return (b2, go)
 
+-- | Use a generic handler to handle exceptions in MSF processing actions.
 handleGen :: (a -> m1 (b1, MSF m1 a b1) -> m2 (b2, MSF m2 a b2))
           -> MSF m1 a b1
           -> MSF m2 a b2

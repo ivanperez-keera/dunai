@@ -1,16 +1,19 @@
 {-# LANGUAGE CPP #-}
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
 module Control.Monad.Trans.MSF.List
   ( module Control.Monad.Trans.MSF.List
   , module Control.Monad.Trans.List
   ) where
 
 -- External
-import Control.Monad.Trans.List
-  hiding (liftCallCC, liftCatch) -- Avoid conflicting exports
-
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative ((<$>))
 #endif
+
+import Control.Monad.Trans.List hiding (liftCallCC, liftCatch)
 
 -- Internal
 import Data.MonadicStreamFunction
@@ -45,4 +48,3 @@ mapMSF = MSF . consume
       (b, sf')   <- unMSF sf a
       (bs, sf'') <- consume sf' as
       b `seq` return (b:bs, sf'')
-

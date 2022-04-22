@@ -2,8 +2,13 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
-{-# OPTIONS_GHC -fno-warn-orphans  #-}
--- | 'VectorSpace' instances for 'MSF's that produce vector spaces. This allows
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- 'VectorSpace' instances for 'MSF's that produce vector spaces. This allows
 -- you to use vector operators with 'MSF's that output vectors, for example, you
 -- can write:
 --
@@ -31,9 +36,11 @@
 module Data.MonadicStreamFunction.Instances.VectorSpace where
 
 import Control.Arrow
-import Control.Arrow.Util
-import Data.MonadicStreamFunction.Core
 import Data.VectorSpace
+
+import Control.Arrow.Util
+
+import Data.MonadicStreamFunction.Core
 
 -- | Vector-space instance for 'MSF's.
 instance (Monad m, VectorSpace v s) => VectorSpace (MSF m a v) s where
