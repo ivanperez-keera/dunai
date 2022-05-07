@@ -140,7 +140,8 @@ library
 
   if impl(ghc <= 7.8.4)
     build-depends:
-      transformers-compat
+        transformers-compat
+      , void
 
 
 test-suite hlint

@@ -27,6 +27,7 @@ import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen,
                                              liftPass)
 import           Control.Monad.Trans.Maybe
+import           Data.Void                  (Void)
 
 -- Internal
 import Data.MonadicStreamFunction
@@ -197,17 +198,12 @@ handleExceptT msf f = flip handleGen msf $ \a mbcont -> do
     Left e          -> unMSF (f e) a
     Right (b, msf') -> return (b, handleExceptT msf' f)
 
-
-
--- | The empty type. As an exception type, it encodes "no exception possible".
-data Empty
-
 -- | If no exception can occur, the 'MSF' can be executed without the 'ExceptT' layer.
-safely :: Monad m => MSFExcept m a b Empty -> MSF m a b
+safely :: Monad m => MSFExcept m a b Void -> MSF m a b
 safely (MSFExcept msf) = morphS fromExcept msf
   where
     -- We can assume that the pattern @Left e@ will not occur,
-    -- since @e@ would have to be of type @Empty@.
+    -- since @e@ would have to be of type @Void@.
     fromExcept ma = do
       rightMa <- runExceptT ma
       return $ fromRight (error "safely: Received `Left`") rightMa
