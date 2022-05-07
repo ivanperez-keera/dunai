@@ -1,5 +1,4 @@
-{-# LANGUAGE ExplicitForAll #-}
-{-# LANGUAGE Rank2Types     #-}
+{-# LANGUAGE Rank2Types #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
