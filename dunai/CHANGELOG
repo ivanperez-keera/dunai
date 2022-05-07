@@ -1,3 +1,6 @@
+2022-05-07 Ivan Perez <ivan.perez@keera.co.uk>
+        * src/: Simplify implementation of swtich (#276).
+
 2022-04-21 Ivan Perez <ivan.perez@keera.co.uk>
         * dunai.cabal: Version bump (0.8.2) (#280), syntax rules (#271),
           declare CHANGELOG (#273), declare subdir of source-repository (#272).
