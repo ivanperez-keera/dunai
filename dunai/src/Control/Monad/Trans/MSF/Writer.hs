@@ -24,9 +24,9 @@ module Control.Monad.Trans.MSF.Writer
 
 -- External
 import Control.Monad.Trans.Writer.Strict hiding (liftCallCC, liftCatch, pass)
-import Data.Functor                      ((<$>))
 
 #if !MIN_VERSION_base(4,8,0)
+import Data.Functor ((<$>))
 import Data.Monoid
 #endif
 
