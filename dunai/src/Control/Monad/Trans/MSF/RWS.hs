@@ -18,9 +18,9 @@ module Control.Monad.Trans.MSF.RWS
 
 -- External
 import Control.Monad.Trans.RWS.Strict hiding (liftCallCC, liftCatch)
-import Data.Functor                   ((<$>))
 
 #if !MIN_VERSION_base(4,8,0)
+import Data.Functor ((<$>))
 import Data.Monoid
 #endif
 
