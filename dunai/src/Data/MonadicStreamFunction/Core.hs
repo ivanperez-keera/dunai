@@ -1,4 +1,9 @@
 {-# LANGUAGE Rank2Types #-}
+-- We disable the following warning because this module purposefully defines
+-- orphan instances. This is a design decision in Dunai, so that we give
+-- implementors further flexibility while giving most users the features they
+-- expect.
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3

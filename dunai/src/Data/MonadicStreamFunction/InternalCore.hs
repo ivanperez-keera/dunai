@@ -15,9 +15,13 @@
 -- 'MSF's are a generalisation of the implementation mechanism used by Yampa,
 -- Wormholes and other FRP and reactive implementations.
 --
--- This modules defines only the minimal core. Hopefully, other functions can
--- be defined in terms of the functions in this module without accessing the
--- MSF constuctor.
+-- This modules defines only the minimal core. By default, you should import
+-- "Data.MonadicStreamFunction.Core" or "Data.MonadicStreamFunction" whenever
+-- possible, and define your functions without accessing the MSF constuctor.
+-- Those modules, as well as other modules in dunai, also provide convenient
+-- instances. This module may be useful if you are extending dunai with
+-- functionality that cannot be (conveniently) expressed using the existing
+-- high-level API.
 
 
 -- NOTE TO IMPLEMENTORS:
