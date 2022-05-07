@@ -17,7 +17,10 @@ module Control.Monad.Trans.MSF.Except
   ) where
 
 -- External
+#if !MIN_VERSION_base(4,8,0)
 import           Control.Applicative
+#endif
+
 import qualified Control.Category           as Category
 import           Control.Monad              (ap, liftM)
 import           Control.Monad.Trans.Class

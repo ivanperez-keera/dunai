@@ -12,13 +12,11 @@ module Data.MonadicStreamFunction.Util where
 import Control.Arrow
 import Control.Category
 import Control.Monad
-import Control.Monad.Base
 import Data.Monoid
 import Data.VectorSpace
 import Prelude            hiding (id, (.))
 
 -- Internal
-import Control.Monad.Trans.MSF.State
 import Data.MonadicStreamFunction.Core
 import Data.MonadicStreamFunction.Instances.ArrowChoice ()
 
