@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
@@ -18,7 +19,10 @@ module Control.Monad.Trans.MSF.RWS
 -- External
 import Control.Monad.Trans.RWS.Strict hiding (liftCallCC, liftCatch)
 import Data.Functor                   ((<$>))
+
+#if !MIN_VERSION_base(4,8,0)
 import Data.Monoid
+#endif
 
 -- Internal
 import Data.MonadicStreamFunction

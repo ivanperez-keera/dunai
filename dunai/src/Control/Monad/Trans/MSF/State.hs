@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP        #-}
 {-# LANGUAGE Rank2Types #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
@@ -25,14 +26,16 @@ module Control.Monad.Trans.MSF.State
   ) where
 
 -- External
+#if !MIN_VERSION_base(4,8,0)
 import Control.Applicative
+#endif
+
 import Control.Monad.Trans.State.Strict hiding (liftCallCC, liftCatch,
                                          liftListen, liftPass)
 import Data.Tuple                       (swap)
 
 -- Internal
 import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.InternalCore
 
 -- * 'State' 'MSF' running and wrapping
 

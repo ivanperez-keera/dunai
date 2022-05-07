@@ -8,7 +8,6 @@
 module Data.MonadicStreamFunction.Async where
 
 -- Internal
-import Data.MonadicStreamFunction.Core
 import Data.MonadicStreamFunction.InternalCore
 import Data.MonadicStreamFunction.Util         (MStream)
 

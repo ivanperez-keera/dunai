@@ -16,7 +16,6 @@ import Control.Applicative ((<$>))
 import Control.Monad.Trans.List hiding (liftCallCC, liftCatch)
 
 -- Internal
-import Data.MonadicStreamFunction
 import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- * List monad
