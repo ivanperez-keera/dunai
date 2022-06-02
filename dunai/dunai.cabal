@@ -135,6 +135,9 @@ library
   hs-source-dirs:
     src
 
+  default-extensions:
+    NoImplicitPrelude
+
   ghc-options:
     -Wall -fno-warn-unused-do-bind
 

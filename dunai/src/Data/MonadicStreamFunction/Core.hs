@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP        #-}
 {-# LANGUAGE Rank2Types #-}
 -- We disable the following warning because this module purposefully defines
 -- orphan instances. This is a design decision in Dunai, so that we give
@@ -67,16 +66,16 @@ module Data.MonadicStreamFunction.Core
   where
 
 -- External imports
+import           Control.Applicative       (Applicative (..))
 import           Control.Arrow             (Arrow (..), (>>>))
 import qualified Control.Arrow             as X
 import           Control.Category          as C (id, (.))
+import           Control.Monad             (Monad, return, (>>=))
 import           Control.Monad.Base        (MonadBase, liftBase)
 import           Control.Monad.Trans.Class (MonadTrans, lift)
-import           Prelude                   hiding (id, sum, (.))
-
-#if !MIN_VERSION_base(4,8,0)
-import Control.Applicative (Applicative(..))
-#endif
+import           Data.Function             (const, ($))
+import           Data.Functor              (Functor (..))
+import           Data.Tuple                (uncurry)
 
 -- Internal imports
 import Data.MonadicStreamFunction.InternalCore (MSF, embed, feedback, morphGS,

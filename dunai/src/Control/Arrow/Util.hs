@@ -8,6 +8,8 @@ module Control.Arrow.Util where
 
 -- External imports
 import Control.Arrow (Arrow, arr, (&&&), (>>^), (^<<))
+import Data.Function (const, (.))
+import Data.Tuple    (uncurry)
 
 -- | Constantly produce the same output.
 constantly :: Arrow a => b -> a c b

@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
@@ -26,14 +25,13 @@ module Control.Monad.Trans.MSF.State
   where
 
 -- External imports
-#if !MIN_VERSION_base(4,8,0)
-import Control.Applicative ((<$>))
-#endif
-
 import Control.Arrow                    (arr, (>>>))
+import Control.Monad                    (Monad)
 import Control.Monad.Trans.State.Strict hiding (liftCallCC, liftCatch,
                                          liftListen, liftPass)
-import Data.Tuple                       (swap)
+import Data.Function                    (($))
+import Data.Functor                     (Functor, (<$>))
+import Data.Tuple                       (snd, swap)
 
 -- Internal imports
 import Data.MonadicStreamFunction.Core (MSF, morphGS, feedback)

@@ -20,7 +20,9 @@ module Control.Monad.Trans.MSF.Reader
 
 -- External imports
 import Control.Arrow              (arr, (>>>))
+import Control.Monad              (Monad)
 import Control.Monad.Trans.Reader hiding (liftCallCC, liftCatch)
+import Data.Function              (($))
 
 -- Internal imports
 import Data.MonadicStreamFunction (MSF, morphGS)

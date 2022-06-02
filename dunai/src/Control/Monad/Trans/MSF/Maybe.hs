@@ -15,9 +15,15 @@ module Control.Monad.Trans.MSF.Maybe
   where
 
 -- External imports
-import Control.Arrow             (returnA, (>>>), arr)
+import Control.Arrow             (arr, returnA, (>>>))
+import Control.Monad             (Monad, return)
 import Control.Monad.Trans.Maybe hiding (liftCallCC, liftCatch, liftListen,
                                   liftPass)
+import Data.Bool                 (Bool)
+import Data.Either               (Either (..), either)
+import Data.Function             (const, ($), (.))
+import Data.Functor              (Functor, fmap)
+import Data.Maybe                (Maybe (..))
 
 -- Internal imports
 import Control.Monad.Trans.MSF.Except (ExceptT, exceptS, listToMSFExcept,

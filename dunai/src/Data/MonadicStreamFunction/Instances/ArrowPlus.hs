@@ -14,7 +14,9 @@ module Data.MonadicStreamFunction.Instances.ArrowPlus where
 -- External imports
 import Control.Applicative (Alternative (..))
 import Control.Arrow       (ArrowPlus (..), ArrowZero (..))
-import Control.Monad       (MonadPlus, mplus, mzero)
+import Control.Monad       (Monad, MonadPlus, mplus, mzero)
+import Data.Function       (const, ($))
+import Data.Functor        (Functor)
 
 -- Internal imports
 import Data.MonadicStreamFunction.Core         ()

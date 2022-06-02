@@ -25,6 +25,11 @@
 -- 'Floating'.
 module Data.MonadicStreamFunction.Instances.Num where
 
+-- External imports
+import Control.Monad (Monad)
+import Data.Function ((.))
+import Prelude       (Floating (..), Fractional (..), Num (..))
+
 -- Internal imports
 import Control.Arrow.Util              (constantly, elementwise, elementwise2)
 import Data.MonadicStreamFunction.Core (MSF)

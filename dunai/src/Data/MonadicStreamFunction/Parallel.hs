@@ -9,6 +9,8 @@ module Data.MonadicStreamFunction.Parallel where
 
 -- External imports
 import Control.Arrow (arr, (>>>))
+import Control.Monad (Monad, return)
+import Data.Function (($))
 import GHC.Conc      (par, pseq)
 
 -- Internal imports

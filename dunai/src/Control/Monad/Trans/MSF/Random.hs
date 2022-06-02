@@ -24,8 +24,12 @@ module Control.Monad.Trans.MSF.Random
 
 -- External imports
 import Control.Arrow        (arr, (>>>))
+import Control.Monad        (Monad)
 import Control.Monad.Random (MonadRandom, RandT, Random, RandomGen, getRandom,
                              getRandomR, getRandomRs, getRandoms, runRandT)
+import Data.Function        (($), (.))
+import Data.Functor         (Functor)
+import Data.Tuple           (snd)
 
 -- Internal imports
 import Control.Monad.Trans.MSF.State (StateT (..), runStateS_)

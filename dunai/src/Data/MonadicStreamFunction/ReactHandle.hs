@@ -12,6 +12,7 @@ module Data.MonadicStreamFunction.ReactHandle where
 
 -- External imports
 import Control.Monad.IO.Class (MonadIO, liftIO)
+import Data.Function          ((.), ($))
 import Data.IORef             (IORef, newIORef, readIORef, writeIORef)
 
 -- Internal imports

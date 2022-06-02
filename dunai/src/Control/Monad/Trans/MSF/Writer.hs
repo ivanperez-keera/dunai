@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
@@ -24,12 +23,11 @@ module Control.Monad.Trans.MSF.Writer
   where
 
 -- External imports
+import Control.Monad                     (Monad)
 import Control.Monad.Trans.Writer.Strict hiding (liftCallCC, liftCatch, pass)
-
-#if !MIN_VERSION_base(4,8,0)
-import Data.Functor ((<$>))
-import Data.Monoid  (Monoid)
-#endif
+import Data.Function                     (($))
+import Data.Functor                      (Functor, (<$>))
+import Data.Monoid                       (Monoid)
 
 -- Internal imports
 import Data.MonadicStreamFunction (MSF, morphGS)

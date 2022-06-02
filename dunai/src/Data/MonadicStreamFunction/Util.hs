@@ -1,5 +1,4 @@
 {-# LANGUAGE Arrows #-}
-{-# LANGUAGE CPP    #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
@@ -11,13 +10,18 @@ module Data.MonadicStreamFunction.Util where
 -- External imports
 import Control.Arrow    (arr, returnA, (&&&), (<<<), (>>>))
 import Control.Category (id, (.))
-import Control.Monad    (when)
+import Control.Monad    (Monad, return, when, (>>))
+import Data.Bool        (Bool)
+import Data.Function    (const, ($))
+import Data.List        ((++))
+import Data.Maybe       (Maybe (..))
+import Data.Monoid      (Monoid, mappend, mempty)
+import Data.String      (String)
+import Data.Tuple       (fst, snd, uncurry)
 import Data.VectorSpace (VectorSpace, zeroVector, (^+^))
-import Prelude          hiding (id, (.))
-
-#if !MIN_VERSION_base(4,8,0)
-import Data.Monoid (Monoid, mempty, mappend)
-#endif
+import Prelude          (Num, (+))
+import System.IO        (IO, getLine, print, putStrLn)
+import Text.Show        (Show, show)
 
 -- Internal imports
 import Data.MonadicStreamFunction.Core                  (MSF, arrM, feedback)

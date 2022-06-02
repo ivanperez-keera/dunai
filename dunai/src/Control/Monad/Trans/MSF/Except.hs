@@ -17,18 +17,25 @@ module Control.Monad.Trans.MSF.Except
   where
 
 -- External imports
-#if !MIN_VERSION_base(4,8,0)
-import           Control.Applicative        (Applicative (..), (<$>))
-#endif
-
+import           Control.Applicative        (Applicative (..))
 import           Control.Arrow              (arr, returnA, (<<<), (>>>))
 import qualified Control.Category           as Category
-import           Control.Monad              (ap, liftM)
+import           Control.Monad              (Monad (..), ap, liftM, mapM_,
+                                             return, (=<<))
 import           Control.Monad.Trans.Class  (lift)
 import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen,
                                              liftPass)
 import           Control.Monad.Trans.Maybe  (MaybeT, runMaybeT)
+import           Data.Bool                  (Bool)
+import           Data.Either                (Either (..))
+import           Data.Function              (const, flip, id, ($), (.))
+import           Data.Functor               (Functor (..), (<$>))
+import           Data.Int                   (Int)
+import           Data.Maybe                 (Maybe (..), maybe)
+import           Data.Ord                   ((>))
+import           Data.Tuple                 (fst)
 import           Data.Void                  (Void)
+import           Prelude                    (error)
 
 -- Internal imports
 import Data.MonadicStreamFunction              (arrM, constM, count, feedback,

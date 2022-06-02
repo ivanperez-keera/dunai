@@ -15,7 +15,9 @@ module Data.MonadicStreamFunction.Instances.ArrowLoop where
 
 -- External imports
 import Control.Arrow     (ArrowLoop (..))
+import Control.Monad     (return)
 import Control.Monad.Fix (MonadFix)
+import Data.Function     (($))
 
 -- Internal imports
 import Data.MonadicStreamFunction.Core         ()

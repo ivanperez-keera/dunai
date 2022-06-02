@@ -12,6 +12,8 @@ module Data.MonadicStreamFunction.Instances.ArrowChoice where
 
 -- External imports
 import Control.Arrow (ArrowChoice (..))
+import Control.Monad (Monad, return)
+import Data.Either   (Either (Left, Right))
 
 -- Internal imports
 import Data.MonadicStreamFunction.Core         ()
