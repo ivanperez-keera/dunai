@@ -11,12 +11,12 @@
 module Data.MonadicStreamFunction.ReactHandle where
 
 -- External imports
-import Control.Monad.IO.Class
-import Data.IORef
+import Control.Monad.IO.Class (MonadIO, liftIO)
+import Data.IORef             (IORef, newIORef, readIORef, writeIORef)
 
 -- Internal imports
-import Data.MonadicStreamFunction
-import Data.MonadicStreamFunction.InternalCore
+import Data.MonadicStreamFunction              (MSF)
+import Data.MonadicStreamFunction.InternalCore (unMSF)
 
 -- | A storage for the current state of an 'MSF'.
 -- The 'MSF' may not require input or produce output data,
