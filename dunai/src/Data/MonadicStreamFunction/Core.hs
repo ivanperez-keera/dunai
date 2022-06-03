@@ -62,16 +62,17 @@ module Data.MonadicStreamFunction.Core
     -- * Simulation
   , reactimate
   , embed
-  , module Control.Arrow
+  , module X
   )
   where
 
 -- External imports
-import Control.Arrow             (Arrow (..), (>>>))
-import Control.Category          as C (id, (.))
-import Control.Monad.Base        (MonadBase, liftBase)
-import Control.Monad.Trans.Class (MonadTrans, lift)
-import Prelude                   hiding (id, sum, (.))
+import           Control.Arrow             (Arrow (..), (>>>))
+import qualified Control.Arrow             as X
+import           Control.Category          as C (id, (.))
+import           Control.Monad.Base        (MonadBase, liftBase)
+import           Control.Monad.Trans.Class (MonadTrans, lift)
+import           Prelude                   hiding (id, sum, (.))
 
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative (Applicative(..))
