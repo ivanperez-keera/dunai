@@ -8,7 +8,7 @@
 module Data.MonadicStreamFunction.Async where
 
 -- Internal imports
-import Data.MonadicStreamFunction.InternalCore
+import Data.MonadicStreamFunction.InternalCore (MSF(MSF, unMSF))
 import Data.MonadicStreamFunction.Util         (MStream)
 
 -- |
