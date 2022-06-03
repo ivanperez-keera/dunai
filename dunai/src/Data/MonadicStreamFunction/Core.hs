@@ -65,6 +65,7 @@ module Data.MonadicStreamFunction.Core
   )
   where
 
+-- External imports
 import Control.Applicative
 import Control.Arrow
 import Control.Category          as C
@@ -72,6 +73,7 @@ import Control.Monad.Base
 import Control.Monad.Trans.Class
 import Prelude                   hiding (id, sum, (.))
 
+-- Internal imports
 import Data.MonadicStreamFunction.InternalCore (MSF, embed, feedback, morphGS,
                                                 reactimate)
 
