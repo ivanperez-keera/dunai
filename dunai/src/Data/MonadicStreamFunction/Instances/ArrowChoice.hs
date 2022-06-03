@@ -10,8 +10,10 @@
 -- Import this module to include that (orphan) instance.
 module Data.MonadicStreamFunction.Instances.ArrowChoice where
 
+-- External imports
 import Control.Arrow
 
+-- Internal imports
 import Data.MonadicStreamFunction.Core
 import Data.MonadicStreamFunction.InternalCore
 
