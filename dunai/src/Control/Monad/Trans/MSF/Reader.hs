@@ -40,4 +40,4 @@ runReaderS = morphGS $ \f (r, a) -> runReaderT (f a) r
 -- | Build an 'MSF' /function/ that takes a fixed environment as additional
 -- input, from an MSF in the 'Reader' monad.
 runReaderS_ :: Monad m => MSF (ReaderT s m) a b -> s -> MSF m a b
-runReaderS_ msf s = arr (\a -> (s,a)) >>> runReaderS msf
+runReaderS_ msf s = arr (\a -> (s, a)) >>> runReaderS msf
