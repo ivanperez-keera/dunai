@@ -46,7 +46,7 @@
 -- individually, but the main module instead.
 module Data.MonadicStreamFunction.InternalCore where
 
--- External
+-- External imports
 import Control.Category (Category (..))
 import Control.Monad
 import Prelude          hiding (id, sum, (.))
