@@ -7,11 +7,11 @@
 -- possible.
 module Data.MonadicStreamFunction.Parallel where
 
--- External
+-- External imports
 import Control.Arrow
 import GHC.Conc
 
--- Internal
+-- Internal imports
 import Data.MonadicStreamFunction
 import Data.MonadicStreamFunction.InternalCore
 
