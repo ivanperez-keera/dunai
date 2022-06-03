@@ -11,12 +11,12 @@
 -- This is only defined for monads that are instances of 'MonadPlus'.
 module Data.MonadicStreamFunction.Instances.ArrowPlus where
 
--- base
+-- External imports
 import Control.Applicative
 import Control.Arrow
 import Control.Monad
 
--- dunai
+-- Internal imports
 import Data.MonadicStreamFunction.Core
 import Data.MonadicStreamFunction.InternalCore
 
