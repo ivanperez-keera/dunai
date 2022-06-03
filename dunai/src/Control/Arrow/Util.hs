@@ -6,6 +6,7 @@
 -- Utility functions to work with 'Arrow's.
 module Control.Arrow.Util where
 
+-- External imports
 import Control.Arrow
 
 -- | Constantly produce the same output.
