@@ -25,7 +25,7 @@ module Control.Monad.Trans.MSF.State
   , runStateS__
   ) where
 
--- External
+-- External imports
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative
 #endif
@@ -34,7 +34,7 @@ import Control.Monad.Trans.State.Strict hiding (liftCallCC, liftCatch,
                                          liftListen, liftPass)
 import Data.Tuple                       (swap)
 
--- Internal
+-- Internal imports
 import Data.MonadicStreamFunction.Core
 
 -- * 'State' 'MSF' running and wrapping
