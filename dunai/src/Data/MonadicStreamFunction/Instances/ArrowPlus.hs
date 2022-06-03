@@ -11,14 +11,14 @@
 -- This is only defined for monads that are instances of 'MonadPlus'.
 module Data.MonadicStreamFunction.Instances.ArrowPlus where
 
--- base
-import Control.Applicative
-import Control.Arrow
-import Control.Monad
+-- External imports
+import Control.Applicative (Alternative (..))
+import Control.Arrow       (ArrowPlus (..), ArrowZero (..))
+import Control.Monad       (MonadPlus, mplus, mzero)
 
--- dunai
-import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.InternalCore
+-- Internal imports
+import Data.MonadicStreamFunction.Core         ()
+import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- | Instance of 'ArrowZero' for Monadic Stream Functions ('MSF').
 --   The monad must be an instance of 'MonadPlus'.

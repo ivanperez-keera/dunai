@@ -16,22 +16,25 @@ module Control.Monad.Trans.MSF.Except
   , module Control.Monad.Trans.Except
   ) where
 
--- External
+-- External imports
 #if !MIN_VERSION_base(4,8,0)
-import           Control.Applicative
+import           Control.Applicative        (Applicative (..), (<$>))
 #endif
 
+import           Control.Arrow              (arr, returnA, (<<<), (>>>))
 import qualified Control.Category           as Category
 import           Control.Monad              (ap, liftM)
-import           Control.Monad.Trans.Class
+import           Control.Monad.Trans.Class  (lift)
 import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen,
                                              liftPass)
-import           Control.Monad.Trans.Maybe
+import           Control.Monad.Trans.Maybe  (MaybeT, runMaybeT)
 import           Data.Void                  (Void)
 
--- Internal
-import Data.MonadicStreamFunction
-import Data.MonadicStreamFunction.InternalCore
+-- Internal imports
+import Data.MonadicStreamFunction              (arrM, constM, count, feedback,
+                                                liftTransS, mapMaybeS, morphS,
+                                                reactimate)
+import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- External, necessary for older base versions
 #if __GLASGOW_HASKELL__ < 802
@@ -198,7 +201,8 @@ handleExceptT msf f = flip handleGen msf $ \a mbcont -> do
     Left e          -> unMSF (f e) a
     Right (b, msf') -> return (b, handleExceptT msf' f)
 
--- | If no exception can occur, the 'MSF' can be executed without the 'ExceptT' layer.
+-- | If no exception can occur, the 'MSF' can be executed without the 'ExceptT'
+-- layer.
 safely :: Monad m => MSFExcept m a b Void -> MSF m a b
 safely (MSFExcept msf) = morphS fromExcept msf
   where
@@ -245,10 +249,10 @@ listToMSFExcept = mapM_ step_
 
 -- * Utilities definable in terms of 'MSFExcept'
 
--- TODO This is possibly not the best location for these functions,
--- but moving them to Data.MonadicStreamFunction.Util would form an import cycle
--- that could only be broken by moving a few things to Data.MonadicStreamFunction.Core
--- (that probably belong there anyways).
+-- TODO This is possibly not the best location for these functions, but moving
+-- them to Data.MonadicStreamFunction.Util would form an import cycle that
+-- could only be broken by moving a few things to
+-- Data.MonadicStreamFunction.Core (that probably belong there anyways).
 
 -- | Extract an 'MSF' from a monadic action.
 --
@@ -273,7 +277,8 @@ reactimateB sf = reactimateExcept $ try $ liftTransS sf >>> throwOn ()
 -- | Run first MSF until the second value in the output tuple is @Just c@ (for
 -- some @c@), then start the second MSF.
 --
--- Analog to Yampa's [@switch@](https://hackage.haskell.org/package/Yampa/docs/FRP-Yampa-Switches.html#v:switch),
+-- Analog to Yampa's
+-- [@switch@](https://hackage.haskell.org/package/Yampa/docs/FRP-Yampa-Switches.html#v:switch),
 -- with 'Maybe' instead of @Event@.
 switch :: Monad m => MSF m a (b, Maybe c) -> (c -> MSF m a b) -> MSF m a b
 switch sf f = catchS ef f
@@ -288,7 +293,8 @@ switch sf f = catchS ef f
 -- | Run first MSF until the second value in the output tuple is @Just c@ (for
 -- some @c@), then start the second MSF.
 --
--- Analog to Yampa's [@dswitch@](https://hackage.haskell.org/package/Yampa/docs/FRP-Yampa-Switches.html#v:dSwitch),
+-- Analog to Yampa's
+-- [@dswitch@](https://hackage.haskell.org/package/Yampa/docs/FRP-Yampa-Switches.html#v:dSwitch),
 -- with 'Maybe' instead of @Event@.
 dSwitch :: Monad m => MSF m a (b, Maybe c) -> (c -> MSF m a b) -> MSF m a b
 dSwitch sf f = catchS ef f
@@ -307,11 +313,14 @@ transG :: (Monad m1, Monad m2)
        -> MSF m1 a1 b1
        -> MSF m2 a2 b2
 transG transformInput transformOutput msf = go
-  where go = MSF $ \a2 -> do
-               (b2, msf') <- transformOutput a2 $ unMSF msf =<< transformInput a2
-               case msf' of
-                 Just msf'' -> return (b2, transG transformInput transformOutput msf'')
-                 Nothing    -> return (b2, go)
+  where
+    go = MSF $ \a2 -> do
+           (b2, msf') <- transformOutput a2 $ unMSF msf =<< transformInput a2
+           case msf' of
+             Just msf'' ->
+               return (b2, transG transformInput transformOutput msf'')
+             Nothing ->
+               return (b2, go)
 
 -- | Use a generic handler to handle exceptions in MSF processing actions.
 handleGen :: (a -> m1 (b1, MSF m1 a b1) -> m2 (b2, MSF m2 a b2))

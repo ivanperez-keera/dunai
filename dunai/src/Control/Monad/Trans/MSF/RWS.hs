@@ -16,16 +16,16 @@ module Control.Monad.Trans.MSF.RWS
   , module Control.Monad.Trans.RWS.Strict
   ) where
 
--- External
+-- External imports
 import Control.Monad.Trans.RWS.Strict hiding (liftCallCC, liftCatch)
 
 #if !MIN_VERSION_base(4,8,0)
 import Data.Functor ((<$>))
-import Data.Monoid
+import Data.Monoid  (Monoid)
 #endif
 
--- Internal
-import Data.MonadicStreamFunction
+-- Internal imports
+import Data.MonadicStreamFunction (MSF, morphGS)
 
 -- * 'RWS' (Reader-Writer-State) monad
 

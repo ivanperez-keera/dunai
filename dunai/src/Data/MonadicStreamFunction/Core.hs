@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP        #-}
 {-# LANGUAGE Rank2Types #-}
 -- We disable the following warning because this module purposefully defines
 -- orphan instances. This is a design decision in Dunai, so that we give
@@ -65,14 +66,20 @@ module Data.MonadicStreamFunction.Core
   )
   where
 
-import Control.Applicative
-import Control.Arrow
-import Control.Category          as C
-import Control.Monad.Base
-import Control.Monad.Trans.Class
+-- External imports
+import Control.Arrow             (Arrow (..), (>>>))
+import Control.Category          as C (id, (.))
+import Control.Monad.Base        (MonadBase, liftBase)
+import Control.Monad.Trans.Class (MonadTrans, lift)
 import Prelude                   hiding (id, sum, (.))
 
-import Data.MonadicStreamFunction.InternalCore (MSF, embed, feedback, morphGS, reactimate)
+#if !MIN_VERSION_base(4,8,0)
+import Control.Applicative (Applicative(..))
+#endif
+
+-- Internal imports
+import Data.MonadicStreamFunction.InternalCore (MSF, embed, feedback, morphGS,
+                                                reactimate)
 
 -- * Definitions
 
@@ -81,11 +88,11 @@ instance Monad m => Arrow (MSF m) where
 
   arr f = arrM (return . f)
 
-  -- first sf = MSF $ \(a,c) -> do
+  -- first sf = MSF $ \(a, c) -> do
   --   (b, sf') <- unMSF sf a
   --   b `seq` return ((b, c), first sf')
 
-  first = morphGS $ \f (a,c) -> do
+  first = morphGS $ \f (a, c) -> do
             (b, msf') <- f a
             return ((b, c), msf')
 
@@ -120,7 +127,7 @@ arrM :: Monad m => (a -> m b) -> MSF m a b
 --  where go = MSF $ \a -> do
 --               b <- f a
 --               return (b, go)
-arrM f = morphGS (\i a -> i a >>= \(_,c) -> f a >>= \b -> return (b, c)) C.id
+arrM f = morphGS (\i a -> i a >>= \(_, c) -> f a >>= \b -> return (b, c)) C.id
 
 -- | Monadic lifting from one monad into another
 liftBaseM :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
@@ -172,8 +179,9 @@ morphS morph = morphGS morph'
     -- Remember that:
     -- morphGS :: Monad m2
     --         => (forall c . (a1 -> m1 (b1, c)) -> (a2 -> m2 (b2, c)))
-    --           -- ^ The natural transformation. @mi@, @ai@ and @bi@ for @i = 1, 2@
-    --           --   can be chosen freely, but @c@ must be universally quantified
+    --           -- ^ The natural transformation. @mi@, @ai@ and @bi@ for
+    --           --   @i = 1, 2@ can be chosen freely, but @c@ must be
+    --           --   universally quantified
     --         -> MSF m1 a1 b1
     --         -> MSF m2 a2 b2
     --

@@ -6,7 +6,8 @@
 -- Utility functions to work with 'Arrow's.
 module Control.Arrow.Util where
 
-import Control.Arrow
+-- External imports
+import Control.Arrow (Arrow, arr, (&&&), (>>^), (^<<))
 
 -- | Constantly produce the same output.
 constantly :: Arrow a => b -> a c b

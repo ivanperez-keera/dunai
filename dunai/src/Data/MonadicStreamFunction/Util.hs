@@ -1,4 +1,5 @@
 {-# LANGUAGE Arrows     #-}
+{-# LANGUAGE CPP        #-}
 {-# LANGUAGE Rank2Types #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
@@ -8,16 +9,19 @@
 -- Useful auxiliary functions and definitions.
 module Data.MonadicStreamFunction.Util where
 
--- External
-import Control.Arrow
-import Control.Category
-import Control.Monad
-import Data.Monoid
-import Data.VectorSpace
-import Prelude            hiding (id, (.))
+-- External imports
+import Control.Arrow    (arr, returnA, (&&&), (<<<), (>>>))
+import Control.Category (id, (.))
+import Control.Monad    (when)
+import Data.VectorSpace (VectorSpace, zeroVector, (^+^))
+import Prelude          hiding (id, (.))
 
--- Internal
-import Data.MonadicStreamFunction.Core
+#if !MIN_VERSION_base(4,8,0)
+import Data.Monoid (Monoid, mempty, mappend)
+#endif
+
+-- Internal imports
+import Data.MonadicStreamFunction.Core                  (MSF, arrM, feedback)
 import Data.MonadicStreamFunction.Instances.ArrowChoice ()
 
 -- * Streams and sinks
@@ -65,7 +69,7 @@ iPre :: Monad m
      -> MSF m a a
 -- iPre firsta = MSF $ \a -> return (firsta, iPre a)
 iPre firsta = feedback firsta $ arr swap
-  where swap (a,b) = (b, a)
+  where swap (a, b) = (b, a)
 -- iPre firsta = next firsta identity
 
 
@@ -161,7 +165,11 @@ traceWith method msg =
 
 -- | Outputs every input sample, with a given message prefix, using an
 -- auxiliary printing function, when a condition is met.
-traceWhen :: (Monad m, Show a) => (a -> Bool) -> (String -> m ()) -> String -> MSF m a a
+traceWhen :: (Monad m, Show a)
+          => (a -> Bool)
+          -> (String -> m ())
+          -> String
+          -> MSF m a a
 traceWhen cond method msg = withSideEffect $ \a ->
   when (cond a) $ method $ msg ++ show a
 

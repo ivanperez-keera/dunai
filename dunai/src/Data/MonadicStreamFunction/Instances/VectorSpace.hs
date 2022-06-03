@@ -35,12 +35,13 @@
 -- resolved.
 module Data.MonadicStreamFunction.Instances.VectorSpace where
 
-import Control.Arrow
-import Data.VectorSpace
+-- External imports
+import Control.Arrow    ((>>^))
+import Data.VectorSpace (VectorSpace (..))
 
-import Control.Arrow.Util
-
-import Data.MonadicStreamFunction.Core
+-- Internal imports
+import Control.Arrow.Util              (constantly, elementwise2)
+import Data.MonadicStreamFunction.Core (MSF)
 
 -- | Vector-space instance for 'MSF's.
 instance (Monad m, VectorSpace v s) => VectorSpace (MSF m a v) s where

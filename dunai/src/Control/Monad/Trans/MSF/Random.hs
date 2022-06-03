@@ -23,12 +23,14 @@ module Control.Monad.Trans.MSF.Random
   , getRandomsRS_
   ) where
 
--- External
-import Control.Monad.Random
+-- External imports
+import Control.Arrow        (arr, (>>>))
+import Control.Monad.Random (MonadRandom, RandT, Random, RandomGen, getRandom,
+                             getRandomR, getRandomRs, getRandoms, runRandT)
 
--- Internal
-import Control.Monad.Trans.MSF.State
-import Data.MonadicStreamFunction
+-- Internal imports
+import Control.Monad.Trans.MSF.State (StateT (..), runStateS_)
+import Data.MonadicStreamFunction    (MSF, arrM, constM, morphS)
 
 -- | Run an 'MSF' in the 'RandT' random number monad transformer
 --   by supplying an initial random generator.

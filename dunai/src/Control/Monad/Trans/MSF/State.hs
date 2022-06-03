@@ -25,17 +25,18 @@ module Control.Monad.Trans.MSF.State
   , runStateS__
   ) where
 
--- External
+-- External imports
 #if !MIN_VERSION_base(4,8,0)
-import Control.Applicative
+import Control.Applicative ((<$>))
 #endif
 
+import Control.Arrow                    (arr, (>>>))
 import Control.Monad.Trans.State.Strict hiding (liftCallCC, liftCatch,
                                          liftListen, liftPass)
 import Data.Tuple                       (swap)
 
--- Internal
-import Data.MonadicStreamFunction.Core
+-- Internal imports
+import Data.MonadicStreamFunction.Core (MSF, morphGS, feedback)
 
 -- * 'State' 'MSF' running and wrapping
 
@@ -54,9 +55,13 @@ runStateS = morphGS $ \f (s, a) -> (\((b, c), s') -> ((s', b), c))
 -- | Build an 'MSF' /function/ that takes a fixed state as additional input,
 -- from an 'MSF' in the 'State' monad, and outputs the new state with every
 -- transformation step.
-runStateS_ :: (Functor m, Monad m) => MSF (StateT s m) a b -> s -> MSF m a (s, b)
-runStateS_ msf s = feedback s
-                 $ arr swap >>> runStateS msf >>> arr (\(s', b) -> ((s', b), s'))
+runStateS_ :: (Functor m, Monad m)
+           => MSF (StateT s m) a b
+           -> s
+           -> MSF m a (s, b)
+runStateS_ msf s =
+  feedback s $
+    arr swap >>> runStateS msf >>> arr (\(s', b) -> ((s', b), s'))
 
 -- TODO Rename this to execStateS!
 -- | Build an 'MSF' /function/ that takes a fixed state as additional

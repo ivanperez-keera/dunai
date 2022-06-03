@@ -47,14 +47,14 @@ module Data.MonadicStreamFunction
   )
  where
 
--- External
+-- External imports
 import Control.Arrow
 
--- Internal
+-- Internal imports
 import Data.MonadicStreamFunction.Core
 import Data.MonadicStreamFunction.Util
 
--- Internal (Instances)
+-- Internal imports (instances)
 import Data.MonadicStreamFunction.Instances.ArrowChoice ()
 import Data.MonadicStreamFunction.Instances.ArrowLoop   ()
 import Data.MonadicStreamFunction.Instances.ArrowPlus   ()

@@ -10,10 +10,12 @@
 -- Import this module to include that (orphan) instance.
 module Data.MonadicStreamFunction.Instances.ArrowChoice where
 
-import Control.Arrow
+-- External imports
+import Control.Arrow (ArrowChoice (..))
 
-import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.InternalCore
+-- Internal imports
+import Data.MonadicStreamFunction.Core         ()
+import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- | 'ArrowChoice' instance for MSFs.
 instance Monad m => ArrowChoice (MSF m) where

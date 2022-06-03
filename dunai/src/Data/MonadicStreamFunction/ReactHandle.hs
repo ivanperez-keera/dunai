@@ -10,13 +10,13 @@
 -- This module makes Dunai compatible with external main loops.
 module Data.MonadicStreamFunction.ReactHandle where
 
--- External
-import Control.Monad.IO.Class
-import Data.IORef
+-- External imports
+import Control.Monad.IO.Class (MonadIO, liftIO)
+import Data.IORef             (IORef, newIORef, readIORef, writeIORef)
 
--- Internal
-import Data.MonadicStreamFunction
-import Data.MonadicStreamFunction.InternalCore
+-- Internal imports
+import Data.MonadicStreamFunction              (MSF)
+import Data.MonadicStreamFunction.InternalCore (unMSF)
 
 -- | A storage for the current state of an 'MSF'.
 -- The 'MSF' may not require input or produce output data,

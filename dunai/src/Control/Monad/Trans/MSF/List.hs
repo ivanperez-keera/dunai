@@ -8,14 +8,14 @@ module Control.Monad.Trans.MSF.List
   , module Control.Monad.Trans.List
   ) where
 
--- External
+-- External imports
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative ((<$>))
 #endif
 
 import Control.Monad.Trans.List hiding (liftCallCC, liftCatch)
 
--- Internal
+-- Internal imports
 import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- * List monad
@@ -28,7 +28,8 @@ widthFirst msf = widthFirst' [msf] where
         return (bs, widthFirst' msfs')
 
 
--- Name alternatives: "choose", "parallely" (problematic because it's not multicore)
+-- Name alternatives: "choose", "parallely" (problematic because it's not
+-- multicore)
 sequenceS :: Monad m => [MSF m a b] -> MSF (ListT m) a b
 sequenceS msfs = MSF $ \a -> ListT $ sequence $ apply a <$> msfs
   where
