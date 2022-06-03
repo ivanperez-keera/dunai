@@ -1,4 +1,5 @@
 {-# LANGUAGE Arrows     #-}
+{-# LANGUAGE CPP        #-}
 {-# LANGUAGE Rank2Types #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
@@ -9,15 +10,18 @@
 module Data.MonadicStreamFunction.Util where
 
 -- External imports
-import Control.Arrow
-import Control.Category
-import Control.Monad
-import Data.Monoid
-import Data.VectorSpace
-import Prelude            hiding (id, (.))
+import Control.Arrow    (arr, returnA, (&&&), (<<<), (>>>))
+import Control.Category (id, (.))
+import Control.Monad    (when)
+import Data.VectorSpace (VectorSpace, zeroVector, (^+^))
+import Prelude          hiding (id, (.))
+
+#if !MIN_VERSION_base(4,8,0)
+import Data.Monoid (Monoid, mempty, mappend)
+#endif
 
 -- Internal imports
-import Data.MonadicStreamFunction.Core
+import Data.MonadicStreamFunction.Core                  (MSF, arrM, feedback)
 import Data.MonadicStreamFunction.Instances.ArrowChoice ()
 
 -- * Streams and sinks
