@@ -14,11 +14,11 @@ module Control.Monad.Trans.MSF.Maybe
   , maybeToExceptS
   ) where
 
--- External
+-- External imports
 import Control.Monad.Trans.Maybe hiding (liftCallCC, liftCatch, liftListen,
                                   liftPass)
 
--- Internal
+-- Internal imports
 import Control.Monad.Trans.MSF.Except
 import Data.MonadicStreamFunction
 
