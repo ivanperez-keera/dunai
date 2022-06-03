@@ -72,7 +72,8 @@ import Control.Monad.Base
 import Control.Monad.Trans.Class
 import Prelude                   hiding (id, sum, (.))
 
-import Data.MonadicStreamFunction.InternalCore (MSF, embed, feedback, morphGS, reactimate)
+import Data.MonadicStreamFunction.InternalCore (MSF, embed, feedback, morphGS,
+                                                reactimate)
 
 -- * Definitions
 
@@ -172,8 +173,9 @@ morphS morph = morphGS morph'
     -- Remember that:
     -- morphGS :: Monad m2
     --         => (forall c . (a1 -> m1 (b1, c)) -> (a2 -> m2 (b2, c)))
-    --           -- ^ The natural transformation. @mi@, @ai@ and @bi@ for @i = 1, 2@
-    --           --   can be chosen freely, but @c@ must be universally quantified
+    --           -- ^ The natural transformation. @mi@, @ai@ and @bi@ for
+    --           --   @i = 1, 2@ can be chosen freely, but @c@ must be
+    --           --   universally quantified
     --         -> MSF m1 a1 b1
     --         -> MSF m2 a2 b2
     --
