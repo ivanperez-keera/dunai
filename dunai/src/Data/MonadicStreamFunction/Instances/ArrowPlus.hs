@@ -12,13 +12,13 @@
 module Data.MonadicStreamFunction.Instances.ArrowPlus where
 
 -- External imports
-import Control.Applicative
-import Control.Arrow
-import Control.Monad
+import Control.Applicative (Alternative (..))
+import Control.Arrow       (ArrowPlus (..), ArrowZero (..))
+import Control.Monad       (MonadPlus, mplus, mzero)
 
 -- Internal imports
-import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.InternalCore
+import Data.MonadicStreamFunction.Core         ()
+import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- | Instance of 'ArrowZero' for Monadic Stream Functions ('MSF').
 --   The monad must be an instance of 'MonadPlus'.
