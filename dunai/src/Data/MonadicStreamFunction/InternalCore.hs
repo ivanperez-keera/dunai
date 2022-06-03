@@ -48,7 +48,6 @@ module Data.MonadicStreamFunction.InternalCore where
 
 -- External imports
 import Control.Category (Category (..))
-import Control.Monad
 import Prelude          hiding (id, sum, (.))
 
 -- * Definitions
