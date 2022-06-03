@@ -27,11 +27,11 @@ import Control.Monad.Trans.Writer.Strict hiding (liftCallCC, liftCatch, pass)
 
 #if !MIN_VERSION_base(4,8,0)
 import Data.Functor ((<$>))
-import Data.Monoid
+import Data.Monoid  (Monoid)
 #endif
 
 -- Internal imports
-import Data.MonadicStreamFunction
+import Data.MonadicStreamFunction (MSF, morphGS)
 
 -- * 'Writer' 'MSF' running and wrapping
 
