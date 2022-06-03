@@ -2,7 +2,8 @@
         * src/: Simplify implementation of switch (#276), remove redundant
           imports (#281), remove redundant pragma (#282), use external
           Void type (#79), remove redundant imports (#283), disable warning
-          pertaining to orphan instances (#284), style fixes (partial) (#285).
+          pertaining to orphan instances (#284), style fixes (partial) (#285),
+          fix missing re-export of Control.Arrow (#286).
 
 2022-04-21 Ivan Perez <ivan.perez@keera.co.uk>
         * dunai.cabal: Version bump (0.8.2) (#280), syntax rules (#271),
