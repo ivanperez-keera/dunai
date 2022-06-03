@@ -11,11 +11,11 @@
 module Data.MonadicStreamFunction.Instances.ArrowChoice where
 
 -- External imports
-import Control.Arrow
+import Control.Arrow (ArrowChoice (..))
 
 -- Internal imports
-import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.InternalCore
+import Data.MonadicStreamFunction.Core         ()
+import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- | 'ArrowChoice' instance for MSFs.
 instance Monad m => ArrowChoice (MSF m) where
