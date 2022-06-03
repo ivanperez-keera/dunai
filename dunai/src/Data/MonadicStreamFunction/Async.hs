@@ -20,7 +20,7 @@ import Data.MonadicStreamFunction.Util         (MStream)
 -- >>> let intstream = constS $ putStrLn "Enter a list of Ints:" >> readLn :: MStream IO [Int]
 -- >>> reactimate $ concatS intstream >>> arrM print
 -- Enter a list of Ints:
--- [1,2,33]
+-- [1, 2, 33]
 -- 1
 -- 2
 -- 33
@@ -29,7 +29,7 @@ import Data.MonadicStreamFunction.Util         (MStream)
 -- Enter a list of Ints:
 -- []
 -- Enter a list of Ints:
--- [1,2]
+-- [1, 2]
 -- 1
 -- 2
 -- Enter a list of Ints:
