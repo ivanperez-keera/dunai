@@ -21,11 +21,11 @@ import Control.Monad.Trans.RWS.Strict hiding (liftCallCC, liftCatch)
 
 #if !MIN_VERSION_base(4,8,0)
 import Data.Functor ((<$>))
-import Data.Monoid
+import Data.Monoid  (Monoid)
 #endif
 
 -- Internal imports
-import Data.MonadicStreamFunction
+import Data.MonadicStreamFunction (MSF, morphGS)
 
 -- * 'RWS' (Reader-Writer-State) monad
 
