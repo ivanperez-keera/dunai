@@ -161,7 +161,11 @@ traceWith method msg =
 
 -- | Outputs every input sample, with a given message prefix, using an
 -- auxiliary printing function, when a condition is met.
-traceWhen :: (Monad m, Show a) => (a -> Bool) -> (String -> m ()) -> String -> MSF m a a
+traceWhen :: (Monad m, Show a)
+          => (a -> Bool)
+          -> (String -> m ())
+          -> String
+          -> MSF m a a
 traceWhen cond method msg = withSideEffect $ \a ->
   when (cond a) $ method $ msg ++ show a
 
