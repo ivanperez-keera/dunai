@@ -8,12 +8,12 @@
 module Data.MonadicStreamFunction.Parallel where
 
 -- External imports
-import Control.Arrow
-import GHC.Conc
+import Control.Arrow (arr, (>>>))
+import GHC.Conc      (par, pseq)
 
 -- Internal imports
-import Data.MonadicStreamFunction
-import Data.MonadicStreamFunction.InternalCore
+import Data.MonadicStreamFunction              ()
+import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- | Run two 'MSF's in parallel, taking advantage of parallelism if
 --   possible. This is the parallel version of '***'.
