@@ -15,12 +15,16 @@ module Control.Monad.Trans.MSF.Maybe
   ) where
 
 -- External imports
+import Control.Arrow             (returnA, (>>>), arr)
 import Control.Monad.Trans.Maybe hiding (liftCallCC, liftCatch, liftListen,
                                   liftPass)
 
 -- Internal imports
-import Control.Monad.Trans.MSF.Except
-import Data.MonadicStreamFunction
+import Control.Monad.Trans.MSF.Except (ExceptT, exceptS, listToMSFExcept,
+                                       maybeToExceptS, reactimateExcept,
+                                       runExceptT, runMSFExcept, safe, safely,
+                                       try)
+import Data.MonadicStreamFunction     (MSF, arrM, constM, liftTransS, morphS)
 
 -- * Throwing 'Nothing' as an exception ("exiting")
 
