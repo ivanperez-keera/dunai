@@ -14,12 +14,12 @@
 module Data.MonadicStreamFunction.Instances.ArrowLoop where
 
 -- External imports
-import Control.Arrow
-import Control.Monad.Fix
+import Control.Arrow     (ArrowLoop (..))
+import Control.Monad.Fix (MonadFix)
 
 -- Internal imports
-import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.InternalCore
+import Data.MonadicStreamFunction.Core         ()
+import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- | 'ArrowLoop' instance for MSFs. The monad must be an instance of
 -- 'MonadFix'.
