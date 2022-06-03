@@ -18,20 +18,23 @@ module Control.Monad.Trans.MSF.Except
 
 -- External imports
 #if !MIN_VERSION_base(4,8,0)
-import           Control.Applicative
+import           Control.Applicative        (Applicative (..), (<$>))
 #endif
 
+import           Control.Arrow              (arr, returnA, (<<<), (>>>))
 import qualified Control.Category           as Category
 import           Control.Monad              (ap, liftM)
-import           Control.Monad.Trans.Class
+import           Control.Monad.Trans.Class  (lift)
 import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen,
                                              liftPass)
-import           Control.Monad.Trans.Maybe
+import           Control.Monad.Trans.Maybe  (MaybeT, runMaybeT)
 import           Data.Void                  (Void)
 
 -- Internal imports
-import Data.MonadicStreamFunction
-import Data.MonadicStreamFunction.InternalCore
+import Data.MonadicStreamFunction              (arrM, constM, count, feedback,
+                                                liftTransS, mapMaybeS, morphS,
+                                                reactimate)
+import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- External, necessary for older base versions
 #if __GLASGOW_HASKELL__ < 802
