@@ -16,6 +16,7 @@ module Control.Monad.Trans.MSF
     )
   where
 
+-- Internal imports
 import Control.Monad.Trans.MSF.Except
 import Control.Monad.Trans.MSF.Maybe
 import Control.Monad.Trans.MSF.Random
