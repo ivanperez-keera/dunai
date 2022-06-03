@@ -8,7 +8,7 @@
 -- Useful auxiliary functions and definitions.
 module Data.MonadicStreamFunction.Util where
 
--- External
+-- External imports
 import Control.Arrow
 import Control.Category
 import Control.Monad
@@ -16,7 +16,7 @@ import Data.Monoid
 import Data.VectorSpace
 import Prelude            hiding (id, (.))
 
--- Internal
+-- Internal imports
 import Data.MonadicStreamFunction.Core
 import Data.MonadicStreamFunction.Instances.ArrowChoice ()
 
