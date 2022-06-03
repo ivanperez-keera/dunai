@@ -27,15 +27,16 @@ module Control.Monad.Trans.MSF.State
 
 -- External imports
 #if !MIN_VERSION_base(4,8,0)
-import Control.Applicative
+import Control.Applicative ((<$>))
 #endif
 
+import Control.Arrow                    (arr, (>>>))
 import Control.Monad.Trans.State.Strict hiding (liftCallCC, liftCatch,
                                          liftListen, liftPass)
 import Data.Tuple                       (swap)
 
 -- Internal imports
-import Data.MonadicStreamFunction.Core
+import Data.MonadicStreamFunction.Core (MSF, morphGS, feedback)
 
 -- * 'State' 'MSF' running and wrapping
 
