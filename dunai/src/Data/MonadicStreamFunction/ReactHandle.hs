@@ -10,11 +10,11 @@
 -- This module makes Dunai compatible with external main loops.
 module Data.MonadicStreamFunction.ReactHandle where
 
--- External
+-- External imports
 import Control.Monad.IO.Class
 import Data.IORef
 
--- Internal
+-- Internal imports
 import Data.MonadicStreamFunction
 import Data.MonadicStreamFunction.InternalCore
 
