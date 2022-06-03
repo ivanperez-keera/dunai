@@ -13,10 +13,11 @@
 -- This is only defined for monads that are instances of 'MonadFix'.
 module Data.MonadicStreamFunction.Instances.ArrowLoop where
 
--- External
+-- External imports
 import Control.Arrow
 import Control.Monad.Fix
 
+-- Internal imports
 import Data.MonadicStreamFunction.Core
 import Data.MonadicStreamFunction.InternalCore
 
