@@ -35,8 +35,8 @@ import Data.MonadicStreamFunction.Util         (MStream)
 -- Enter a list of Ints:
 -- ...
 --
--- Beware that @concatS msf@ becomes unproductive when @msf@ starts outputting empty lists forever.
--- This is ok:
+-- Beware that @concatS msf@ becomes unproductive when @msf@ starts outputting
+-- empty lists forever. This is ok:
 --
 -- >>> let boolToList b = if b then ["Yes"] else []
 -- >>> let everyOddEmpty = count >>> arr (even >>> boolToList)
@@ -64,5 +64,6 @@ concatS msf = MSF $ \_ -> tick msf []
       (bs, msf'') <- unMSF msf' ()
       tick msf'' bs
 -- TODO Maybe this can be written more nicely with exceptions?
--- Similarly takeS :: Int -> MSF m a b -> MSFExcept m a b () throws an exception after n ticks
+-- Similarly takeS :: Int -> MSF m a b -> MSFExcept m a b () throws an
+-- exception after n ticks
 -- Or with merge?
