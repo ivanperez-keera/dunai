@@ -82,11 +82,11 @@ instance Monad m => Arrow (MSF m) where
 
   arr f = arrM (return . f)
 
-  -- first sf = MSF $ \(a,c) -> do
+  -- first sf = MSF $ \(a, c) -> do
   --   (b, sf') <- unMSF sf a
   --   b `seq` return ((b, c), first sf')
 
-  first = morphGS $ \f (a,c) -> do
+  first = morphGS $ \f (a, c) -> do
             (b, msf') <- f a
             return ((b, c), msf')
 
@@ -121,7 +121,7 @@ arrM :: Monad m => (a -> m b) -> MSF m a b
 --  where go = MSF $ \a -> do
 --               b <- f a
 --               return (b, go)
-arrM f = morphGS (\i a -> i a >>= \(_,c) -> f a >>= \b -> return (b, c)) C.id
+arrM f = morphGS (\i a -> i a >>= \(_, c) -> f a >>= \b -> return (b, c)) C.id
 
 -- | Monadic lifting from one monad into another
 liftBaseM :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
