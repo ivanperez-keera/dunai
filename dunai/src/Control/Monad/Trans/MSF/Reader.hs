@@ -18,10 +18,10 @@ module Control.Monad.Trans.MSF.Reader
   , runReaderS_
   ) where
 
--- External
+-- External imports
 import Control.Monad.Trans.Reader hiding (liftCallCC, liftCatch)
 
--- Internal
+-- Internal imports
 import Data.MonadicStreamFunction
 
 -- * Reader 'MSF' running and wrapping
