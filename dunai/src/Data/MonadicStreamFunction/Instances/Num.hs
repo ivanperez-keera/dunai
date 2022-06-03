@@ -26,6 +26,7 @@
 -- and 'Floating'.
 module Data.MonadicStreamFunction.Instances.Num where
 
+-- Internal imports
 import Control.Arrow.Util
 import Data.MonadicStreamFunction.Core
 
