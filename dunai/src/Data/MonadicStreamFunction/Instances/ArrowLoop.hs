@@ -25,5 +25,5 @@ import Data.MonadicStreamFunction.InternalCore
 instance MonadFix m => ArrowLoop (MSF m) where
   loop :: MSF m (b, d) (c, d) -> MSF m b c
   loop sf = MSF $ \a -> do
-              rec ((b,c), sf') <- unMSF sf (a, c)
+              rec ((b, c), sf') <- unMSF sf (a, c)
               return (b, loop sf')
