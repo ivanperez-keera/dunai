@@ -51,14 +51,16 @@ inMaybeT = arrM $ MaybeT . return
 
 -- * Catching Maybe exceptions
 
--- | Run the first @msf@ until the second one produces 'True' from the output of the first.
+-- | Run the first @msf@ until the second one produces 'True' from the output
+-- of the first.
 untilMaybe :: Monad m => MSF m a b -> MSF m b Bool -> MSF (MaybeT m) a b
 untilMaybe msf cond = proc a -> do
   b <- liftTransS msf  -< a
   c <- liftTransS cond -< b
   inMaybeT -< if c then Nothing else Just b
 
--- | When an exception occurs in the first 'msf', the second 'msf' is executed from there.
+-- | When an exception occurs in the first 'msf', the second 'msf' is executed
+-- from there.
 catchMaybe
   :: (Functor m, Monad m)
   => MSF (MaybeT m) a b -> MSF m a b -> MSF m a b
@@ -69,8 +71,11 @@ catchMaybe msf1 msf2 = safely $ do
 -- * Converting to and from 'MaybeT'
 
 -- | Convert exceptions into `Nothing`, discarding the exception value.
-exceptToMaybeS :: (Functor m, Monad m) => MSF (ExceptT e m) a b -> MSF (MaybeT m) a b
-exceptToMaybeS = morphS $ MaybeT . fmap (either (const Nothing) Just) . runExceptT
+exceptToMaybeS :: (Functor m, Monad m)
+               => MSF (ExceptT e m) a b
+               -> MSF (MaybeT m) a b
+exceptToMaybeS =
+  morphS $ MaybeT . fmap (either (const Nothing) Just) . runExceptT
 
 -- | Converts a list to an 'MSF' in 'MaybeT',
 --   which outputs an element of the list at each step,
@@ -79,8 +84,9 @@ listToMaybeS :: (Functor m, Monad m) => [b] -> MSF (MaybeT m) a b
 listToMaybeS = exceptToMaybeS . runMSFExcept . listToMSFExcept
 
 -- * Running 'MaybeT'
--- | Remove the 'MaybeT' layer by outputting 'Nothing' when the exception occurs.
---   The continuation in which the exception occurred is then tested on the next input.
+-- | Remove the 'MaybeT' layer by outputting 'Nothing' when the exception
+-- occurs. The continuation in which the exception occurred is then tested on
+-- the next input.
 runMaybeS :: (Functor m, Monad m) => MSF (MaybeT m) a b -> MSF m a (Maybe b)
 runMaybeS msf = exceptS (maybeToExceptS msf) >>> arr eitherToMaybe
   where
