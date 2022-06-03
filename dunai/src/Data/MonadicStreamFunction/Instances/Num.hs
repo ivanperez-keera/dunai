@@ -27,8 +27,8 @@
 module Data.MonadicStreamFunction.Instances.Num where
 
 -- Internal imports
-import Control.Arrow.Util
-import Data.MonadicStreamFunction.Core
+import Control.Arrow.Util              (constantly, elementwise, elementwise2)
+import Data.MonadicStreamFunction.Core (MSF)
 
 -- | 'Num' instance for 'MSF's.
 instance (Monad m, Num b) => Num (MSF m a b) where
