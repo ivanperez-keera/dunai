@@ -54,9 +54,13 @@ runStateS = morphGS $ \f (s, a) -> (\((b, c), s') -> ((s', b), c))
 -- | Build an 'MSF' /function/ that takes a fixed state as additional input,
 -- from an 'MSF' in the 'State' monad, and outputs the new state with every
 -- transformation step.
-runStateS_ :: (Functor m, Monad m) => MSF (StateT s m) a b -> s -> MSF m a (s, b)
-runStateS_ msf s = feedback s
-                 $ arr swap >>> runStateS msf >>> arr (\(s', b) -> ((s', b), s'))
+runStateS_ :: (Functor m, Monad m)
+           => MSF (StateT s m) a b
+           -> s
+           -> MSF m a (s, b)
+runStateS_ msf s =
+  feedback s $
+    arr swap >>> runStateS msf >>> arr (\(s', b) -> ((s', b), s'))
 
 -- TODO Rename this to execStateS!
 -- | Build an 'MSF' /function/ that takes a fixed state as additional
