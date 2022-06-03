@@ -7,7 +7,7 @@
 module Control.Arrow.Util where
 
 -- External imports
-import Control.Arrow
+import Control.Arrow (Arrow, arr, (&&&), (>>^), (^<<))
 
 -- | Constantly produce the same output.
 constantly :: Arrow a => b -> a c b
