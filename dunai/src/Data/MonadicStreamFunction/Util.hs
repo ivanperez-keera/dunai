@@ -65,7 +65,7 @@ iPre :: Monad m
      -> MSF m a a
 -- iPre firsta = MSF $ \a -> return (firsta, iPre a)
 iPre firsta = feedback firsta $ arr swap
-  where swap (a,b) = (b, a)
+  where swap (a, b) = (b, a)
 -- iPre firsta = next firsta identity
 
 
