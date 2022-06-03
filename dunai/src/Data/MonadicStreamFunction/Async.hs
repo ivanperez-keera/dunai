@@ -7,7 +7,7 @@
 -- i.e. that change the speed at which data enters or leaves the 'MSF'.
 module Data.MonadicStreamFunction.Async where
 
--- Internal
+-- Internal imports
 import Data.MonadicStreamFunction.InternalCore
 import Data.MonadicStreamFunction.Util         (MStream)
 
