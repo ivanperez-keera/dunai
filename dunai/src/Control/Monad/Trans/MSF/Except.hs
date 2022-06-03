@@ -16,7 +16,7 @@ module Control.Monad.Trans.MSF.Except
   , module Control.Monad.Trans.Except
   ) where
 
--- External
+-- External imports
 #if !MIN_VERSION_base(4,8,0)
 import           Control.Applicative
 #endif
@@ -29,7 +29,7 @@ import           Control.Monad.Trans.Except hiding (liftCallCC, liftListen,
 import           Control.Monad.Trans.Maybe
 import           Data.Void                  (Void)
 
--- Internal
+-- Internal imports
 import Data.MonadicStreamFunction
 import Data.MonadicStreamFunction.InternalCore
 
