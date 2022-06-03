@@ -22,7 +22,7 @@ module Control.Monad.Trans.MSF.Writer
   , runWriterS
   ) where
 
--- External
+-- External imports
 import Control.Monad.Trans.Writer.Strict hiding (liftCallCC, liftCatch, pass)
 
 #if !MIN_VERSION_base(4,8,0)
@@ -30,7 +30,7 @@ import Data.Functor ((<$>))
 import Data.Monoid
 #endif
 
--- Internal
+-- Internal imports
 import Data.MonadicStreamFunction
 
 -- * 'Writer' 'MSF' running and wrapping
