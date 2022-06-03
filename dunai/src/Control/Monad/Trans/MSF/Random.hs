@@ -23,10 +23,10 @@ module Control.Monad.Trans.MSF.Random
   , getRandomsRS_
   ) where
 
--- External
+-- External imports
 import Control.Monad.Random
 
--- Internal
+-- Internal imports
 import Control.Monad.Trans.MSF.State
 import Data.MonadicStreamFunction
 
