@@ -28,7 +28,8 @@ widthFirst msf = widthFirst' [msf] where
         return (bs, widthFirst' msfs')
 
 
--- Name alternatives: "choose", "parallely" (problematic because it's not multicore)
+-- Name alternatives: "choose", "parallely" (problematic because it's not
+-- multicore)
 sequenceS :: Monad m => [MSF m a b] -> MSF (ListT m) a b
 sequenceS msfs = MSF $ \a -> ListT $ sequence $ apply a <$> msfs
   where
