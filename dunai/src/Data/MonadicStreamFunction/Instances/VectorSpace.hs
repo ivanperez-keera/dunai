@@ -35,11 +35,12 @@
 -- resolved.
 module Data.MonadicStreamFunction.Instances.VectorSpace where
 
+-- External imports
 import Control.Arrow
 import Data.VectorSpace
 
+-- Internal imports
 import Control.Arrow.Util
-
 import Data.MonadicStreamFunction.Core
 
 -- | Vector-space instance for 'MSF's.
