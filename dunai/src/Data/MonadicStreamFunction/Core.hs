@@ -89,13 +89,14 @@ instance Monad m => Arrow (MSF m) where
 
   arr f = arrM (return . f)
 
-  -- first sf = MSF $ \(a, c) -> do
-  --   (b, sf') <- unMSF sf a
-  --   b `seq` return ((b, c), first sf')
-
-  first = morphGS $ \f (a, c) -> do
-            (b, msf') <- f a
-            return ((b, c), msf')
+  first =
+    -- This implementation is equivalent to:
+    -- first sf = MSF $ \(a, c) -> do
+    --   (b, sf') <- unMSF sf a
+    --   b `seq` return ((b, c), first sf')
+    morphGS $ \f (a, c) -> do
+      (b, msf') <- f a
+      return ((b, c), msf')
 
 
 -- * Functor and applicative instances
@@ -103,9 +104,6 @@ instance Monad m => Arrow (MSF m) where
 -- | 'Functor' instance for 'MSF's.
 instance Monad m => Functor (MSF m a) where
   fmap f msf = msf >>> arr f
-  -- fmap f msf = MSF $ fmap fS . unMSF msf
-  --   where
-  --     fS (b, cont) = (f b, fmap f cont)
 
 -- | 'Applicative' instance for 'MSF's.
 instance (Functor m, Monad m) => Applicative (MSF m a) where
@@ -124,11 +122,13 @@ constM = arrM . const
 --
 -- Generalisation of 'arr' from 'Arrow' to monadic functions.
 arrM :: Monad m => (a -> m b) -> MSF m a b
---arrM f = go
---  where go = MSF $ \a -> do
---               b <- f a
---               return (b, go)
-arrM f = morphGS (\i a -> i a >>= \(_, c) -> f a >>= \b -> return (b, c)) C.id
+arrM f =
+  -- This implementation is equivalent to:
+  -- arrM f = go
+  --   where go = MSF $ \a -> do
+  --                b <- f a
+  --                return (b, go)
+  morphGS (\i a -> i a >>= \(_, c) -> f a >>= \b -> return (b, c)) C.id
 
 -- | Monadic lifting from one monad into another
 liftBaseM :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
