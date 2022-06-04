@@ -25,7 +25,7 @@
 -- @
 --
 --
--- Instances are provided for the type classes 'RModule' and 'VectorSpace'.
+-- Instances are provided for the type class 'VectorSpace'.
 
 -- Note: This module uses undecidable instances, because GHC does not know
 -- enough to assert that it will be able to determine the type of 's' from the
