@@ -4,9 +4,10 @@
 -- License    : BSD3
 -- Maintainer : ivan.perez@keera.co.uk
 module Control.Monad.Trans.MSF.List
-  ( module Control.Monad.Trans.MSF.List
-  , module Control.Monad.Trans.List
-  ) where
+    ( module Control.Monad.Trans.MSF.List
+    , module Control.Monad.Trans.List
+    )
+  where
 
 -- External imports
 #if !MIN_VERSION_base(4,8,0)
