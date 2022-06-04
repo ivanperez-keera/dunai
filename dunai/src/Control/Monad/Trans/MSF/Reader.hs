@@ -11,12 +11,13 @@
 -- additional layer, and functions to flatten that layer out of the 'MSF`'s
 -- transformer stack.
 module Control.Monad.Trans.MSF.Reader
-  ( module Control.Monad.Trans.Reader
-  -- * 'Reader' 'MSF' running and wrapping.
-  , readerS
-  , runReaderS
-  , runReaderS_
-  ) where
+    ( module Control.Monad.Trans.Reader
+    -- * 'Reader' 'MSF' running and wrapping.
+    , readerS
+    , runReaderS
+    , runReaderS_
+    )
+  where
 
 -- External imports
 import Control.Arrow              (arr, (>>>))
