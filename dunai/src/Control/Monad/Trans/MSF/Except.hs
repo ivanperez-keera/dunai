@@ -118,8 +118,6 @@ untilE msf msfe = proc a -> do
   me <- liftTransS msfe -< b
   inExceptT -< ExceptT $ return $ maybe (Right b) Left me
 
--- TODO This needs to be renamed as 'runExceptS'!
--- 'exceptS' would have type @MSF m a (Either e b) -> MSF (ExceptT e m) a b@
 -- | Escape an 'ExceptT' layer by outputting the exception whenever it occurs.
 --   If an exception occurs, the current 'MSF' continuation is tested again
 --   on the next input.
