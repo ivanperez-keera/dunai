@@ -11,15 +11,16 @@
 -- Under the hood, 'RandT' is basically just 'StateT', with the current random
 -- number generator as mutable state.
 module Control.Monad.Trans.MSF.Random
-  ( runRandS
-  , evalRandS
-  , getRandomS
-  , getRandomsS
-  , getRandomRS
-  , getRandomRS_
-  , getRandomsRS
-  , getRandomsRS_
-  ) where
+    ( runRandS
+    , evalRandS
+    , getRandomS
+    , getRandomsS
+    , getRandomRS
+    , getRandomRS_
+    , getRandomsRS
+    , getRandomsRS_
+    )
+  where
 
 -- External imports
 import Control.Arrow        (arr, (>>>))
