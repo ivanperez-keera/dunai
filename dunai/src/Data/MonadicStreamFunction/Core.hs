@@ -98,7 +98,6 @@ instance Monad m => Arrow (MSF m) where
       (b, msf') <- f a
       return ((b, c), msf')
 
-
 -- * Functor and applicative instances
 
 -- | 'Functor' instance for 'MSF's.
@@ -109,8 +108,8 @@ instance Monad m => Functor (MSF m a) where
 instance (Functor m, Monad m) => Applicative (MSF m a) where
   -- It is possible to define this instance with only Applicative m
   pure = arr . const
-  fs <*> bs = (fs &&& bs) >>> arr (uncurry ($))
 
+  fs <*> bs = (fs &&& bs) >>> arr (uncurry ($))
 
 -- ** Lifting point-wise computations
 
