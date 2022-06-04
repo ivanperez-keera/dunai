@@ -53,7 +53,6 @@ evalRandS msf g = runRandS msf g >>> arr snd
 getRandomS :: (MonadRandom m, Random b) => MSF m a b
 getRandomS = constM getRandom
 
-
 -- | Create a stream of lists of random values.
 getRandomsS :: (MonadRandom m, Random b) => MSF m a [b]
 getRandomsS = constM getRandoms
