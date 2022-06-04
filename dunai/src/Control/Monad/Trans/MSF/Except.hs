@@ -12,9 +12,10 @@
 -- module gives ways to throw exceptions in various ways, and to handle them
 -- through a monadic interface.
 module Control.Monad.Trans.MSF.Except
-  ( module Control.Monad.Trans.MSF.Except
-  , module Control.Monad.Trans.Except
-  ) where
+    ( module Control.Monad.Trans.MSF.Except
+    , module Control.Monad.Trans.Except
+    )
+  where
 
 -- External imports
 #if !MIN_VERSION_base(4,8,0)
