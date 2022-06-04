@@ -141,6 +141,7 @@ liftBaseS :: (Monad m2, MonadBase m1 m2) => MSF m1 a b -> MSF m2 a b
 liftBaseS = morphS liftBase
 
 -- *** MonadBase
+
 -- | Lift the first 'MSF' into the monad of the second.
 (^>>>) :: MonadBase m1 m2 => MSF m1 a b -> MSF m2 b c -> MSF m2 a c
 sf1 ^>>> sf2 = liftBaseS sf1 >>> sf2
