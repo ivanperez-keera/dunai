@@ -5,7 +5,7 @@
           pertaining to orphan instances (#284), style fixes (partial) (#285),
           fix missing re-export of Control.Arrow (#286), further style fixes
           (partial) (#287), avoid name shadowing (#291), remove outdated
-          comments (#289).
+          comments (#289), remove unused pragmas (#290).
 
 2022-04-21 Ivan Perez <ivan.perez@keera.co.uk>
         * dunai.cabal: Version bump (0.8.2) (#280), syntax rules (#271),
