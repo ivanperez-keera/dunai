@@ -123,9 +123,10 @@ arrM :: Monad m => (a -> m b) -> MSF m a b
 arrM f =
   -- This implementation is equivalent to:
   -- arrM f = go
-  --   where go = MSF $ \a -> do
-  --                b <- f a
-  --                return (b, go)
+  --   where
+  --     go = MSF $ \a -> do
+  --            b <- f a
+  --            return (b, go)
   morphGS (\i a -> i a >>= \(_, c) -> f a >>= \b -> return (b, c)) C.id
 
 -- | Monadic lifting from one monad into another
