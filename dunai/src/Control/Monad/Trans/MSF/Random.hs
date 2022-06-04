@@ -31,19 +31,17 @@ import Control.Monad.Random (MonadRandom, RandT, Random, RandomGen, getRandom,
 import Control.Monad.Trans.MSF.State (StateT (..), runStateS_)
 import Data.MonadicStreamFunction    (MSF, arrM, constM, morphS)
 
--- | Run an 'MSF' in the 'RandT' random number monad transformer
---   by supplying an initial random generator.
---   Updates the generator every step.
+-- | Run an 'MSF' in the 'RandT' random number monad transformer by supplying
+-- an initial random generator. Updates the generator every step.
 runRandS :: (RandomGen g, Functor m, Monad m)
          => MSF (RandT g m) a b
          -> g -- ^ The initial random number generator.
          -> MSF m a (g, b)
 runRandS = runStateS_ . morphS (StateT . runRandT)
 
--- | Evaluate an 'MSF' in the 'RandT' transformer,
---   i.e. extract possibly random values
---   by supplying an initial random generator.
---   Updates the generator every step but discharges the generator.
+-- | Evaluate an 'MSF' in the 'RandT' transformer, i.e. extract possibly random
+-- values by supplying an initial random generator. Updates the generator every
+-- step but discharges the generator.
 evalRandS :: (RandomGen g, Functor m, Monad m)
           => MSF (RandT g m) a b -> g -> MSF m a b
 evalRandS msf g = runRandS msf g >>> arr snd
@@ -60,8 +58,8 @@ getRandomsS = constM getRandoms
 getRandomRS :: (MonadRandom m, Random b) => (b, b) -> MSF m a b
 getRandomRS range = constM $ getRandomR range
 
--- | Create a stream of random values in a given range,
---   where the range is specified on every tick.
+-- | Create a stream of random values in a given range, where the range is
+-- specified on every tick.
 getRandomRS_ :: (MonadRandom m, Random b) => MSF m (b, b) b
 getRandomRS_  = arrM getRandomR
 
@@ -69,7 +67,7 @@ getRandomRS_  = arrM getRandomR
 getRandomsRS :: (MonadRandom m, Random b) => (b, b) -> MSF m a [b]
 getRandomsRS range = constM $ getRandomRs range
 
--- | Create a stream of lists of random values in a given range,
---   where the range is specified on every tick.
+-- | Create a stream of lists of random values in a given range, where the
+-- range is specified on every tick.
 getRandomsRS_ :: (MonadRandom m, Random b) => MSF m (b, b) [b]
 getRandomsRS_ = arrM getRandomRs
