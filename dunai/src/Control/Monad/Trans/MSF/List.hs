@@ -1,4 +1,11 @@
 {-# LANGUAGE CPP #-}
+-- The following warning id disabled so that we do not see warnings during
+-- compilation caused by the intentional use of ListT.
+#if __GLASGOW_HASKELL__ < 800
+{-# OPTIONS_GHC -fno-warn-warnings-deprecations #-}
+#else
+{-# OPTIONS_GHC -Wno-deprecations #-}
+#endif
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
@@ -19,6 +26,7 @@
 -- additional constraints on the inner monad in order for the combination of
 -- the monad and the transformer to be a monad. Use at your own risk.
 module Control.Monad.Trans.MSF.List
+    {-# WARNING "This module uses the ListT transformer, which is considered deprecated." #-}
     ( module Control.Monad.Trans.MSF.List
     , module Control.Monad.Trans.List
     )
