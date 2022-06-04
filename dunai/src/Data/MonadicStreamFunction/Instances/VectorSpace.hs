@@ -43,12 +43,18 @@ import Control.Arrow.Util              (constantly, elementwise2)
 import Data.MonadicStreamFunction.Core (MSF)
 
 -- | Vector-space instance for 'MSF's.
-instance (Monad m, VectorSpace v s, Eq s, Floating s)
-      => VectorSpace (MSF m a v) s
+instance (Monad m, Eq s, Num s, VectorSpace v s, Floating (MSF m a s))
+      => VectorSpace (MSF m a v) (MSF m a s)
   where
     zeroVector   = constantly zeroVector
-    r *^ msf     = msf >>^ (r *^)
-    msf ^/ r     = msf >>^ (^/ r)
+    (*^)         = elementwise2 (*^)
+    (^/)         = elementwise2 (^/)
     (^+^)        = elementwise2 (^+^)
     (^-^)        = elementwise2 (^-^)
     negateVector = (>>^ negateVector)
+    dot          = elementwise2 dot
+    normalize v  = elementwise2 f v (norm v)
+      where
+        f v' nv'
+          | nv' /= 0  = v' ^/ nv'
+          | otherwise = error "normalize: zero vector"
