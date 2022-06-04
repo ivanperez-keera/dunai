@@ -1,6 +1,5 @@
-{-# LANGUAGE Arrows     #-}
-{-# LANGUAGE CPP        #-}
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE Arrows #-}
+{-# LANGUAGE CPP    #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3

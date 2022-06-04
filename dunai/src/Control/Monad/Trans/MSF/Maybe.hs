@@ -1,5 +1,4 @@
-{-# LANGUAGE Arrows     #-}
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE Arrows #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
