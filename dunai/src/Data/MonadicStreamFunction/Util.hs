@@ -26,12 +26,12 @@ import Data.MonadicStreamFunction.Instances.ArrowChoice ()
 
 -- * Streams and sinks
 
--- | A stream is an 'MSF' that produces outputs, while ignoring the input.
--- It can obtain the values from a monadic context.
+-- | A stream is an 'MSF' that produces outputs, while ignoring the input. It
+-- can obtain the values from a monadic context.
 type MStream m a = MSF m () a
 
--- | A sink is an 'MSF' that consumes inputs, while producing no output.
--- It can consume the values with side effects.
+-- | A sink is an 'MSF' that consumes inputs, while producing no output. It
+-- can consume the values with side effects.
 type MSink   m a = MSF m a ()
 
 -- * Lifting
@@ -79,8 +79,8 @@ iPost b sf = sf >>> (feedback (Just b) $ arr $ \(c, ac) -> case ac of
 next :: Monad m => b -> MSF m a b -> MSF m a b
 next b sf = sf >>> iPre b
 
--- | Buffers and returns the elements in FIFO order,
---   returning 'Nothing' whenever the buffer is empty.
+-- | Buffers and returns the elements in FIFO order, returning 'Nothing'
+-- whenever the buffer is empty.
 fifo :: Monad m => MSF m [a] (Maybe a)
 fifo = feedback [] $ proc (as, accum) -> do
   let accum' = accum ++ as
@@ -117,16 +117,15 @@ mappendFrom = accumulateWith mappend
 
 -- ** Generic folding \/ accumulation
 
--- | Applies a function to the input and an accumulator,
--- outputting the updated accumulator.
--- Equal to @\f s0 -> feedback s0 $ arr (uncurry f >>> dup)@.
+-- | Applies a function to the input and an accumulator, outputting the updated
+-- accumulator. Equal to @\f s0 -> feedback s0 $ arr (uncurry f >>> dup)@.
 accumulateWith :: Monad m => (a -> s -> s) -> s -> MSF m a s
 accumulateWith f s0 = feedback s0 $ arr g
   where
     g (a, s) = let s' = f a s in (s', s')
 
--- | Applies a transfer function to the input and an accumulator,
--- returning the updated accumulator and output.
+-- | Applies a transfer function to the input and an accumulator, returning the
+-- updated accumulator and output.
 mealy :: Monad m => (a -> s -> (b, s)) -> s -> MSF m a b
 mealy f s0 = feedback s0 $ arr $ uncurry f
 
@@ -138,8 +137,8 @@ unfold :: Monad m => (a -> (b, a)) -> a -> MSF m () b
 unfold f a = feedback a (arr (snd >>> f))
 
 -- | Generate outputs using a step-wise generation function and an initial
--- value. Version of 'unfold' in which the output and the new accumulator
--- are the same. Should be equal to @\f a -> unfold (f >>> dup) a@.
+-- value. Version of 'unfold' in which the output and the new accumulator are
+-- the same. Should be equal to @\f a -> unfold (f >>> dup) a@.
 repeatedly :: Monad m => (a -> a) -> a -> MSF m () a
 repeatedly f = unfold $ f >>> dup
   where
