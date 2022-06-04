@@ -82,11 +82,16 @@ next b sf = sf >>> iPre b
 -- | Buffers and returns the elements in FIFO order, returning 'Nothing'
 -- whenever the buffer is empty.
 fifo :: Monad m => MSF m [a] (Maybe a)
-fifo = feedback [] $ proc (as, accum) -> do
-  let accum' = accum ++ as
-  returnA -< case accum' of
-    []       -> (Nothing, [])
-    (a : as) -> (Just a , as)
+fifo = feedback [] (arr (safeSnoc . uncurry fifoAppend))
+  where
+    -- | Append a new list to an accumulator in FIFO order.
+    fifoAppend :: [x] -> [x] -> [x]
+    fifoAppend as accum = accum ++ as
+
+    -- | Split a list into the head and the tail.
+    safeSnoc :: [x] -> (Maybe x, [x])
+    safeSnoc []     = (Nothing, [])
+    safeSnoc (x:xs) = (Just x, xs)
 
 -- * Folding
 
