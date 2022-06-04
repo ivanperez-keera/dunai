@@ -249,11 +249,6 @@ listToMSFExcept = mapM_ step_
 
 -- * Utilities definable in terms of 'MSFExcept'
 
--- TODO This is possibly not the best location for these functions, but moving
--- them to Data.MonadicStreamFunction.Util would form an import cycle that
--- could only be broken by moving a few things to
--- Data.MonadicStreamFunction.Core (that probably belong there anyways).
-
 -- | Extract an 'MSF' from a monadic action.
 --
 -- Runs a monadic action that produces an 'MSF' on the first iteration/step, and
