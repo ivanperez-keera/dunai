@@ -186,4 +186,4 @@ morphS morph = morphGS morph'
     --         -> MSF m2 a2 b2
     --
     --  morph' :: (forall c . (a -> m1 (b, c)) -> (a -> m2 (b, c)))
-        morph' m1F = morph . m1F
+    morph' m1F = morph . m1F
