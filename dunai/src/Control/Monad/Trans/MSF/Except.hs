@@ -141,7 +141,6 @@ tagged msf = runMSFExcept $ do
   (_, e2) <- currentInput
   return e2
 
-
 -- * Monad interface for Exception MSFs
 
 -- | 'MSF's with an 'ExceptT' transformer layer
