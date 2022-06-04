@@ -36,10 +36,7 @@ type MSink   m a = MSF m a ()
 
 -- * Lifting
 
-
-
 -- * Analogues of 'map' and 'fmap'
-
 
 -- | Apply an 'MSF' to every input. Freezes temporarily if the input is
 -- 'Nothing', and continues as soon as a 'Just' is received.
@@ -69,7 +66,6 @@ iPre :: Monad m
      -> MSF m a a
 iPre firsta = feedback firsta $ arr swap
   where swap (a, b) = (b, a)
-
 
 -- | Preprends a fixed output to an 'MSF'. The first input is completely
 -- ignored.
@@ -147,7 +143,6 @@ repeatedly :: Monad m => (a -> a) -> a -> MSF m () a
 repeatedly f = unfold $ f >>> dup
   where
     dup a = (a, a)
-
 
 -- * Debugging
 
