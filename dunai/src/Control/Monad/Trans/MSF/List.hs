@@ -26,7 +26,6 @@ widthFirst msf = widthFirst' [msf] where
         (bs, msfs') <- unzip . concat <$> mapM (runListT . flip unMSF a) msfs
         return (bs, widthFirst' msfs')
 
-
 sequenceS :: Monad m => [MSF m a b] -> MSF (ListT m) a b
 sequenceS msfs = MSF $ \a -> ListT $ sequence $ apply a <$> msfs
   where
