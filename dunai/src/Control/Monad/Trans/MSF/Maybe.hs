@@ -52,7 +52,6 @@ maybeExit = inMaybeT
 inMaybeT :: Monad m => MSF (MaybeT m) (Maybe a) a
 inMaybeT = arrM $ MaybeT . return
 
-
 -- * Catching Maybe exceptions
 
 -- | Run the first @msf@ until the second one produces 'True' from the output
@@ -96,7 +95,6 @@ runMaybeS msf = exceptS (maybeToExceptS msf) >>> arr eitherToMaybe
   where
     eitherToMaybe (Left ()) = Nothing
     eitherToMaybe (Right b) = Just b
-
 
 -- | Reactimates an 'MSF' in the 'MaybeT' monad until it throws 'Nothing'.
 reactimateMaybe
