@@ -20,13 +20,13 @@ import Control.Monad       (MonadPlus, mplus, mzero)
 import Data.MonadicStreamFunction.Core         ()
 import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
--- | Instance of 'ArrowZero' for Monadic Stream Functions ('MSF').
---   The monad must be an instance of 'MonadPlus'.
+-- | Instance of 'ArrowZero' for Monadic Stream Functions ('MSF'). The monad
+-- must be an instance of 'MonadPlus'.
 instance (Monad m, MonadPlus m) => ArrowZero (MSF m) where
   zeroArrow = MSF $ const mzero
 
--- | Instance of 'ArrowPlus' for Monadic Stream Functions ('MSF').
---   The monad must be an instance of 'MonadPlus'.
+-- | Instance of 'ArrowPlus' for Monadic Stream Functions ('MSF'). The monad
+-- must be an instance of 'MonadPlus'.
 instance (Monad m, MonadPlus m) => ArrowPlus (MSF m) where
   sf1 <+> sf2 = MSF $ \a -> unMSF sf1 a `mplus` unMSF sf2 a
 

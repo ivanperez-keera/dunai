@@ -9,10 +9,11 @@
 -- for absent values, and for (nondescript) exceptions. The latter viewpoint
 -- is most natural in the context of 'MSF's.
 module Control.Monad.Trans.MSF.Maybe
-  ( module Control.Monad.Trans.MSF.Maybe
-  , module Control.Monad.Trans.Maybe
-  , maybeToExceptS
-  ) where
+    ( module Control.Monad.Trans.MSF.Maybe
+    , module Control.Monad.Trans.Maybe
+    , maybeToExceptS
+    )
+  where
 
 -- External imports
 import Control.Arrow             (returnA, (>>>), arr)
@@ -52,7 +53,6 @@ maybeExit = inMaybeT
 inMaybeT :: Monad m => MSF (MaybeT m) (Maybe a) a
 inMaybeT = arrM $ MaybeT . return
 
-
 -- * Catching Maybe exceptions
 
 -- | Run the first @msf@ until the second one produces 'True' from the output
@@ -81,13 +81,13 @@ exceptToMaybeS :: (Functor m, Monad m)
 exceptToMaybeS =
   morphS $ MaybeT . fmap (either (const Nothing) Just) . runExceptT
 
--- | Converts a list to an 'MSF' in 'MaybeT',
---   which outputs an element of the list at each step,
---   throwing 'Nothing' when the list ends.
+-- | Converts a list to an 'MSF' in 'MaybeT', which outputs an element of the
+-- list at each step, throwing 'Nothing' when the list ends.
 listToMaybeS :: (Functor m, Monad m) => [b] -> MSF (MaybeT m) a b
 listToMaybeS = exceptToMaybeS . runMSFExcept . listToMSFExcept
 
 -- * Running 'MaybeT'
+
 -- | Remove the 'MaybeT' layer by outputting 'Nothing' when the exception
 -- occurs. The continuation in which the exception occurred is then tested on
 -- the next input.
@@ -96,7 +96,6 @@ runMaybeS msf = exceptS (maybeToExceptS msf) >>> arr eitherToMaybe
   where
     eitherToMaybe (Left ()) = Nothing
     eitherToMaybe (Right b) = Just b
-
 
 -- | Reactimates an 'MSF' in the 'MaybeT' monad until it throws 'Nothing'.
 reactimateMaybe
@@ -107,5 +106,4 @@ reactimateMaybe msf = reactimateExcept $ try $ maybeToExceptS msf
 -- | Run an 'MSF' fed from a list, discarding results. Useful when one needs to
 -- combine effects and streams (i.e., for testing purposes).
 embed_ :: (Functor m, Monad m) => MSF m a () -> [a] -> m ()
-
 embed_ msf as = reactimateMaybe $ listToMaybeS as >>> liftTransS msf

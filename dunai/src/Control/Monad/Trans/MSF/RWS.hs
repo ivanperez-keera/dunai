@@ -12,9 +12,10 @@
 -- has to be included, i.e. 'Control.Monad.RWS.Strict' instead of
 -- 'Control.Monad.RWS' or 'Control.Monad.RWS.Lazy'.
 module Control.Monad.Trans.MSF.RWS
-  ( module Control.Monad.Trans.MSF.RWS
-  , module Control.Monad.Trans.RWS.Strict
-  ) where
+    ( module Control.Monad.Trans.MSF.RWS
+    , module Control.Monad.Trans.RWS.Strict
+    )
+  where
 
 -- External imports
 import Control.Monad.Trans.RWS.Strict hiding (liftCallCC, liftCatch)
@@ -28,7 +29,6 @@ import Data.Monoid  (Monoid)
 import Data.MonadicStreamFunction (MSF, morphGS)
 
 -- * 'RWS' (Reader-Writer-State) monad
-
 
 -- | Wrap an 'MSF' with explicit state variables in 'RWST' monad.
 rwsS :: (Functor m, Monad m, Monoid w)

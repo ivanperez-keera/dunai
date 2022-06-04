@@ -17,13 +17,14 @@
 -- the strict version has to be included, i.e. 'Control.Monad.State.Strict'
 -- instead of 'Control.Monad.State' or 'Control.Monad.State.Lazy'.
 module Control.Monad.Trans.MSF.State
-  ( module Control.Monad.Trans.State.Strict
-  -- * 'State' 'MSF' running and wrapping
-  , stateS
-  , runStateS
-  , runStateS_
-  , runStateS__
-  ) where
+    ( module Control.Monad.Trans.State.Strict
+    -- * 'State' 'MSF' running and wrapping
+    , stateS
+    , runStateS
+    , runStateS_
+    , runStateS__
+    )
+  where
 
 -- External imports
 #if !MIN_VERSION_base(4,8,0)
@@ -63,8 +64,7 @@ runStateS_ msf s =
   feedback s $
     arr swap >>> runStateS msf >>> arr (\(s', b) -> ((s', b), s'))
 
--- TODO Rename this to execStateS!
--- | Build an 'MSF' /function/ that takes a fixed state as additional
--- input, from an 'MSF' in the 'State' monad.
+-- | Build an 'MSF' /function/ that takes a fixed state as additional input,
+-- from an 'MSF' in the 'State' monad.
 runStateS__ :: (Functor m, Monad m) => MSF (StateT s m) a b -> s -> MSF m a b
 runStateS__ msf s = runStateS_ msf s >>> arr snd

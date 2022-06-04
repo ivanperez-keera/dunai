@@ -11,12 +11,13 @@
 -- additional layer, and functions to flatten that layer out of the 'MSF`'s
 -- transformer stack.
 module Control.Monad.Trans.MSF.Reader
-  ( module Control.Monad.Trans.Reader
-  -- * 'Reader' 'MSF' running and wrapping.
-  , readerS
-  , runReaderS
-  , runReaderS_
-  ) where
+    ( module Control.Monad.Trans.Reader
+    -- * 'Reader' 'MSF' running and wrapping.
+    , readerS
+    , runReaderS
+    , runReaderS_
+    )
+  where
 
 -- External imports
 import Control.Arrow              (arr, (>>>))
@@ -36,7 +37,6 @@ readerS = morphGS $ \f a -> ReaderT $ \r -> f (r, a)
 -- 'Reader' monad. This is the opposite of 'readerS'.
 runReaderS :: Monad m => MSF (ReaderT r m) a b -> MSF m (r, a) b
 runReaderS = morphGS $ \f (r, a) -> runReaderT (f a) r
-
 
 -- | Build an 'MSF' /function/ that takes a fixed environment as additional
 -- input, from an MSF in the 'Reader' monad.
