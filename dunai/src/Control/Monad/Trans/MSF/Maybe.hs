@@ -87,6 +87,7 @@ listToMaybeS :: (Functor m, Monad m) => [b] -> MSF (MaybeT m) a b
 listToMaybeS = exceptToMaybeS . runMSFExcept . listToMSFExcept
 
 -- * Running 'MaybeT'
+
 -- | Remove the 'MaybeT' layer by outputting 'Nothing' when the exception
 -- occurs. The continuation in which the exception occurred is then tested on
 -- the next input.
