@@ -105,5 +105,4 @@ reactimateMaybe msf = reactimateExcept $ try $ maybeToExceptS msf
 -- | Run an 'MSF' fed from a list, discarding results. Useful when one needs to
 -- combine effects and streams (i.e., for testing purposes).
 embed_ :: (Functor m, Monad m) => MSF m a () -> [a] -> m ()
-
 embed_ msf as = reactimateMaybe $ listToMaybeS as >>> liftTransS msf
