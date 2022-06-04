@@ -22,8 +22,8 @@
 -- msf3 = (msf1 &&& msf2) >>> arr (uncurry (+))
 -- @
 --
--- Instances are provided for the type classes 'Num', 'Fractional'
--- and 'Floating'.
+-- Instances are provided for the type classes 'Num', 'Fractional' and
+-- 'Floating'.
 module Data.MonadicStreamFunction.Instances.Num where
 
 -- Internal imports
