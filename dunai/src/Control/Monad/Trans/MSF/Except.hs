@@ -1,7 +1,6 @@
-{-# LANGUAGE Arrows        #-}
-{-# LANGUAGE CPP           #-}
-{-# LANGUAGE Rank2Types    #-}
-{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE Arrows     #-}
+{-# LANGUAGE CPP        #-}
+{-# LANGUAGE Rank2Types #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
@@ -232,7 +231,7 @@ step f = try $ proc a -> do
 
 -- | Advances a single tick outputting the value, and then throws '()'.
 step_ :: Monad m => b -> MSFExcept m a b ()
-step_ = step . const . return . (, ())
+step_ b = step $ const $ return (b, ())
 
 -- | Converts a list to an 'MSFExcept', which outputs an element of the list at
 -- each step, throwing '()' when the list ends.
