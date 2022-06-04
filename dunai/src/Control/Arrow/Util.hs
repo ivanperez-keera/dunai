@@ -14,7 +14,7 @@ constantly :: Arrow a => b -> a c b
 constantly = arr . const
 {-# INLINE constantly #-}
 
--- * Apply functions at the end.
+-- * Apply functions at the end
 
 -- | Alternative name for '^<<'.
 elementwise :: Arrow a => (c -> d) -> a b c -> a b d
