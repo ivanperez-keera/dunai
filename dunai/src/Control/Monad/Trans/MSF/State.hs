@@ -63,7 +63,6 @@ runStateS_ msf s =
   feedback s $
     arr swap >>> runStateS msf >>> arr (\(s', b) -> ((s', b), s'))
 
--- TODO Rename this to execStateS!
 -- | Build an 'MSF' /function/ that takes a fixed state as additional
 -- input, from an 'MSF' in the 'State' monad.
 runStateS__ :: (Functor m, Monad m) => MSF (StateT s m) a b -> s -> MSF m a b
