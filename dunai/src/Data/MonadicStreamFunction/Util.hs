@@ -34,8 +34,6 @@ type MStream m a = MSF m () a
 -- can consume the values with side effects.
 type MSink   m a = MSF m a ()
 
--- * Lifting
-
 -- * Analogues of 'map' and 'fmap'
 
 -- | Apply an 'MSF' to every input. Freezes temporarily if the input is
@@ -57,8 +55,6 @@ withSideEffect_ :: Monad m => m b -> MSF m a a
 withSideEffect_ method = withSideEffect $ const method
 
 -- * Delays
-
--- See also: 'iPre'
 
 -- | Delay a signal by one sample.
 iPre :: Monad m
