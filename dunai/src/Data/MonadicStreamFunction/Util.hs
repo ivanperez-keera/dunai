@@ -65,7 +65,8 @@ iPre :: Monad m
      => a         -- ^ First output
      -> MSF m a a
 iPre firsta = feedback firsta $ arr swap
-  where swap (a, b) = (b, a)
+  where
+    swap (a, b) = (b, a)
 
 -- | Preprends a fixed output to an 'MSF'. The first input is completely
 -- ignored.
