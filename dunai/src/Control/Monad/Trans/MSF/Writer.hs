@@ -16,11 +16,12 @@
 -- the strict version has to be included, i.e. 'Control.Monad.Writer.Strict'
 -- instead of 'Control.Monad.Writer' or 'Control.Monad.Writer.Lazy'.
 module Control.Monad.Trans.MSF.Writer
-  ( module Control.Monad.Trans.Writer.Strict
-  -- * 'Writer' 'MSF' running and wrapping
-  , writerS
-  , runWriterS
-  ) where
+    ( module Control.Monad.Trans.Writer.Strict
+    -- * 'Writer' 'MSF' running and wrapping
+    , writerS
+    , runWriterS
+    )
+  where
 
 -- External imports
 import Control.Monad.Trans.Writer.Strict hiding (liftCallCC, liftCatch, pass)
