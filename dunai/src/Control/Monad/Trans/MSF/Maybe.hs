@@ -81,9 +81,8 @@ exceptToMaybeS :: (Functor m, Monad m)
 exceptToMaybeS =
   morphS $ MaybeT . fmap (either (const Nothing) Just) . runExceptT
 
--- | Converts a list to an 'MSF' in 'MaybeT',
---   which outputs an element of the list at each step,
---   throwing 'Nothing' when the list ends.
+-- | Converts a list to an 'MSF' in 'MaybeT', which outputs an element of the
+-- list at each step, throwing 'Nothing' when the list ends.
 listToMaybeS :: (Functor m, Monad m) => [b] -> MSF (MaybeT m) a b
 listToMaybeS = exceptToMaybeS . runMSFExcept . listToMSFExcept
 
