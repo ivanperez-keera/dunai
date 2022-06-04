@@ -17,7 +17,6 @@ import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- | Run two 'MSF's in parallel, taking advantage of parallelism if
 --   possible. This is the parallel version of '***'.
-
 (*|*) :: Monad m => MSF m a b -> MSF m c d -> MSF m (a, c) (b, d)
 msf1 *|* msf2 = MSF $ \(a, c) -> do
   (b, msf1') <- unMSF msf1 a
