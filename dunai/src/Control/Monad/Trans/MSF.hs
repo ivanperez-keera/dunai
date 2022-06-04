@@ -1,4 +1,3 @@
-{-# LANGUAGE Rank2Types #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
