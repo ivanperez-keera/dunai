@@ -86,7 +86,6 @@ import Data.MonadicStreamFunction.InternalCore (MSF, embed, feedback, morphGS,
 
 -- | 'Arrow' instance for 'MSF's.
 instance Monad m => Arrow (MSF m) where
-
   arr f = arrM (return . f)
 
   first =
@@ -155,7 +154,6 @@ sf1 >>>^ sf2 = sf1 >>> liftBaseS sf2
 -- *** MonadTrans
 
 -- | Lift inner monadic actions in monad stacks.
-
 liftTransS :: (MonadTrans t, Monad m, Monad (t m))
            => MSF m a b
            -> MSF (t m) a b
