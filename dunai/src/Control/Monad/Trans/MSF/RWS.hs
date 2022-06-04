@@ -29,7 +29,6 @@ import Data.MonadicStreamFunction (MSF, morphGS)
 
 -- * 'RWS' (Reader-Writer-State) monad
 
-
 -- | Wrap an 'MSF' with explicit state variables in 'RWST' monad.
 rwsS :: (Functor m, Monad m, Monoid w)
      => MSF m (r, s, a) (w, s, b)
