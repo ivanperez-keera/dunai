@@ -9,10 +9,11 @@
 -- for absent values, and for (nondescript) exceptions. The latter viewpoint
 -- is most natural in the context of 'MSF's.
 module Control.Monad.Trans.MSF.Maybe
-  ( module Control.Monad.Trans.MSF.Maybe
-  , module Control.Monad.Trans.Maybe
-  , maybeToExceptS
-  ) where
+    ( module Control.Monad.Trans.MSF.Maybe
+    , module Control.Monad.Trans.Maybe
+    , maybeToExceptS
+    )
+  where
 
 -- External imports
 import Control.Arrow             (returnA, (>>>), arr)
