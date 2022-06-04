@@ -24,11 +24,9 @@ import Data.MonadicStreamFunction.InternalCore (unMSF)
 -- (such as wormholes).
 type ReactHandle m = IORef (MSF m () ())
 
-
 -- | Needs to be called before the external main loop is dispatched.
 reactInit :: MonadIO m => MSF m () () -> m (ReactHandle m)
 reactInit = liftIO . newIORef
-
 
 -- | The callback that needs to be called by the external loop at every cycle.
 react :: MonadIO m => ReactHandle m -> m ()
