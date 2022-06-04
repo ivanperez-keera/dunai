@@ -25,24 +25,23 @@
 
 -- NOTE TO IMPLEMENTORS:
 --
--- This module contains the core. Only the core. It should be possible
--- to define every function and type outside this module, except for the
--- instances for ArrowLoop, ArrowChoice, etc., without access to the
--- internal constructor for MSF and the function 'unMSF'.
+-- This module contains the core. Only the core. It should be possible to
+-- define every function and type outside this module, except for the instances
+-- for ArrowLoop, ArrowChoice, etc., without access to the internal constructor
+-- for MSF and the function 'unMSF'.
 --
--- It's very hard to know what IS essential to framework and if we start
--- adding all the functions and instances that *may* be useful in one
--- module.
+-- It's very hard to know what IS essential to framework and if we start adding
+-- all the functions and instances that *may* be useful in one module.
 --
--- By separating some instances and functions in other modules, we can
--- easily understand what is the essential idea and then analyse how it
--- is affected by an extension. It also helps demonstrate that something
--- works for MSFs + ArrowChoice, or MSFs + ArrowLoop, etc.
+-- By separating some instances and functions in other modules, we can easily
+-- understand what is the essential idea and then analyse how it is affected by
+-- an extension. It also helps demonstrate that something works for MSFs +
+-- ArrowChoice, or MSFs + ArrowLoop, etc.
 --
--- To address potential violations of basic design principles (like 'not
--- having orphan instances'), the main module Data.MonadicStreamFunction
--- exports everything. Users should *never* import this module here
--- individually, but the main module instead.
+-- To address potential violations of basic design principles (like 'not having
+-- orphan instances'), the main module Data.MonadicStreamFunction exports
+-- everything. Users should *never* import this module here individually, but
+-- the main module instead.
 module Data.MonadicStreamFunction.InternalCore where
 
 -- External imports
@@ -80,17 +79,15 @@ instance Monad m => Category (MSF m) where
 --
 -- __Mathematical background:__ The type @a -> m (b, c)@ is a functor in @c@,
 -- and @MSF m a b@ is its greatest fixpoint, i.e. it is isomorphic to the type
--- @a -> m (b, MSF m a b)@, by definition.
--- The types @m@, @a@ and @b@ are parameters of the functor.
--- Taking a fixpoint is functorial itself, meaning that a morphism
--- (a natural transformation) of two such functors gives a morphism
--- (an ordinary function) of their fixpoints.
+-- @a -> m (b, MSF m a b)@, by definition. The types @m@, @a@ and @b@ are
+-- parameters of the functor. Taking a fixpoint is functorial itself, meaning
+-- that a morphism (a natural transformation) of two such functors gives a
+-- morphism (an ordinary function) of their fixpoints.
 --
--- This is in a sense the most general "abstract" lifting function,
--- i.e. the most general one that only changes input, output and side effect
--- types, and doesn't influence control flow.
--- Other handling functions like exception handling or 'ListT' broadcasting
--- necessarily change control flow.
+-- This is in a sense the most general "abstract" lifting function, i.e. the
+-- most general one that only changes input, output and side effect types, and
+-- doesn't influence control flow. Other handling functions like exception
+-- handling or 'ListT' broadcasting necessarily change control flow.
 morphGS :: Monad m2
         => (forall c . (a1 -> m1 (b1, c)) -> (a2 -> m2 (b2, c)))
           -- ^ The natural transformation. @mi@, @ai@ and @bi@ for @i = 1, 2@
@@ -113,14 +110,14 @@ feedback c sf = MSF $ \a -> do
 
 -- | Apply a monadic stream function to a list.
 --
--- Because the result is in a monad, it may be necessary to
--- traverse the whole list to evaluate the value in the results to WHNF.
--- For example, if the monad is the maybe monad, this may not produce anything
--- if the 'MSF' produces 'Nothing' at any point, so the output stream cannot
--- consumed progressively.
+-- Because the result is in a monad, it may be necessary to traverse the whole
+-- list to evaluate the value in the results to WHNF.  For example, if the
+-- monad is the maybe monad, this may not produce anything if the 'MSF'
+-- produces 'Nothing' at any point, so the output stream cannot consumed
+-- progressively.
 --
--- To explore the output progressively, use 'arrM' and '(>>>)'', together
--- with some action that consumes/actuates on the output.
+-- To explore the output progressively, use 'arrM' and '(>>>)'', together with
+-- some action that consumes/actuates on the output.
 --
 -- This is called 'runSF' in Liu, Cheng, Hudak, "Causal Commutative Arrows and
 -- Their Optimization"
