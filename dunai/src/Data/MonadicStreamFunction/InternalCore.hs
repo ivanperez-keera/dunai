@@ -23,7 +23,6 @@
 -- functionality that cannot be (conveniently) expressed using the existing
 -- high-level API.
 
-
 -- NOTE TO IMPLEMENTORS:
 --
 -- This module contains the core. Only the core. It should be possible
@@ -65,6 +64,7 @@ data MSF m a b = MSF { unMSF :: a -> m (b, MSF m a b) }
 instance Monad m => Category (MSF m) where
   id = go
     where go = MSF $ \a -> return (a, go)
+
   sf2 . sf1 = MSF $ \a -> do
     (b, sf1') <- unMSF sf1 a
     (c, sf2') <- unMSF sf2 b
