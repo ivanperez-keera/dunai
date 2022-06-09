@@ -1,4 +1,4 @@
-2022-06-04 Ivan Perez <ivan.perez@keera.co.uk>
+2022-06-09 Ivan Perez <ivan.perez@keera.co.uk>
         * src/: Simplify implementation of switch (#276), remove redundant
           imports (#281), remove redundant pragma (#282), use external
           Void type (#79), remove redundant imports (#283), disable warning
@@ -10,6 +10,7 @@
           standardize haddock comment (#294), add missing documentation (#288),
           disable warning due to use of ListT (#297), fix oudated comment
           (#299).
+        * README.md: Re-structure README (#300).
 
 2022-04-21 Ivan Perez <ivan.perez@keera.co.uk>
         * dunai.cabal: Version bump (0.8.2) (#280), syntax rules (#271),
