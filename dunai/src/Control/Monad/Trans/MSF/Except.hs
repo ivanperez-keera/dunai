@@ -110,7 +110,9 @@ catchS msf f = safely $ do
   safe $ f e
 
 -- | Similar to Yampa's delayed switching. Loses a @b@ in case of an exception.
-untilE :: Monad m => MSF m a b -> MSF m b (Maybe e)
+untilE :: Monad m
+       => MSF m a b
+       -> MSF m b (Maybe e)
        -> MSF (ExceptT e m) a b
 untilE msf msfe = proc a -> do
   b  <- liftTransS msf  -< a
