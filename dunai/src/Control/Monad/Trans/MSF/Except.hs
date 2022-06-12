@@ -110,7 +110,9 @@ catchS msf f = safely $ do
   safe $ f e
 
 -- | Similar to Yampa's delayed switching. Loses a @b@ in case of an exception.
-untilE :: Monad m => MSF m a b -> MSF m b (Maybe e)
+untilE :: Monad m
+       => MSF m a b
+       -> MSF m b (Maybe e)
        -> MSF (ExceptT e m) a b
 untilE msf msfe = proc a -> do
   b  <- liftTransS msf  -< a
@@ -184,11 +186,10 @@ instance Monad m => Monad (MSFExcept m a b) where
 
 -- | Execute an MSF and, if it throws an exception, recover by switing to a
 -- second MSF.
-handleExceptT
-  :: Monad m
-  => MSF (ExceptT e1 m) a b
-  -> (e1 -> MSF (ExceptT e2 m) a b)
-  -> MSF (ExceptT e2 m) a b
+handleExceptT :: Monad m
+              => MSF (ExceptT e1 m) a b
+              -> (e1 -> MSF (ExceptT e2 m) a b)
+              -> MSF (ExceptT e2 m) a b
 handleExceptT msf f = flip handleGen msf $ \a mbcont -> do
   ebcont <- lift $ runExceptT mbcont
   case ebcont of

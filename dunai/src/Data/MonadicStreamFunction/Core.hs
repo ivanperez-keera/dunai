@@ -167,9 +167,9 @@ liftTransS = morphS lift
 -- This is just a convenience function when you have a function to move across
 -- monads, because the signature of 'morphGS' is a bit complex.
 morphS :: (Monad m2, Monad m1)
-      => (forall c . m1 c -> m2 c)
-      -> MSF m1 a b
-      -> MSF m2 a b
+       => (forall c . m1 c -> m2 c)
+       -> MSF m1 a b
+       -> MSF m2 a b
 morphS morph = morphGS morph'
   where
     -- The following makes the a's and the b's the same, and it just says:

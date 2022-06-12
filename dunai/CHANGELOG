@@ -9,7 +9,7 @@
           comment (#293), reimplement function without TupleSections (#293),
           standardize haddock comment (#294), add missing documentation (#288),
           disable warning due to use of ListT (#297), fix oudated comment
-          (#299).
+          (#299), horizontal alignment style changes (#301).
         * README.md: Re-structure README (#300).
 
 2022-04-21 Ivan Perez <ivan.perez@keera.co.uk>
