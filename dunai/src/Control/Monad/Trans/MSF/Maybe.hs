@@ -64,9 +64,10 @@ untilMaybe msf cond = proc a -> do
 
 -- | When an exception occurs in the first 'msf', the second 'msf' is executed
 -- from there.
-catchMaybe
-  :: (Functor m, Monad m)
-  => MSF (MaybeT m) a b -> MSF m a b -> MSF m a b
+catchMaybe :: (Functor m, Monad m)
+           => MSF (MaybeT m) a b
+           -> MSF m a b
+           -> MSF m a b
 catchMaybe msf1 msf2 = safely $ do
   _ <- try $ maybeToExceptS msf1
   safe msf2
@@ -97,9 +98,9 @@ runMaybeS msf = exceptS (maybeToExceptS msf) >>> arr eitherToMaybe
     eitherToMaybe (Right b) = Just b
 
 -- | Reactimates an 'MSF' in the 'MaybeT' monad until it throws 'Nothing'.
-reactimateMaybe
-  :: (Functor m, Monad m)
-  => MSF (MaybeT m) () () -> m ()
+reactimateMaybe :: (Functor m, Monad m)
+                => MSF (MaybeT m) () ()
+                -> m ()
 reactimateMaybe msf = reactimateExcept $ try $ maybeToExceptS msf
 
 -- | Run an 'MSF' fed from a list, discarding results. Useful when one needs to
