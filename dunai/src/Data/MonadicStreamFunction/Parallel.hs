@@ -23,6 +23,16 @@ msf1 *|* msf2 = MSF $ \(a, c) -> do
   (d, msf2') <- unMSF msf2 c
   b `par` d `pseq` return ((b, d), msf1' *|* msf2')
 
+-- This is not the same.
+wrapPar :: Monad m => MSF m a b -> MSF m c d -> MSF m (a, c) (b, d)
+wrapPar msf1 msf2 =
+  (msf1 &&& msf2) >>> arr (\(b, d) -> b `par` d `pseq` (b, d))
+
+-- I think this may be the same (even though it shouldn't).
+wrapParM :: Monad m => MSF m a b -> MSF m c d -> MSF m (a, c) (b, d)
+wrapParM msf1 msf2 =
+  (msf1 &&& msf2) >>> arrM (\(b, d) -> b `par` d `pseq` return (b, d))
+
 -- | Parallel version of '&&&'.
 (&|&) :: Monad m => MSF m a b -> MSF m a c -> MSF m a (b, c)
 msf1 &|& msf2 = arr (\a -> (a, a)) >>> (msf1 *|* msf2)
