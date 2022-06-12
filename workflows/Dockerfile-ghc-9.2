@@ -1,0 +1,28 @@
+FROM ubuntu:focal
+
+RUN apt-get update
+
+RUN apt-get install --yes libz-dev
+RUN apt-get install --yes git
+
+# RUN curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
+RUN apt-get install --yes wget
+RUN mkdir -p $HOME/.ghcup/bin
+RUN wget https://downloads.haskell.org/~ghcup/0.1.17.7/x86_64-linux-ghcup-0.1.17.7 -O $HOME/.ghcup/bin/ghcup
+
+RUN chmod a+x $HOME/.ghcup/bin/ghcup
+ENV PATH=$PATH:/root/.ghcup/bin/
+ENV PATH=$PATH:/root/.cabal/bin/
+RUN apt-get install --yes curl
+RUN apt-get install --yes gcc make libgmp3-dev
+RUN ghcup install ghc 9.2
+RUN ghcup install cabal 3.4
+RUN ghcup set ghc 9.2.6
+RUN cabal update
+
+SHELL ["/bin/bash", "-c"]
+CMD git clone $REPO \
+    && cd $NAME \
+    && git checkout $COMMIT \
+    && cabal install --lib dunai/ dunai-test/ dunai-frp-bearriver/ \
+    && echo Success

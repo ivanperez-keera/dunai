@@ -1,0 +1,20 @@
+FROM ubuntu:trusty
+
+RUN apt-get update
+
+RUN apt-get install --yes software-properties-common
+RUN add-apt-repository ppa:hvr/ghc
+RUN apt-get update
+
+RUN apt-get install --yes git libz-dev
+
+RUN apt-get install --yes ghc-7.10.3 cabal-install-2.4
+
+ENV PATH=/opt/ghc/7.10.3/bin:/opt/cabal/2.4/bin:$PWD/.cabal-sandbox/bin:$PATH
+
+RUN cabal update
+RUN cabal v1-sandbox init
+
+CMD git clone $REPO && cd $NAME && git checkout $COMMIT && \
+    cabal v1-install dunai/ dunai-test dunai-frp-bearriver/ --only-dependencies && \
+    cabal v1-install dunai/ dunai-test dunai-frp-bearriver/ -j1
