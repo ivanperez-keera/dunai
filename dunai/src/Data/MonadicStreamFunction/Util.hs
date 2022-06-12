@@ -31,7 +31,7 @@ type MStream m a = MSF m () a
 
 -- | A sink is an 'MSF' that consumes inputs, while producing no output. It
 -- can consume the values with side effects.
-type MSink   m a = MSF m a ()
+type MSink m a = MSF m a ()
 
 -- * Analogues of 'map' and 'fmap'
 
