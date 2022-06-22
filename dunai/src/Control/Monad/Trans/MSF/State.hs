@@ -1,4 +1,4 @@
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE CPP #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
@@ -16,23 +16,27 @@
 -- the strict version has to be included, i.e. 'Control.Monad.State.Strict'
 -- instead of 'Control.Monad.State' or 'Control.Monad.State.Lazy'.
 module Control.Monad.Trans.MSF.State
-  ( module Control.Monad.Trans.State.Strict
-  -- * 'State' 'MSF' running and wrapping
-  , stateS
-  , runStateS
-  , runStateS_
-  , runStateS__
-  ) where
+    ( module Control.Monad.Trans.State.Strict
+    -- * 'State' 'MSF' running and wrapping
+    , stateS
+    , runStateS
+    , runStateS_
+    , runStateS__
+    )
+  where
 
--- External
-import Control.Applicative
+-- External imports
+#if !MIN_VERSION_base(4,8,0)
+import Control.Applicative ((<$>))
+#endif
+
+import Control.Arrow                    (arr, (>>>))
 import Control.Monad.Trans.State.Strict hiding (liftCallCC, liftCatch,
                                          liftListen, liftPass)
 import Data.Tuple                       (swap)
 
--- Internal
-import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.InternalCore
+-- Internal imports
+import Data.MonadicStreamFunction.Core (MSF, morphGS, feedback)
 
 -- * 'State' 'MSF' running and wrapping
 
@@ -51,12 +55,15 @@ runStateS = morphGS $ \f (s, a) -> (\((b, c), s') -> ((s', b), c))
 -- | Build an 'MSF' /function/ that takes a fixed state as additional input,
 -- from an 'MSF' in the 'State' monad, and outputs the new state with every
 -- transformation step.
-runStateS_ :: (Functor m, Monad m) => MSF (StateT s m) a b -> s -> MSF m a (s, b)
-runStateS_ msf s = feedback s
-                 $ arr swap >>> runStateS msf >>> arr (\(s', b) -> ((s', b), s'))
+runStateS_ :: (Functor m, Monad m)
+           => MSF (StateT s m) a b
+           -> s
+           -> MSF m a (s, b)
+runStateS_ msf s =
+  feedback s $
+    arr swap >>> runStateS msf >>> arr (\(s', b) -> ((s', b), s'))
 
--- TODO Rename this to execStateS!
--- | Build an 'MSF' /function/ that takes a fixed state as additional
--- input, from an 'MSF' in the 'State' monad.
+-- | Build an 'MSF' /function/ that takes a fixed state as additional input,
+-- from an 'MSF' in the 'State' monad.
 runStateS__ :: (Functor m, Monad m) => MSF (StateT s m) a b -> s -> MSF m a b
 runStateS__ msf s = runStateS_ msf s >>> arr snd

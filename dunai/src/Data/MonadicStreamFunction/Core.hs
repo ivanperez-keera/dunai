@@ -1,4 +1,10 @@
+{-# LANGUAGE CPP        #-}
 {-# LANGUAGE Rank2Types #-}
+-- We disable the following warning because this module purposefully defines
+-- orphan instances. This is a design decision in Dunai, so that we give
+-- implementors further flexibility while giving most users the features they
+-- expect.
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
@@ -56,51 +62,53 @@ module Data.MonadicStreamFunction.Core
     -- * Simulation
   , reactimate
   , embed
-  , module Control.Arrow
+  , module X
   )
   where
 
-import Control.Applicative
-import Control.Arrow
-import Control.Category          as C
-import Control.Monad.Base
-import Control.Monad.Trans.Class
-import Data.Tuple                (swap)
-import Prelude                   hiding (id, sum, (.))
+-- External imports
+import           Control.Arrow             (Arrow (..), (>>>))
+import qualified Control.Arrow             as X
+import           Control.Category          as C (id, (.))
+import           Control.Monad.Base        (MonadBase, liftBase)
+import           Control.Monad.Trans.Class (MonadTrans, lift)
+import           Prelude                   hiding (id, sum, (.))
 
-import Data.MonadicStreamFunction.InternalCore (MSF, embed, feedback, morphGS, reactimate)
+#if !MIN_VERSION_base(4,8,0)
+import Control.Applicative (Applicative(..))
+#endif
+
+-- Internal imports
+import Data.MonadicStreamFunction.InternalCore (MSF, embed, feedback, morphGS,
+                                                reactimate)
 
 -- * Definitions
 
 -- | 'Arrow' instance for 'MSF's.
 instance Monad m => Arrow (MSF m) where
-
   arr f = arrM (return . f)
 
-  -- first sf = MSF $ \(a,c) -> do
-  --   (b, sf') <- unMSF sf a
-  --   b `seq` return ((b, c), first sf')
-
-  first = morphGS $ \f (a,c) -> do
-            (b, msf') <- f a
-            return ((b, c), msf')
-
+  first =
+    -- This implementation is equivalent to:
+    -- first sf = MSF $ \(a, c) -> do
+    --   (b, sf') <- unMSF sf a
+    --   b `seq` return ((b, c), first sf')
+    morphGS $ \f (a, c) -> do
+      (b, msf') <- f a
+      return ((b, c), msf')
 
 -- * Functor and applicative instances
 
 -- | 'Functor' instance for 'MSF's.
 instance Monad m => Functor (MSF m a) where
   fmap f msf = msf >>> arr f
-  -- fmap f msf = MSF $ fmap fS . unMSF msf
-  --   where
-  --     fS (b, cont) = (f b, fmap f cont)
 
 -- | 'Applicative' instance for 'MSF's.
 instance (Functor m, Monad m) => Applicative (MSF m a) where
   -- It is possible to define this instance with only Applicative m
   pure = arr . const
-  fs <*> bs = (fs &&& bs) >>> arr (uncurry ($))
 
+  fs <*> bs = (fs &&& bs) >>> arr (uncurry ($))
 
 -- ** Lifting point-wise computations
 
@@ -112,11 +120,14 @@ constM = arrM . const
 --
 -- Generalisation of 'arr' from 'Arrow' to monadic functions.
 arrM :: Monad m => (a -> m b) -> MSF m a b
---arrM f = go
---  where go = MSF $ \a -> do
---               b <- f a
---               return (b, go)
-arrM f = morphGS (\i a -> i a >>= \(_,c) -> f a >>= \b -> return (b, c)) C.id
+arrM f =
+  -- This implementation is equivalent to:
+  -- arrM f = go
+  --   where
+  --     go = MSF $ \a -> do
+  --            b <- f a
+  --            return (b, go)
+  morphGS (\i a -> i a >>= \(_, c) -> f a >>= \b -> return (b, c)) C.id
 
 -- | Monadic lifting from one monad into another
 liftBaseM :: (Monad m2, MonadBase m1 m2) => (a -> m1 b) -> MSF m2 a b
@@ -130,6 +141,7 @@ liftBaseS :: (Monad m2, MonadBase m1 m2) => MSF m1 a b -> MSF m2 a b
 liftBaseS = morphS liftBase
 
 -- *** MonadBase
+
 -- | Lift the first 'MSF' into the monad of the second.
 (^>>>) :: MonadBase m1 m2 => MSF m1 a b -> MSF m2 b c -> MSF m2 a c
 sf1 ^>>> sf2 = liftBaseS sf1 >>> sf2
@@ -143,7 +155,6 @@ sf1 >>>^ sf2 = sf1 >>> liftBaseS sf2
 -- *** MonadTrans
 
 -- | Lift inner monadic actions in monad stacks.
-
 liftTransS :: (MonadTrans t, Monad m, Monad (t m))
            => MSF m a b
            -> MSF (t m) a b
@@ -156,9 +167,9 @@ liftTransS = morphS lift
 -- This is just a convenience function when you have a function to move across
 -- monads, because the signature of 'morphGS' is a bit complex.
 morphS :: (Monad m2, Monad m1)
-      => (forall c . m1 c -> m2 c)
-      -> MSF m1 a b
-      -> MSF m2 a b
+       => (forall c . m1 c -> m2 c)
+       -> MSF m1 a b
+       -> MSF m2 a b
 morphS morph = morphGS morph'
   where
     -- The following makes the a's and the b's the same, and it just says:
@@ -168,10 +179,11 @@ morphS morph = morphGS morph'
     -- Remember that:
     -- morphGS :: Monad m2
     --         => (forall c . (a1 -> m1 (b1, c)) -> (a2 -> m2 (b2, c)))
-    --           -- ^ The natural transformation. @mi@, @ai@ and @bi@ for @i = 1, 2@
-    --           --   can be chosen freely, but @c@ must be universally quantified
+    --           -- ^ The natural transformation. @mi@, @ai@ and @bi@ for
+    --           --   @i = 1, 2@ can be chosen freely, but @c@ must be
+    --           --   universally quantified
     --         -> MSF m1 a1 b1
     --         -> MSF m2 a2 b2
     --
     --  morph' :: (forall c . (a -> m1 (b, c)) -> (a -> m2 (b, c)))
-        morph' m1F = morph . m1F
+    morph' m1F = morph . m1F

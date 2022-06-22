@@ -1,27 +1,110 @@
+<div align="center">
+
 # Dunai
 
 [![Build Status](https://api.travis-ci.com/ivanperez-keera/dunai.svg?branch=develop)](https://app.travis-ci.com/github/ivanperez-keera/dunai)
 [![Version on Hackage](https://img.shields.io/hackage/v/dunai.svg)](https://hackage.haskell.org/package/dunai)
 
-This repository implements a generalized version of reactive programming, on
-top of which other variants like Yampa, Classic FRP and Reactive Values can
-be implemented.
+Dunai is a **generalized reactive programming library** on top of which other
+variants like Classic FRP, Arrowized FRP and Reactive Values can be
+implemented.
+
+[Installation](#installation) •
+[Examples](#examples) •
+[Documentation](#documentation) •
+[Related projects](#related-projects) •
+[Technical information](#technical-information) •
+[Contributions](#contributions) •
+[History](#history)
+
+</div>
+
+## Features
+
+- Intuitive syntax and semantics.
+
+- Composition of effects via use of different monads and transformers.
+
+- Isolation of effectful and effect-free reactive functions at type level.
+
+- Time-free (time is not explicitly included) and time-able (time can be
+  added).
+
+- Fully extensible.
+
+- Can be used to implement other FRP libraries/flavors on top.
+
+- Supports applicative, functional and arrowized style.
+
+- Programs can be tested with QuickCheck and debugged using Haskell Titan.
+
+## Table of Contents
+
+- [Installation](#installation)
+  - [Pre-requisites](#pre-requisites)
+  - [Compilation](#compilation)
+- [Examples](#examples)
+- [Documentation](#documentation)
+  - [Publications](#publications)
+  - [Videos](#videos)
+- [Related projects](#related-projects)
+  - [Games](#games)
+  - [Libraries](#libraries)
+- [Technical information](#technical-information)
+  - [Performance](#performance)
+- [Contributions](#contributions)
+  - [Structure and internals](#structure-and-internals)
+  - [Style](#style)
+  - [Version control](#version-control)
+  - [Versioning model](#versioning-model)
+- [History](#history)
 
 # Installation
+<sup>[(Back to top)](#table-of-contents)</sup>
 
+## Pre-requisites
+<sup>[(Back to top)](#table-of-contents)</sup>
+
+To use Dunai, you must have a Haskell compiler installed (GHC). We currently
+support `GHC` versions 7.6.3 to 8.10.4. It likely works with other versions as
+well. We recommend `GHC` versions 8.6 - 8.10, and a version of `cabal-install`
+between 2.4 and 3.2.
+
+On Debian/Ubuntu, both can be installed with:
+
+```sh
+$ apt-get install ghc cabal-install
 ```
+
+On Mac, they can be installed with:
+
+```sh
+$ brew install ghc cabal-install
+```
+
+## Compilation
+<sup>[(Back to top)](#table-of-contents)</sup>
+
+Once you have a working set of Haskell tools installed, install Dunai by
+executing:
+
+```sh
 $ cabal update
 $ cabal install --lib dunai
 ```
 
-## Dependencies
+Running the following will print the word `Success` if installation has gone
+well, or show an error message otherwise:
 
-Dunai currently supports GHC versions 7.6.3 to 8.10.4.
+```
+$ runhaskell <<< 'import Data.MonadicStreamFunction; main = putStrLn "Success"'
+```
 
 # Examples
+<sup>[(Back to top)](#table-of-contents)</sup>
 
-Open a GHCi session and import the main Dunai module. If all goes well, we
-should see no error messages:
+Open a GHCi session and import the main Dunai module:
+
 ```haskell
 $ ghci
 ghci> import Data.MonadicStreamFunction
@@ -46,8 +129,8 @@ function_ of type `a -> m b` into an MSF that will constantly apply the
 function to each input.
 
 For example, the function `print` takes a value and prints it to the terminal
-(a side effect in the `IO` monad), producing an empty `()` output. Elevating
-or lifting `print` into an `MSF` will turn it into a processor that prints each
+(a side effect in the `IO` monad), producing an empty `()` output. Elevating or
+lifting `print` into an `MSF` will turn it into a processor that prints each
 input passed to it:
 
 ```haskell
@@ -164,9 +247,11 @@ apply different transformations at different points in time, and to work with
 different monads. See the documentation below to understand how capable they
 are.
 
-# Further references
+# Documentation
+<sup>[(Back to top)](#table-of-contents)</sup>
 
-## Reading
+## Publications
+<sup>[(Back to top)](#table-of-contents)</sup>
 
 The best introduction to the fundamentals of Monadic Stream Functions is:
 
@@ -184,7 +269,8 @@ The following papers are also related to MSFs:
 
 - [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/citation.cfm?id=3110246)
 
-## Video
+## Videos
+<sup>[(Back to top)](#table-of-contents)</sup>
 
 - [Actors Design Patterns and Arrowised FRP](https://youtu.be/wO_jX8wGhU0?t=781). Talk by Diego Alonso Blas, describing Monadic Stream Functions and an encoding in scala.
 
@@ -196,32 +282,45 @@ The following papers are also related to MSFs:
 
 - [Rhine: FRP with Type-level Clocks](https://www.youtube.com/watch?v=Xvgz11D7xqs). Talk describing how MSFs can be extended with clocks. Haskell Symposium 2018.
 
+# Related projects
+<sup>[(Back to top)](#table-of-contents)</sup>
+
 ## Games
-- [The Bearriver Arcade](https://github.com/walseb/The_Bearriver_Arcade). Fun arcade games made using bearriver.
+<sup>[(Back to top)](#table-of-contents)</sup>
+
+- [The Bearriver Arcade](https://github.com/walseb/The_Bearriver_Arcade). Fun arcade games made using Bearriver.
+
 - [Haskanoid](https://github.com/ivanperez-keera/haskanoid). Haskell breakout game implemented using the Functional Reactive Programming library Yampa (compatible with Dunai/Bearriver).
 
-# Structure and internals
+## Libraries
 
-This project is split in three parts:
+- [ivanperez-keera/Yampa](https://github.com/ivanperez-keera/Yampa): a full
+  FRP implementation that has been used extensively in academia, open source
+  and industry.
 
-- _Dunai_: a reactive library that combines monads and arrows.
-- _BearRiver_: Yampa implemented on top of Dunai.
-- _Examples_: ballbounce
-  - sample applications that work both on traditional Yampa and BearRiver.
+- [turion/rhine](https://github.com/turion/rhine): extension of Dunai with
+  type-level clocks and explicit coordination.
 
-We need to add examples of apps written in classic FRP, reactive values, etc.
-The game [haskanoid](https://github.com/ivanperez-keera/haskanoid) works both
-with Yampa and with Bearriver/dunai.
+# Technical information
+<sup>[(Back to top)](#table-of-contents)</sup>
 
-# Performance
+## Performance
+<sup>[(Back to top)](#table-of-contents)</sup>
 
-Performance is ok, simpler games will be playable without further
-optimisations. This uses unaccelerated SDL 1.2. The speed is comparable to
-Yampa's.
+Simpler games will be playable without further optimisations. For example, the
+game [haskanoid](https://github.com/ivanperez-keera/haskanoid) works well with
+Dunai/Bearriver. You can try it with:
+
+```sh
+$ git clone https://github.com/ivanperez-keera/haskanoid.git
+$ cd haskanoid/
+$ cabal install -f-wiimote -f-kinect -fbearriver
+```
+
+It uses unaccelerated SDL 1.2, the speed is comparable to Yampa's:
 
 ```
-2016-05-09 15:29:41 dash@dash-desktop:~/Projects/PhD/Yampa/yampa-clocks-dunai$ ./.cabal-sandbox/bin/haskanoid
-
+$ haskanoid
 Performance report :: Time per frame: 13.88ms, FPS: 72.04610951008645, Total running time: 1447
 Performance report :: Time per frame: 16.46ms, FPS: 60.75334143377886, Total running time: 3093
 Performance report :: Time per frame: 17.48ms, FPS: 57.20823798627002, Total running time: 4841
@@ -231,46 +330,93 @@ Performance report :: Time per frame: 19.44ms, FPS: 51.440329218106996, Total ru
 ```
 
 It runs almost in constant memory, with about 50% more memory consumption than
-with Yampa (200k for Yampa and 300K for dunai/bearriver). There is very minor
-leaking, probably we can fix that with seq.
+with `Yampa`: 200k for Yampa and 300K for Dunai/Bearriver. (There is very minor
+leaking, probably we can fix that with seq.)
 
-We have obtained different figures tracking different modules. In the paper, we
-provided figures for the whole game, but we need to run newer reliable
-benchmarks including every module and only things that live in FRP.Yampa,
-FRP.BearRiver and Data.MonadicStreamFunction.
-
-You can try it with:
-
-```
-git clone https://github.com/ivanperez-keera/haskanoid.git
-cd haskanoid/
-cabal install -f-wiimote -f-kinect -fbearriver
-```
-
-# Related Projects
-
-[ivanperez-keera/Yampa](https://github.com/ivanperez-keera/Yampa)
-
-[turion/rhine](https://github.com/turion/rhine)
+We have obtained different figures tracking different modules. In [the
+paper](https://dl.acm.org/authorize?N34896), we provided figures for the whole
+game, but we need to run newer reliable benchmarks including every module and
+only definitions from `FRP.Yampa`, `FRP.BearRiver` and
+`Data.MonadicStreamFunction`.
 
 # Contributions
-
-We follow: http://nvie.com/posts/a-successful-git-branching-model/
+<sup>[(Back to top)](#table-of-contents)</sup>
 
 Feel free to open new issues. We are looking for:
 
+- New libraries that extend `dunai` with additional combinators, functions,
+  monads or instances.
+- Libraries that implement other FRP or reactive flavors on top of `dunai`.
+- Examples of apps written in classic FRP, reactive values, etc using `dunai`.
 - Unexplored ways of using MSFs.
-- Other games or applications that use MSFs (including but not limited to Yampa games).
-- Fixes. The syntax and behaviour are still experimental. If something
-  breaks/sounds strange, please open an issue.
+- Other games or applications that use MSFs (including but not limited to Yampa
+  games).
+- Papers that mention MSFs, Dunai or Bearriver.
+- Bug fixes.
 
-# About the name
+## Structure and internals
+<sup>[(Back to top)](#table-of-contents)</sup>
 
-Dunai (aka. Danube, or Дунай) is one of the main rivers in Europe, originating
-in Germany and touching Austria, Slovakia, Hungary, Croatia, Serbia, Romania,
-Bulgaria, Moldova and Ukraine.
+This project is split in three parts:
 
-Other FRP libraries, like Yampa, are named after rivers.  Dunai has been chosen
-due to the authors' relation with some of the countries it passes through, and
-knowing that this library has helped unite otherwise very different people from
-different backgrounds.
+- _Dunai_: a reactive library that combines monads and arrows.
+- _BearRiver_: Yampa implemented on top of Dunai.
+- _Examples_: ballbounce
+  - sample applications that work both on traditional Yampa and BearRiver.
+
+## Style
+<sup>[(Back to top)](#table-of-contents)</sup>
+
+We follow [this style guide](https://keera.co.uk/wp-content/uploads/2021/11/haskellguide-v1.3.0.pdf).
+
+## Version control
+<sup>[(Back to top)](#table-of-contents)</sup>
+
+We follow [git flow](http://nvie.com/posts/a-successful-git-branching-model/).
+In addition:
+
+- Please document your commits clearly and separately.
+- Always refer to the issue you are fixing in the commit summary line with the
+  text `Refs #<issue_number>` at the end.
+- If there is no issue for your change, then open an issue first and document
+  what you are trying to achieve/improve/fix.
+- Do not address more than one issue per commit or per PR. If two changes are
+  not directly related to one another, they belong in different PRs, issues and
+  commits.
+- Document what you did in the respective CHANGELOGs in a separate commit
+  before you send a PR.
+- Make sure your changes conform to the [coding
+  style](https://keera.co.uk/wp-content/uploads/2021/11/haskellguide-v1.3.0.pdf).
+
+See the recent repo history for examples of this process. Using a visual repo
+inspection tool like `gitk` may help.
+
+## Versioning model
+<sup>[(Back to top)](#table-of-contents)</sup>
+
+The versioning model we use is the standard in Haskell packages. Versions have
+the format `<PUB>.<MAJOR>.<MINOR>(.<PATCH>)?` where:
+
+- `<PUB>` is just a way to signal important milestones or used for promotional
+  reasons (to indicate a major advancement). A zero on this position has no
+  special meaning.
+
+- `<MAJOR>` increases on incompatible API changes.
+
+- `<MINOR>` increases on backwards-compatible changes.
+
+- `<PATCH>` (optional) increases on small changes that do not affect behavior
+  (e.g., documentation).
+
+# History
+<sup>[(Back to top)](#table-of-contents)</sup>
+
+This library Dunai was created by Ivan Perez and Manuel Baerenz. It is named
+after the Dunai (aka. Danube, or Дунай) river, one of the main rivers in
+Europe, originating in Germany and touching Austria, Slovakia, Hungary,
+Croatia, Serbia, Romania, Bulgaria, Moldova and Ukraine.
+
+Other FRP libraries, like Yampa and Rhine, are named after rivers. Dunai has
+been chosen due to the authors' relation with some of the countries it passes
+through, and knowing that this library has helped unite otherwise very
+different people from different backgrounds.

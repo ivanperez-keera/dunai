@@ -1,6 +1,13 @@
 {-# LANGUAGE Arrows     #-}
 {-# LANGUAGE CPP        #-}
 {-# LANGUAGE RankNTypes #-}
+-- The following warning is disabled so that we do not see warnings due to
+-- using ListT on an MSF to implement parallelism with broadcasting.
+#if __GLASGOW_HASKELL__ < 800
+{-# OPTIONS_GHC -fno-warn-warnings-deprecations #-}
+#else
+{-# OPTIONS_GHC -Wno-deprecations #-}
+#endif
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
 -- Maintainer : ivan.perez@keera.co.uk

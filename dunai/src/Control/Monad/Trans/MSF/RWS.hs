@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
@@ -11,20 +12,23 @@
 -- has to be included, i.e. 'Control.Monad.RWS.Strict' instead of
 -- 'Control.Monad.RWS' or 'Control.Monad.RWS.Lazy'.
 module Control.Monad.Trans.MSF.RWS
-  ( module Control.Monad.Trans.MSF.RWS
-  , module Control.Monad.Trans.RWS.Strict
-  ) where
+    ( module Control.Monad.Trans.MSF.RWS
+    , module Control.Monad.Trans.RWS.Strict
+    )
+  where
 
--- External
+-- External imports
 import Control.Monad.Trans.RWS.Strict hiding (liftCallCC, liftCatch)
-import Data.Functor                   ((<$>))
-import Data.Monoid
 
--- Internal
-import Data.MonadicStreamFunction
+#if !MIN_VERSION_base(4,8,0)
+import Data.Functor ((<$>))
+import Data.Monoid  (Monoid)
+#endif
+
+-- Internal imports
+import Data.MonadicStreamFunction (MSF, morphGS)
 
 -- * 'RWS' (Reader-Writer-State) monad
-
 
 -- | Wrap an 'MSF' with explicit state variables in 'RWST' monad.
 rwsS :: (Functor m, Monad m, Monoid w)

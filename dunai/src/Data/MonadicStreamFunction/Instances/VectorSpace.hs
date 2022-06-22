@@ -1,6 +1,5 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 -- |
@@ -9,8 +8,8 @@
 -- Maintainer : ivan.perez@keera.co.uk
 --
 -- 'VectorSpace' instances for 'MSF's that produce vector spaces. This allows
--- you to use vector operators with 'MSF's that output vectors, for example, you
--- can write:
+-- you to use vector operators with 'MSF's that output vectors, for example,
+-- you can write:
 --
 -- @
 -- msf1 :: MSF Input (Double, Double) -- defined however you want
@@ -26,7 +25,7 @@
 -- @
 --
 --
--- Instances are provided for the type classes 'RModule' and 'VectorSpace'.
+-- Instances are provided for the type class 'VectorSpace'.
 
 -- Note: This module uses undecidable instances, because GHC does not know
 -- enough to assert that it will be able to determine the type of 's' from the
@@ -35,12 +34,13 @@
 -- resolved.
 module Data.MonadicStreamFunction.Instances.VectorSpace where
 
-import Control.Arrow
-import Data.VectorSpace
+-- External imports
+import Control.Arrow    ((>>^))
+import Data.VectorSpace (VectorSpace (..))
 
-import Control.Arrow.Util
-
-import Data.MonadicStreamFunction.Core
+-- Internal imports
+import Control.Arrow.Util              (constantly, elementwise2)
+import Data.MonadicStreamFunction.Core (MSF)
 
 -- | Vector-space instance for 'MSF's.
 instance (Monad m, VectorSpace v s) => VectorSpace (MSF m a v) s where

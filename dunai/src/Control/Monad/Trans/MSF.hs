@@ -1,4 +1,3 @@
-{-# LANGUAGE Rank2Types #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
@@ -16,6 +15,7 @@ module Control.Monad.Trans.MSF
     )
   where
 
+-- Internal imports
 import Control.Monad.Trans.MSF.Except
 import Control.Monad.Trans.MSF.Maybe
 import Control.Monad.Trans.MSF.Random

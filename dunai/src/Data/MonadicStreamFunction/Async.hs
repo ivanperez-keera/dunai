@@ -7,9 +7,8 @@
 -- i.e. that change the speed at which data enters or leaves the 'MSF'.
 module Data.MonadicStreamFunction.Async where
 
--- Internal
-import Data.MonadicStreamFunction.Core
-import Data.MonadicStreamFunction.InternalCore
+-- Internal imports
+import Data.MonadicStreamFunction.InternalCore (MSF(MSF, unMSF))
 import Data.MonadicStreamFunction.Util         (MStream)
 
 -- |
@@ -21,7 +20,7 @@ import Data.MonadicStreamFunction.Util         (MStream)
 -- >>> let intstream = constS $ putStrLn "Enter a list of Ints:" >> readLn :: MStream IO [Int]
 -- >>> reactimate $ concatS intstream >>> arrM print
 -- Enter a list of Ints:
--- [1,2,33]
+-- [1, 2, 33]
 -- 1
 -- 2
 -- 33
@@ -30,14 +29,14 @@ import Data.MonadicStreamFunction.Util         (MStream)
 -- Enter a list of Ints:
 -- []
 -- Enter a list of Ints:
--- [1,2]
+-- [1, 2]
 -- 1
 -- 2
 -- Enter a list of Ints:
 -- ...
 --
--- Beware that @concatS msf@ becomes unproductive when @msf@ starts outputting empty lists forever.
--- This is ok:
+-- Beware that @concatS msf@ becomes unproductive when @msf@ starts outputting
+-- empty lists forever. This is ok:
 --
 -- >>> let boolToList b = if b then ["Yes"] else []
 -- >>> let everyOddEmpty = count >>> arr (even >>> boolToList)
@@ -64,6 +63,3 @@ concatS msf = MSF $ \_ -> tick msf []
     tick msf' []     = do
       (bs, msf'') <- unMSF msf' ()
       tick msf'' bs
--- TODO Maybe this can be written more nicely with exceptions?
--- Similarly takeS :: Int -> MSF m a b -> MSFExcept m a b () throws an exception after n ticks
--- Or with merge?

@@ -1,4 +1,3 @@
-{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
@@ -22,12 +21,13 @@
 -- msf3 = (msf1 &&& msf2) >>> arr (uncurry (+))
 -- @
 --
--- Instances are provided for the type classes 'Num', 'Fractional'
--- and 'Floating'.
+-- Instances are provided for the type classes 'Num', 'Fractional' and
+-- 'Floating'.
 module Data.MonadicStreamFunction.Instances.Num where
 
-import Control.Arrow.Util
-import Data.MonadicStreamFunction.Core
+-- Internal imports
+import Control.Arrow.Util              (constantly, elementwise, elementwise2)
+import Data.MonadicStreamFunction.Core (MSF)
 
 -- | 'Num' instance for 'MSF's.
 instance (Monad m, Num b) => Num (MSF m a b) where

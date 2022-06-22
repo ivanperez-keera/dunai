@@ -1,5 +1,4 @@
-{-# LANGUAGE Arrows     #-}
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE Arrows #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
@@ -9,18 +8,23 @@
 -- for absent values, and for (nondescript) exceptions. The latter viewpoint
 -- is most natural in the context of 'MSF's.
 module Control.Monad.Trans.MSF.Maybe
-  ( module Control.Monad.Trans.MSF.Maybe
-  , module Control.Monad.Trans.Maybe
-  , maybeToExceptS
-  ) where
+    ( module Control.Monad.Trans.MSF.Maybe
+    , module Control.Monad.Trans.Maybe
+    , maybeToExceptS
+    )
+  where
 
--- External
+-- External imports
+import Control.Arrow             (returnA, (>>>), arr)
 import Control.Monad.Trans.Maybe hiding (liftCallCC, liftCatch, liftListen,
                                   liftPass)
 
--- Internal
-import Control.Monad.Trans.MSF.Except
-import Data.MonadicStreamFunction
+-- Internal imports
+import Control.Monad.Trans.MSF.Except (ExceptT, exceptS, listToMSFExcept,
+                                       maybeToExceptS, reactimateExcept,
+                                       runExceptT, runMSFExcept, safe, safely,
+                                       try)
+import Data.MonadicStreamFunction     (MSF, arrM, constM, liftTransS, morphS)
 
 -- * Throwing 'Nothing' as an exception ("exiting")
 
@@ -48,20 +52,22 @@ maybeExit = inMaybeT
 inMaybeT :: Monad m => MSF (MaybeT m) (Maybe a) a
 inMaybeT = arrM $ MaybeT . return
 
-
 -- * Catching Maybe exceptions
 
--- | Run the first @msf@ until the second one produces 'True' from the output of the first.
+-- | Run the first @msf@ until the second one produces 'True' from the output
+-- of the first.
 untilMaybe :: Monad m => MSF m a b -> MSF m b Bool -> MSF (MaybeT m) a b
 untilMaybe msf cond = proc a -> do
   b <- liftTransS msf  -< a
   c <- liftTransS cond -< b
   inMaybeT -< if c then Nothing else Just b
 
--- | When an exception occurs in the first 'msf', the second 'msf' is executed from there.
-catchMaybe
-  :: (Functor m, Monad m)
-  => MSF (MaybeT m) a b -> MSF m a b -> MSF m a b
+-- | When an exception occurs in the first 'msf', the second 'msf' is executed
+-- from there.
+catchMaybe :: (Functor m, Monad m)
+           => MSF (MaybeT m) a b
+           -> MSF m a b
+           -> MSF m a b
 catchMaybe msf1 msf2 = safely $ do
   _ <- try $ maybeToExceptS msf1
   safe msf2
@@ -69,33 +75,35 @@ catchMaybe msf1 msf2 = safely $ do
 -- * Converting to and from 'MaybeT'
 
 -- | Convert exceptions into `Nothing`, discarding the exception value.
-exceptToMaybeS :: (Functor m, Monad m) => MSF (ExceptT e m) a b -> MSF (MaybeT m) a b
-exceptToMaybeS = morphS $ MaybeT . fmap (either (const Nothing) Just) . runExceptT
+exceptToMaybeS :: (Functor m, Monad m)
+               => MSF (ExceptT e m) a b
+               -> MSF (MaybeT m) a b
+exceptToMaybeS =
+  morphS $ MaybeT . fmap (either (const Nothing) Just) . runExceptT
 
--- | Converts a list to an 'MSF' in 'MaybeT',
---   which outputs an element of the list at each step,
---   throwing 'Nothing' when the list ends.
+-- | Converts a list to an 'MSF' in 'MaybeT', which outputs an element of the
+-- list at each step, throwing 'Nothing' when the list ends.
 listToMaybeS :: (Functor m, Monad m) => [b] -> MSF (MaybeT m) a b
 listToMaybeS = exceptToMaybeS . runMSFExcept . listToMSFExcept
 
 -- * Running 'MaybeT'
--- | Remove the 'MaybeT' layer by outputting 'Nothing' when the exception occurs.
---   The continuation in which the exception occurred is then tested on the next input.
+
+-- | Remove the 'MaybeT' layer by outputting 'Nothing' when the exception
+-- occurs. The continuation in which the exception occurred is then tested on
+-- the next input.
 runMaybeS :: (Functor m, Monad m) => MSF (MaybeT m) a b -> MSF m a (Maybe b)
 runMaybeS msf = exceptS (maybeToExceptS msf) >>> arr eitherToMaybe
   where
     eitherToMaybe (Left ()) = Nothing
     eitherToMaybe (Right b) = Just b
 
-
 -- | Reactimates an 'MSF' in the 'MaybeT' monad until it throws 'Nothing'.
-reactimateMaybe
-  :: (Functor m, Monad m)
-  => MSF (MaybeT m) () () -> m ()
+reactimateMaybe :: (Functor m, Monad m)
+                => MSF (MaybeT m) () ()
+                -> m ()
 reactimateMaybe msf = reactimateExcept $ try $ maybeToExceptS msf
 
 -- | Run an 'MSF' fed from a list, discarding results. Useful when one needs to
 -- combine effects and streams (i.e., for testing purposes).
 embed_ :: (Functor m, Monad m) => MSF m a () -> [a] -> m ()
-
 embed_ msf as = reactimateMaybe $ listToMaybeS as >>> liftTransS msf
