@@ -1,4 +1,5 @@
-2022-06-04 Ivan Perez <ivan.perez@keera.co.uk>
+2022-06-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * bearriver.cabal: Version bump (0.13.3) (#302).
         * src/: Disable warning due to use of ListT (#297).
 
 2022-04-21 Ivan Perez <ivan.perez@keera.co.uk>

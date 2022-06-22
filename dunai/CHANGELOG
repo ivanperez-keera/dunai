@@ -1,4 +1,5 @@
-2022-06-09 Ivan Perez <ivan.perez@keera.co.uk>
+2022-06-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * dunai.cabal: Version bump (0.8.3) (#302).
         * src/: Simplify implementation of switch (#276), remove redundant
           imports (#281), remove redundant pragma (#282), use external
           Void type (#79), remove redundant imports (#283), disable warning
