@@ -1,3 +1,6 @@
+2022-06-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * dunai-test.cabal: Version bump (0.8.3) (#302).
+
 2022-04-21 Ivan Perez <ivan.perez@keera.co.uk>
         * dunai-test.cabal: Version bump (0.8.2) (#280), declare changelog file
           (#273), declare subdir of source-repository (#272).
