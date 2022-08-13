@@ -1,6 +1,7 @@
 2022-08-13 Ivan Perez <ivan.perez@keera.co.uk>
         * dunai.cabal: Add version bounds for dependencies (#303).
-        * src/: Consistency in condition used to check GHC/base version (#295).
+        * src/: Consistency in condition used to check GHC/base version (#295),
+          fix typo on documentation (#304).
 
 2022-06-21 Ivan Perez <ivan.perez@keera.co.uk>
         * dunai.cabal: Version bump (0.8.3) (#302).

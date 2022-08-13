@@ -184,7 +184,7 @@ instance Monad m => Monad (MSFExcept m a b) where
   return = pure
   MSFExcept msf >>= f = MSFExcept $ handleExceptT msf $ runMSFExcept . f
 
--- | Execute an MSF and, if it throws an exception, recover by switing to a
+-- | Execute an MSF and, if it throws an exception, recover by switching to a
 -- second MSF.
 handleExceptT :: Monad m
               => MSF (ExceptT e1 m) a b
