@@ -37,7 +37,7 @@ import Data.MonadicStreamFunction              (arrM, constM, count, feedback,
 import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- External, necessary for older base versions
-#if __GLASGOW_HASKELL__ < 802
+#if !MIN_VERSION_base(4,10,0)
 fromLeft  :: a -> Either a b -> a
 fromLeft  _ (Left  a) = a
 fromLeft  a (Right _) = a
