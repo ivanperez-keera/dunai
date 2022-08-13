@@ -107,7 +107,6 @@ library
     Control.Monad.Trans.MSF.State
     Control.Monad.Trans.MSF.Writer
     Data.MonadicStreamFunction
-    Data.MonadicStreamFunction.Async
     Data.MonadicStreamFunction.Core
     Data.MonadicStreamFunction.Instances.ArrowChoice
     Data.MonadicStreamFunction.Instances.ArrowLoop
@@ -115,12 +114,23 @@ library
     Data.MonadicStreamFunction.Instances.Num
     Data.MonadicStreamFunction.Instances.VectorSpace
     Data.MonadicStreamFunction.InternalCore
+    Data.MonadicStreamFunction.Util
+
+    -- Deprecated
+    Data.MonadicStreamFunction.Async
     Data.MonadicStreamFunction.Parallel
     Data.MonadicStreamFunction.ReactHandle
-    Data.MonadicStreamFunction.Util
 
   other-modules:
     Control.Arrow.Util
+    Data.MonadicStreamFunction.Util.Async
+    Data.MonadicStreamFunction.Util.Debug
+    Data.MonadicStreamFunction.Util.Delay
+    Data.MonadicStreamFunction.Util.Effect
+    Data.MonadicStreamFunction.Util.Fold
+    Data.MonadicStreamFunction.Util.MonadicStream
+    Data.MonadicStreamFunction.Util.Parallel
+    Data.MonadicStreamFunction.Util.ReactHandle
 
   build-depends:
       base >= 4.6 && < 5
