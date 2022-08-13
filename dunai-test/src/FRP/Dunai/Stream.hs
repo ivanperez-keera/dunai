@@ -2,7 +2,7 @@
 module FRP.Dunai.Stream where
 
 import Data.MonadicStreamFunction
-import Data.MonadicStreamFunction.InternalCore (unMSF)
+import Data.MonadicStreamFunction.Core.Internal (unMSF)
 import Control.Monad.Trans.MSF.Reader
 
 -- * Types

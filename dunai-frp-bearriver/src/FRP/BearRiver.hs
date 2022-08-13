@@ -39,19 +39,21 @@ import           Data.Traversable          as T
 import           Data.VectorSpace          as X
 
 -- Internal imports
-import           Control.Monad.Trans.MSF                 hiding (dSwitch,
-                                                          switch)
-import qualified Control.Monad.Trans.MSF                 as MSF
-import           Control.Monad.Trans.MSF.Except          as MSF hiding (dSwitch,
-                                                                 switch)
-import           Control.Monad.Trans.MSF.List            (sequenceS, widthFirst)
+import           Control.Monad.Trans.MSF                  hiding (dSwitch,
+                                                           switch)
+import qualified Control.Monad.Trans.MSF                  as MSF
+import           Control.Monad.Trans.MSF.Except           as MSF hiding
+                                                                 (dSwitch,
+                                                                  switch)
+import           Control.Monad.Trans.MSF.List             (sequenceS,
+                                                           widthFirst)
 import           Control.Monad.Trans.MSF.Random
-import           Data.MonadicStreamFunction              as X hiding (dSwitch,
-                                                               reactimate,
-                                                               repeatedly, sum,
-                                                               switch, trace)
-import qualified Data.MonadicStreamFunction              as MSF
-import           Data.MonadicStreamFunction.InternalCore
+import           Data.MonadicStreamFunction               as X hiding (dSwitch,
+                                                                reactimate,
+                                                                repeatedly, sum,
+                                                                switch, trace)
+import qualified Data.MonadicStreamFunction               as MSF
+import           Data.MonadicStreamFunction.Core.Internal
 
 -- Internal imports (instances)
 import Data.MonadicStreamFunction.Instances.ArrowLoop

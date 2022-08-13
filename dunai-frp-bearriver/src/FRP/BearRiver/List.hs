@@ -19,7 +19,7 @@ module FRP.BearRiver.List
   where
 
 -- External imports
-import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
+import Data.MonadicStreamFunction.Core.Internal (MSF (MSF, unMSF))
 
 -- Internal imports
 import FRP.BearRiver (SF)

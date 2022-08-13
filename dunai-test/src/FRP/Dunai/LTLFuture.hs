@@ -29,7 +29,7 @@ import Control.Applicative (Applicative, (<$>), (<*>), pure)
 
 import Control.Monad.Trans.MSF.Reader
 import Data.MonadicStreamFunction
-import Data.MonadicStreamFunction.InternalCore (unMSF)
+import Data.MonadicStreamFunction.Core.Internal (unMSF)
 import FRP.Dunai.Stream
 
 -- * Temporal Logics based on SFs

@@ -79,8 +79,8 @@ import Control.Applicative (Applicative(..))
 #endif
 
 -- Internal imports
-import Data.MonadicStreamFunction.InternalCore (MSF, embed, feedback, morphGS,
-                                                reactimate)
+import Data.MonadicStreamFunction.Core.Internal (MSF, embed, feedback, morphGS,
+                                                 reactimate)
 
 -- * Definitions
 

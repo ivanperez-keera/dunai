@@ -1,4 +1,3 @@
-{-# LANGUAGE Rank2Types #-}
 -- |
 -- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
 -- License    : BSD3
@@ -42,94 +41,15 @@
 -- orphan instances'), the main module Data.MonadicStreamFunction exports
 -- everything. Users should *never* import this module here individually, but
 -- the main module instead.
-module Data.MonadicStreamFunction.InternalCore where
+module Data.MonadicStreamFunction.InternalCore
+    {-# DEPRECATED "Use Data.MonadicStreamFunction.Core.Internal instead" #-}
+    ( MSF(..)
+    , morphGS
+    , feedback
+    , embed
+    , reactimate
+    )
+  where
 
--- External imports
-import Control.Category (Category (..))
-import Prelude          hiding (id, sum, (.))
-
--- * Definitions
-
--- | Stepwise, side-effectful 'MSF's without implicit knowledge of time.
---
--- 'MSF's should be applied to streams or executed indefinitely or until they
--- terminate. See 'reactimate' and 'reactimateB' for details. In general,
--- calling the value constructor 'MSF' or the function 'unMSF' is discouraged.
-data MSF m a b = MSF { unMSF :: a -> m (b, MSF m a b) }
-
--- Instances
-
--- | Instance definition for 'Category'. Defines 'id' and '.'.
-instance Monad m => Category (MSF m) where
-  id = go
-    where
-      go = MSF $ \a -> return (a, go)
-
-  sf2 . sf1 = MSF $ \a -> do
-    (b, sf1') <- unMSF sf1 a
-    (c, sf2') <- unMSF sf2 b
-    let sf' = sf2' . sf1'
-    c `seq` return (c, sf')
-
--- * Monadic computations and 'MSF's
-
--- | Generic lifting of a morphism to the level of 'MSF's.
---
--- Natural transformation to the level of 'MSF's.
---
--- __Mathematical background:__ The type @a -> m (b, c)@ is a functor in @c@,
--- and @MSF m a b@ is its greatest fixpoint, i.e. it is isomorphic to the type
--- @a -> m (b, MSF m a b)@, by definition. The types @m@, @a@ and @b@ are
--- parameters of the functor. Taking a fixpoint is functorial itself, meaning
--- that a morphism (a natural transformation) of two such functors gives a
--- morphism (an ordinary function) of their fixpoints.
---
--- This is in a sense the most general "abstract" lifting function, i.e. the
--- most general one that only changes input, output and side effect types, and
--- doesn't influence control flow. Other handling functions like exception
--- handling or 'ListT' broadcasting necessarily change control flow.
-morphGS :: Monad m2
-        => (forall c . (a1 -> m1 (b1, c)) -> (a2 -> m2 (b2, c)))
-          -- ^ The natural transformation. @mi@, @ai@ and @bi@ for @i = 1, 2@
-          --   can be chosen freely, but @c@ must be universally quantified
-        -> MSF m1 a1 b1
-        -> MSF m2 a2 b2
-morphGS morph msf = MSF $ \a2 -> do
-  (b2, msf') <- morph (unMSF msf) a2
-  return (b2, morphGS morph msf')
-
--- * Feedback loops
-
--- | Well-formed looped connection of an output component as a future input.
-feedback :: Monad m => c -> MSF m (a, c) (b, c) -> MSF m a b
-feedback c sf = MSF $ \a -> do
-  ((b', c'), sf') <- unMSF sf (a, c)
-  return (b', feedback c' sf')
-
--- * Execution/simulation
-
--- | Apply a monadic stream function to a list.
---
--- Because the result is in a monad, it may be necessary to traverse the whole
--- list to evaluate the value in the results to WHNF.  For example, if the
--- monad is the maybe monad, this may not produce anything if the 'MSF'
--- produces 'Nothing' at any point, so the output stream cannot consumed
--- progressively.
---
--- To explore the output progressively, use 'arrM' and '(>>>)'', together with
--- some action that consumes/actuates on the output.
---
--- This is called 'runSF' in Liu, Cheng, Hudak, "Causal Commutative Arrows and
--- Their Optimization"
-embed :: Monad m => MSF m a b -> [a] -> m [b]
-embed _  []     = return []
-embed sf (a:as) = do
-  (b, sf') <- unMSF sf a
-  bs       <- embed sf' as
-  return (b:bs)
-
--- | Run an 'MSF' indefinitely passing a unit-carrying input stream.
-reactimate :: Monad m => MSF m () () -> m ()
-reactimate sf = do
-  (_, sf') <- unMSF sf ()
-  reactimate sf'
+-- Internal imports
+import Data.MonadicStreamFunction.Core.Internal

@@ -12,8 +12,8 @@ import Control.Arrow (arr, (>>>))
 import GHC.Conc      (par, pseq)
 
 -- Internal imports
-import Data.MonadicStreamFunction.Core         ()
-import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
+import Data.MonadicStreamFunction.Core          ()
+import Data.MonadicStreamFunction.Core.Internal (MSF (MSF, unMSF))
 
 -- | Run two 'MSF's in parallel, taking advantage of parallelism if possible.
 -- This is the parallel version of '***'.

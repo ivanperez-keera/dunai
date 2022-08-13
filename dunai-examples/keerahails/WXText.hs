@@ -16,7 +16,7 @@ import Control.Monad
 import Data.IORef
 import Data.Maybe
 import Data.MonadicStreamFunction hiding (trace)
-import Data.MonadicStreamFunction.InternalCore
+import Data.MonadicStreamFunction.Core.Internal
 import Debug.Trace
 import Graphics.UI.WX
 

@@ -7,7 +7,7 @@ import Control.Category
 import Control.Monad
 import Data.IORef
 import Data.MonadicStreamFunction
-import Data.MonadicStreamFunction.InternalCore
+import Data.MonadicStreamFunction.Core.Internal
 import Graphics.UI.WX
 
 main :: IO ()

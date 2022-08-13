@@ -12,8 +12,8 @@ module Data.MonadicStreamFunction.Util.Async where
 import Control.Arrow (arr, returnA, (<<<))
 
 -- Internal imports
+import Data.MonadicStreamFunction.Core.Internal         (MSF (MSF, unMSF))
 import Data.MonadicStreamFunction.Instances.ArrowChoice ()
-import Data.MonadicStreamFunction.InternalCore          (MSF (MSF, unMSF))
 import Data.MonadicStreamFunction.Util.MonadicStream    (MStream)
 
 -- |

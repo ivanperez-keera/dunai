@@ -6,7 +6,7 @@ import           Control.Monad
 import           Control.Monad.Identity
 import           Control.Monad.Trans.Reader
 import           Data.MonadicStreamFunction hiding (reactimate, switch, trace)
-import           Data.MonadicStreamFunction.InternalCore (MSF(..))
+import           Data.MonadicStreamFunction.Core.Internal (MSF(..))
 import qualified Data.MonadicStreamFunction as MSF
 import           Debug.Trace
 import           FRP.Yampa                  as Yampa

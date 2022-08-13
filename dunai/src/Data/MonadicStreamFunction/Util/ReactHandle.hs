@@ -15,8 +15,8 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.IORef             (IORef, newIORef, readIORef, writeIORef)
 
 -- Internal imports
-import Data.MonadicStreamFunction.Core         (MSF)
-import Data.MonadicStreamFunction.InternalCore (unMSF)
+import Data.MonadicStreamFunction.Core          (MSF)
+import Data.MonadicStreamFunction.Core.Internal (unMSF)
 
 -- | A storage for the current state of an 'MSF'. The 'MSF' may not require
 -- input or produce output data, all such data must be handled through side

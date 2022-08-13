@@ -108,16 +108,17 @@ library
     Control.Monad.Trans.MSF.Writer
     Data.MonadicStreamFunction
     Data.MonadicStreamFunction.Core
+    Data.MonadicStreamFunction.Core.Internal
     Data.MonadicStreamFunction.Instances.ArrowChoice
     Data.MonadicStreamFunction.Instances.ArrowLoop
     Data.MonadicStreamFunction.Instances.ArrowPlus
     Data.MonadicStreamFunction.Instances.Num
     Data.MonadicStreamFunction.Instances.VectorSpace
-    Data.MonadicStreamFunction.InternalCore
     Data.MonadicStreamFunction.Util
 
     -- Deprecated
     Data.MonadicStreamFunction.Async
+    Data.MonadicStreamFunction.InternalCore
     Data.MonadicStreamFunction.Parallel
     Data.MonadicStreamFunction.ReactHandle
 

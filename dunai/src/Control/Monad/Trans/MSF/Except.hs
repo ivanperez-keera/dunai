@@ -31,10 +31,10 @@ import           Control.Monad.Trans.Maybe  (MaybeT, runMaybeT)
 import           Data.Void                  (Void)
 
 -- Internal imports
-import Data.MonadicStreamFunction              (arrM, constM, count, feedback,
-                                                liftTransS, mapMaybeS, morphS,
-                                                reactimate)
-import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
+import Data.MonadicStreamFunction               (arrM, constM, count, feedback,
+                                                 liftTransS, mapMaybeS, morphS,
+                                                 reactimate)
+import Data.MonadicStreamFunction.Core.Internal (MSF (MSF, unMSF))
 
 -- External, necessary for older base versions
 #if !MIN_VERSION_base(4,10,0)

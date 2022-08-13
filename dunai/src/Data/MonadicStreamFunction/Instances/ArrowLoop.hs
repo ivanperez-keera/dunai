@@ -18,8 +18,8 @@ import Control.Arrow     (ArrowLoop (..))
 import Control.Monad.Fix (MonadFix)
 
 -- Internal imports
-import Data.MonadicStreamFunction.Core         ()
-import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
+import Data.MonadicStreamFunction.Core          ()
+import Data.MonadicStreamFunction.Core.Internal (MSF (MSF, unMSF))
 
 -- | 'ArrowLoop' instance for MSFs. The monad must be an instance of
 -- 'MonadFix'.
