@@ -78,10 +78,10 @@ library
   build-depends:
       base >= 4.6 && <5
     , dunai >= 0.6.0 && < 0.9
-    , MonadRandom
-    , mtl
-    , simple-affine-space
-    , transformers >= 0.3
+    , MonadRandom         >= 0.2   && < 0.6
+    , mtl                 >= 2.1.2 && < 2.3
+    , simple-affine-space >= 0.1   && < 0.2
+    , transformers >= 0.3 && < 0.7
 
   default-language:
     Haskell2010
