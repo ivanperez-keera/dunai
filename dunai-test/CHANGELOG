@@ -1,5 +1,6 @@
 2022-08-20 Ivan Perez <ivan.perez@keera.co.uk>
-        * src/: Document module FRP.Dunai.Debug (#306).
+        * src/: Document module FRP.Dunai.Debug (#306), document module
+          FRP.Dunai.LTLFuture (#307).
 
 2022-06-21 Ivan Perez <ivan.perez@keera.co.uk>
         * dunai-test.cabal: Version bump (0.8.3) (#302).
