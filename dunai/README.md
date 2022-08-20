@@ -301,6 +301,15 @@ The following papers are also related to MSFs:
 - [turion/rhine](https://github.com/turion/rhine): extension of Dunai with
   type-level clocks and explicit coordination.
 
+- [keera-studios/haskell-titan](https://github.com/keera-studios/haskell-titan):
+  an advanced, interactive testing framework with support for step-by-step
+  execution and record-and-replay. Haskell-titan supports connecting to dunai
+  systems via its Yampa-compatible interface library bearriver, via a flag in
+  the libraries
+  [`titan-debug-yampa`](https://hackage.haskell.org/package/titan-debug-yampa)
+  and
+  [`titan-record-yampa`](https://hackage.haskell.org/package/titan-record-yampa).
+
 # Technical information
 <sup>[(Back to top)](#table-of-contents)</sup>
 
