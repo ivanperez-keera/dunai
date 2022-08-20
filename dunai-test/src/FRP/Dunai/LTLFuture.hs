@@ -1,6 +1,21 @@
 {-# LANGUAGE CPP                 #-}
 {-# LANGUAGE GADTs               #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+-- |
+-- Copyright  : (c) Ivan Perez, 2017
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- Future-time linear temporal logic implemented on top of monadic stream
+-- functions.
+--
+-- This module can be used to define LTL-like predicates on Monadic Stream
+-- Functions, and to evaluate them. The main entry point is the function
+-- 'evalT', which takes a temporal predicate, and a stream of inputs, and
+-- evaluates the predicate against the stream. Evaluation takes place at time
+-- 0, although it is possible to express conditions on future samples.
+--
+-- /Disclaimer/: This is not necessarily the same as LTL.
 module FRP.Dunai.LTLFuture
     ( TPred(..)
     , tPredMap
