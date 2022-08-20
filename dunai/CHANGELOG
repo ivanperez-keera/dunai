@@ -1,93 +1,116 @@
-2022-08-13 Ivan Perez <ivan.perez@keera.co.uk>
-        * dunai.cabal: Add version bounds for dependencies (#303).
-        * src/: Consistency in condition used to check GHC/base version (#295),
-          fix typo on documentation (#304).
+2022-08-20 Ivan Perez <ivan.perez@keera.co.uk>
+        * Re-format CHANGELOG for readability (#308).
+        * Add version bounds for dependencies (#303).
+        * Consistency in condition used to check GHC/base version (#295).
+        * Fix typo on documentation (#304).
 
 2022-06-21 Ivan Perez <ivan.perez@keera.co.uk>
-        * dunai.cabal: Version bump (0.8.3) (#302).
-        * src/: Simplify implementation of switch (#276), remove redundant
-          imports (#281), remove redundant pragma (#282), use external
-          Void type (#79), remove redundant imports (#283), disable warning
-          pertaining to orphan instances (#284), style fixes (partial) (#285),
-          fix missing re-export of Control.Arrow (#286), further style fixes
-          (partial) (#287), avoid name shadowing (#291), remove outdated
-          comments (#289), remove unused pragmas (#290), remove unnecessary
-          comment (#293), reimplement function without TupleSections (#293),
-          standardize haddock comment (#294), add missing documentation (#288),
-          disable warning due to use of ListT (#297), fix oudated comment
-          (#299), horizontal alignment style changes (#301).
-        * README.md: Re-structure README (#300).
+        * Version bump (0.8.3) (#302).
+        * Simplify implementation of switch (#276).
+        * Remove redundant imports (#281).
+        * Remove redundant pragma (#282).
+        * Use external Void type (#79).
+        * Remove redundant imports (#283).
+        * Disable warning pertaining to orphan instances (#284).
+        * Style fixes (partial) (#285).
+        * Fix missing re-export of Control.Arrow (#286).
+        * Further style fixes (partial) (#287).
+        * Avoid name shadowing (#291).
+        * Remove outdated comments (#289).
+        * Remove unused pragmas (#290).
+        * Remove unnecessary comment (#293).
+        * Reimplement function without TupleSections (#293).
+        * Standardize haddock comment (#294).
+        * Add missing documentation (#288).
+        * Disable warning due to use of ListT (#297).
+        * Fix oudated comment (#299).
+        * Horizontal alignment style changes (#301).
+        * Re-structure README (#300).
 
 2022-04-21 Ivan Perez <ivan.perez@keera.co.uk>
-        * dunai.cabal: Version bump (0.8.2) (#280), syntax rules (#271),
-          declare CHANGELOG (#273), declare subdir of source-repository (#272).
-        * src/: Fix haddock syntax error in documentation of switch (#274),
-          introduce new dSwitch function (#275), syntax rules (#277), remove
-          unused module Ultrametric (#278), remove unused module
-          CausalCommutative (#279).
+        * Version bump (0.8.2) (#280).
+        * Syntax rules (#271).
+        * Declare CHANGELOG (#273).
+        * Declare subdir of source-repository (#272).
+        * Fix haddock syntax error in documentation of switch (#274).
+        * Introduce new dSwitch function (#275).
+        * Syntax rules (#277).
+        * Remove unused module Ultrametric (#278).
+        * Remove unused module CausalCommutative (#279).
 
 2021-10-21 Ivan Perez <ivan.perez@keera.co.uk>
-        * src:/: Code cleaning.
-        * dunai.cabal: Version bump (0.8.1).
-        * README.md: update example to new API, fix broken link, update badge,
-          fix typo.
+        * Version bump (0.8.1).
+        * Code cleaning.
+        * Update example in README to new API.
+        * Fix broken link in README.
+        * Update badge in README.
+        * Fix typo in README.
         * Thanks: @DireWolf707.
 
 2021-09-06 Ivan Perez <ivan.perez@keera.co.uk>
-        * src:/: Code cleaning.
-        * dunai.cabal: Version bump (0.8.0).
-        * README.md: support for GHC 8.10.
+        * Version bump (0.8.0).
+        * Code cleaning.
+        * List GHC 8.10 as supported in README.
         * Thanks: @walseb, @turion, @bgluzman, @mezzomondo.
 
 2020-04-18 Ivan Perez <ivan.perez@keera.co.uk>
-        * src:/: Add new utilities. Fix behaviour of listToMaybeS.
-        * dunai.cabal: Version bump (0.7.0).
-        * README.md: support for GHC 8.8.
+        * Version bump (0.7.0).
+        * Add new utilities.
+        * Fix behaviour of listToMaybeS.
+        * List GHC 8.8 as supported in README.
         * Cleaning and hlinting changes.
         * Thanks: @turion, @Linearity.
 
 2020-01-25 Ivan Perez <ivan.perez@keera.co.uk>
-        * src:/: Remove Data.VectorSpace.
-        * src:/: Fix error in documentation of embed.
-        * dunai.cabal: use simple-affine-space. Version bump (0.6.0).
-        * README.md: support for GHC 8.6. Add links to videos. Fix typos.
+        * Version bump (0.6.0).
+        * Use simple-affine-space as dependency.
+        * Remove Data.VectorSpace.
+        * Fix error in documentation of embed.
+        * List GHC 8.6 as supported in README.
+        * Add links to videos to README.
+        * Fix typos in README.
         * Thanks: @chriz-keera, @turion, @Rizary, @dynomite567,
           @alexmarginean16.
 
 2019-09-29 Ivan Perez <ivan.perez@keera.co.uk>
-        * src:/: Fixes error in List on older versions of GHC.
-        * dunai.cabal: exposes List support. Version bump (0.5.2.1).
+        * Version bump (0.5.2.1).
+        * Expose List support.
+        * Fix error in List on older versions of GHC.
 
 2019-09-29 Ivan Perez <ivan.perez@keera.co.uk>
-        * src:/: Fixes error in List support implementation.
-        * dunai.cabal: exposes List support. Version bump (0.5.2).
+        * Version bump (0.5.2).
+        * Expose List support.
+        * Fix error in List support implementation.
 
 2018-11-03 Ivan Perez <ivan.perez@keera.co.uk>
-        * src:/: Fixes failed patterns in do notation.
-        * dunai.cabal: Version bump (0.5.1).
+        * Version bump (0.5.1).
+        * Fix failed patterns in do notation.
         * Thanks: @turion, @ggreif.
 
 2018-11-03 Ivan Perez <ivan.perez@keera.co.uk>
-        * src:/ Renames lifting functions, moves definitions around.
-        * dunai.cabal: Version bump (0.5).
+        * Version bump (0.5).
+        * Rename lifting functions.
+        * Move definitions around.
         * Thanks: @turion.
 
 2017-12-05 Ivan Perez <ivan.perez@keera.co.uk>
-        * Adds support for random numbers using MonadRandom
-          (thanks Jonathan Thaler -- @thalerjonathan).
-        * Removes MSF constructor from many definitions
-          (by Manuel Bärenz -- @turion).
-        * Adds support for older GHC versions.
-        * Moves some definitions/modules around.
-        * dunai.cabal: Version bump (0.4).
-        * examples/: Changes licenses, updates examples to use new API.
+        * Version bump (0.4).
+        * Add support for random numbers using MonadRandom.
+        * Remove MSF constructor from many definitions.
+        * Add support for older GHC versions.
+        * Move some definitions/modules around.
+        * Change licenses in examples, update them to use new API.
+        * Thanks: @thalerjonathan, @turion.
 
 2017-10-31 Ivan Perez <ivan.perez@keera.co.uk>
-        * src/: Re-structure modules, completes documentation.
-        * stack.yaml: New stack configuration.
-        * Fixes compilation errors with older versions of GHC.
-        * dunai.cabal: Version bump (0.3), adds repo URL, documentation.
-        * examples/: Updates examples to use new API.
+        * Version bump (0.3).
+        * Add repo URL to cabal file.
+        * Add documentation to cabal file.
+        * Re-structure modules.
+        * Complete documentation in code.
+        * Add stack configuration file.
+        * Fix compilation errors with older versions of GHC.
+        * Update examples to use new API.
 
 Copyright (c) 2016, Ivan Perez and Manuel Bärenz.
 All rights reserved.
