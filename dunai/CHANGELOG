@@ -4,6 +4,7 @@
         * Add version bounds for dependencies (#303).
         * Consistency in condition used to check GHC/base version (#295).
         * Fix typo on documentation (#304).
+        * Document GHC 9.4.1 titan support in readme (#309).
 
 2022-06-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.8.3) (#302).
