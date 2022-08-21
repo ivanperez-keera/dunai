@@ -2,6 +2,7 @@
         * Document module FRP.Dunai.Debug (#306).
         * Document module FRP.Dunai.LTLFuture (#307).
         * Document module FRP.Dunai.LTLPast (#310).
+        * Re-format CHANGELOG for readability (#311).
 
 2022-06-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.8.3) (#302).
