@@ -30,7 +30,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          dunai
-version:       0.8.3
+version:       0.9.0
 author:        Ivan Perez, Manuel Bärenz
 maintainer:    ivan.perez@keera.co.uk
 homepage:      https://github.com/ivanperez-keera/dunai
@@ -124,10 +124,10 @@ library
 
   build-depends:
       base >= 4.6 && < 5
-    , MonadRandom
-    , simple-affine-space
-    , transformers
-    , transformers-base
+    , MonadRandom         >= 0.2 && < 0.6
+    , simple-affine-space >= 0.1 && < 0.2
+    , transformers        >= 0.3 && < 0.7
+    , transformers-base   >= 0.4 && < 0.5
 
   default-language:
     Haskell2010

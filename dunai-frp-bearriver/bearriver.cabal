@@ -30,7 +30,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          bearriver
-version:       0.13.5
+version:       0.13.6
 author:        Ivan Perez, Manuel Bärenz
 maintainer:    ivan.perez@keera.co.uk
 homepage:      https://github.com/ivanperez-keera/dunai
@@ -77,11 +77,11 @@ library
 
   build-depends:
       base >= 4.6 && <5
-    , dunai >= 0.6.0 && < 0.9
-    , MonadRandom
-    , mtl
-    , simple-affine-space
-    , transformers >= 0.3
+    , dunai >= 0.6.0 && < 0.10
+    , MonadRandom         >= 0.2   && < 0.6
+    , mtl                 >= 2.1.2 && < 2.3
+    , simple-affine-space >= 0.1   && < 0.2
+    , transformers >= 0.3 && < 0.7
 
   default-language:
     Haskell2010
