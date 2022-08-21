@@ -142,6 +142,7 @@ prev' = prev True
 
 -- | Delay output of an MSF by one sample, using the provided argument for the
 -- first sample.
+{-# DEPRECATED prev "This function is deprecated in dunai-test 0.9 and will be removed." #-}
 prev :: Monad m => b -> MSF m a b -> MSF m a b
 prev b sf = feedback b $ proc (a, last) -> do
   b <- sf -< a
