@@ -1,4 +1,5 @@
 2022-08-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * Version bump (0.9.0) (#313).
         * Document module FRP.Dunai.Debug (#306).
         * Document module FRP.Dunai.LTLFuture (#307).
         * Document module FRP.Dunai.LTLPast (#310).
