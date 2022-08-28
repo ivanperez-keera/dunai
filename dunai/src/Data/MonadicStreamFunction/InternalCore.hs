@@ -69,7 +69,7 @@ instance Monad m => Category (MSF m) where
     (b, sf1') <- unMSF sf1 a
     (c, sf2') <- unMSF sf2 b
     let sf' = sf2' . sf1'
-    c `seq` return (c, sf')
+    return (c, sf')
 
 -- * Monadic computations and 'MSF's
 
