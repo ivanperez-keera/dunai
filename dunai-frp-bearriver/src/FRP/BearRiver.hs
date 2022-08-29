@@ -29,6 +29,7 @@ import           Control.Applicative
 import           Control.Arrow             as X
 import qualified Control.Category          as Category
 import           Control.Monad             (mapM)
+import           Control.Monad.Fail
 import           Control.Monad.Random
 import           Control.Monad.Trans.Maybe
 import           Control.Monad.Zip
