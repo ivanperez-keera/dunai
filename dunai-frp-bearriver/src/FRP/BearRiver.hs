@@ -29,7 +29,9 @@ import           Control.Applicative
 import           Control.Arrow             as X
 import qualified Control.Category          as Category
 import           Control.Monad             (mapM)
+#if __GLASGOW_HASKELL__ >= 800
 import           Control.Monad.Fail
+#endif
 import           Control.Monad.Random
 import           Control.Monad.Trans.Maybe
 import           Control.Monad.Zip
@@ -110,25 +112,28 @@ instance Applicative Event where
     Event f <*> m  = fmap f m
     NoEvent <*> _m = NoEvent
 
+#if __GLASGOW_HASKELL__ >= 822
     liftA2 f (Event x) (Event y) = Event (f x y)
     liftA2 _ _ _ = NoEvent
+#endif
 
     Event _m1 *> m2  = m2
     NoEvent   *> _m2 = NoEvent
-    
+
 instance Monad Event where
     (Event x) >>= k = k x
     NoEvent   >>= _ = NoEvent
 
     (>>) = (*>)
 
+#if __GLASGOW_HASKELL__ >= 800
 instance Semigroup a => Semigroup (Event a) where
     NoEvent <> b       = b
     a       <> NoEvent = a
     Event a <> Event b = Event (a <> b)
 
     stimes = stimesEvent
-    
+
 stimesEvent :: (Integral b, Semigroup a) => b -> Event a -> Event a
 stimesEvent _ NoEvent = NoEvent
 stimesEvent n (Event a) = case compare n 0 of
@@ -146,14 +151,15 @@ stimesEvent n (Event a) = case compare n 0 of
 --
 instance Semigroup a => Monoid (Event a) where
     mempty = NoEvent
-    
+#endif
+
 instance MonadPlus Event
 
 instance Alternative Event where
     empty = NoEvent
     NoEvent <|> r = r
     l       <|> _ = l
-    
+
 -- from Control.Monad.Fix
 instance MonadFix Event where
     mfix f = let a = f (unEvent a) in a
@@ -163,11 +169,13 @@ instance MonadFix Event where
 -- from GHC.Show
 deriving instance Show a => Show (Event a)
 
+#if __GLASGOW_HASKELL__ >= 800
 -- from Control.Monad.Fail
 instance MonadFail Event where
     fail _ = NoEvent
-    
--- from Data.Foldable    
+#endif
+
+-- from Data.Foldable
 instance Foldable Event where
     foldMap = event mempty
 
