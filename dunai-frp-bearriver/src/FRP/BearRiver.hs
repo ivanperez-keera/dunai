@@ -39,7 +39,9 @@ import           Data.Data
 import           Data.Functor.Classes
 import           Data.Functor.Identity
 import           Data.Maybe
+#if __GLASGOW_HASKELL__ >= 800
 import           Data.Semigroup
+#endif
 import           Data.Traversable          as T
 import           Data.VectorSpace          as X
 
