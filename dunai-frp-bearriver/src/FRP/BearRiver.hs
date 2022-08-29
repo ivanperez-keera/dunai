@@ -62,10 +62,23 @@ import Data.MonadicStreamFunction.Instances.ArrowLoop
 infixr 0 -->, -:>, >--, >=-
 
 -- * Basic definitions
--- from GHC.Maybe
+-- | Absolute time.
+type Time  = Double
+
+-- | Time deltas or increments (conceptually positive).
+type DTime = Double
+
+-- | Extensible signal function (signal function with a notion of time, but
+-- which can be extended with actions).
+type SF m        = MSF (ClockInfo m)
+
+-- | Information on the progress of time.
+type ClockInfo m = ReaderT DTime m
+
 -------------------------------------------------------------------------------
 -- Event type
 -------------------------------------------------------------------------------
+-- from GHC.Maybe
 
 -- | A value that may or may not exist.
 --
@@ -201,19 +214,6 @@ instance Show1 Event where
 
 -- from Data.Data
 deriving instance Data a => Data (Event a)
-
--- | Absolute time.
-type Time  = Double
-
--- | Time deltas or increments (conceptually positive).
-type DTime = Double
-
--- | Extensible signal function (signal function with a notion of time, but
--- which can be extended with actions).
-type SF m        = MSF (ClockInfo m)
-
--- | Information on the progress of time.
-type ClockInfo m = ReaderT DTime m
 
 -- ** Lifting
 arrPrim :: Monad m => (a -> b) -> SF m a b
