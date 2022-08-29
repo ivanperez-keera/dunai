@@ -1,6 +1,8 @@
 {-# LANGUAGE Arrows     #-}
 {-# LANGUAGE CPP        #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 -- The following warning is disabled so that we do not see warnings due to
 -- using ListT on an MSF to implement parallelism with broadcasting.
 #if __GLASGOW_HASKELL__ < 800
@@ -29,8 +31,12 @@ import qualified Control.Category          as Category
 import           Control.Monad             (mapM)
 import           Control.Monad.Random
 import           Control.Monad.Trans.Maybe
+import           Control.Monad.Zip
+import           Data.Data
+import           Data.Functor.Classes
 import           Data.Functor.Identity
 import           Data.Maybe
+import           Data.Semigroup
 import           Data.Traversable          as T
 import           Data.VectorSpace          as X
 
@@ -55,6 +61,145 @@ import Data.MonadicStreamFunction.Instances.ArrowLoop
 infixr 0 -->, -:>, >--, >=-
 
 -- * Basic definitions
+-- from GHC.Maybe
+-------------------------------------------------------------------------------
+-- Event type
+-------------------------------------------------------------------------------
+
+-- | A value that may or may not exist.
+--
+-- Used to represent discrete-time signals.
+--
+-- The 'Event' type encapsulates an optional value.  A value of type
+-- @'Event' a@ either contains a value of type @a@ (represented as @'Event' a@),
+-- or it is empty (represented as 'NoEvent').  Using 'Event' is a good way to
+-- deal with errors or exceptional cases without resorting to drastic
+-- measures such as 'Prelude.error'.
+--
+-- The 'Event' type is also a monad.  It is a simple kind of error
+-- monad, where all errors are represented by 'NoEvent'.  A richer
+-- error monad can be built using the 'Data.Either.Either' type.
+--
+data Event a = NoEvent | Event a
+  deriving ( Eq
+           , Ord
+           )
+
+-- from GHC.Base
+instance Functor Event where
+    fmap _ NoEvent   = NoEvent
+    fmap f (Event a) = Event (f a)
+
+instance Applicative Event where
+    pure = Event
+
+    Event f <*> m  = fmap f m
+    NoEvent <*> _m = NoEvent
+
+    liftA2 f (Event x) (Event y) = Event (f x y)
+    liftA2 _ _ _ = NoEvent
+
+    Event _m1 *> m2  = m2
+    NoEvent   *> _m2 = NoEvent
+    
+instance Monad Event where
+    (Event x) >>= k = k x
+    NoEvent   >>= _ = NoEvent
+
+    (>>) = (*>)
+
+instance Semigroup a => Semigroup (Event a) where
+    NoEvent <> b       = b
+    a       <> NoEvent = a
+    Event a <> Event b = Event (a <> b)
+
+    stimes = stimesEvent
+    
+stimesEvent :: (Integral b, Semigroup a) => b -> Event a -> Event a
+stimesEvent _ NoEvent = NoEvent
+stimesEvent n (Event a) = case compare n 0 of
+    LT -> errorWithoutStackTrace "stimes: Event, negative multiplier"
+    EQ -> NoEvent
+    GT -> Event (stimes n a)
+
+-- | Lift a semigroup into 'Event' forming a 'Monoid' according to
+-- <http://en.wikipedia.org/wiki/Monoid>: \"Any semigroup @S@ may be
+-- turned into a monoid simply by adjoining an element @e@ not in @S@
+-- and defining @e*e = e@ and @e*s = s = s*e@ for all @s ∈ S@.\"
+--
+-- /Since 4.11.0/: constraint on inner @a@ value generalised from
+-- 'Monoid' to 'Semigroup'.
+--
+instance Semigroup a => Monoid (Event a) where
+    mempty = NoEvent
+    
+instance MonadPlus Event
+
+instance Alternative Event where
+    empty = NoEvent
+    NoEvent <|> r = r
+    l       <|> _ = l
+    
+-- from Control.Monad.Fix
+instance MonadFix Event where
+    mfix f = let a = f (unEvent a) in a
+             where unEvent (Event x) = x
+                   unEvent NoEvent   = errorWithoutStackTrace "mfix Event: NoEvent"
+
+-- from GHC.Show
+deriving instance Show a => Show (Event a)
+
+-- from Control.Monad.Fail
+instance MonadFail Event where
+    fail _ = NoEvent
+    
+-- from Data.Foldable    
+instance Foldable Event where
+    foldMap = event mempty
+
+    foldr _ z NoEvent   = z
+    foldr f z (Event x) = f x z
+
+    foldl _ z NoEvent   = z
+    foldl f z (Event x) = f z x
+
+-- from Data.Traversable
+instance Traversable Event where
+    traverse _ NoEvent   = pure NoEvent
+    traverse f (Event x) = Event <$> f x
+
+-- from Control.Monad.Zip
+instance MonadZip Event where
+    mzipWith = liftM2
+
+-- from Data.Functor.Classes
+instance Eq1 Event where
+    liftEq _  NoEvent   NoEvent   = True
+    liftEq _  NoEvent   (Event _) = False
+    liftEq _  (Event _) NoEvent   = False
+    liftEq eq (Event x) (Event y) = eq x y
+
+instance Ord1 Event where
+    liftCompare _    NoEvent   NoEvent   = EQ
+    liftCompare _    NoEvent   (Event _) = LT
+    liftCompare _    (Event _) NoEvent   = GT
+    liftCompare comp (Event x) (Event y) = comp x y
+
+--instance Read1 Event where
+--    liftReadPrec rp _ =
+--        parens (expectP (Ident "NoEvent") *> pure NoEvent)
+--        <|>
+--        readData (readUnaryWith rp "Event" Event)
+--
+--    liftReadListPrec = liftReadListPrecDefault
+--    liftReadList     = liftReadListDefault
+
+instance Show1 Event where
+    liftShowsPrec _  _ _ NoEvent   = showString "NoEvent"
+    liftShowsPrec sp _ d (Event x) = showsUnaryWith sp "Event" d x
+
+-- from Data.Data
+deriving instance Data a => Data (Event a)
 
 -- | Absolute time.
 type Time  = Double
@@ -68,38 +213,6 @@ type SF m        = MSF (ClockInfo m)
 
 -- | Information on the progress of time.
 type ClockInfo m = ReaderT DTime m
-
--- | A value that may or may not exist.
---
--- Used to represent discrete-time signals.
-data Event a = Event a | NoEvent
- deriving (Eq, Show)
-
--- | The type 'Event' is isomorphic to 'Maybe'. The 'Functor' instance of
--- 'Event' is analogous to the 'Functo' instance of 'Maybe', where the given
--- function is applied to the value inside the 'Event', if any.
-instance Functor Event where
-  fmap _ NoEvent   = NoEvent
-  fmap f (Event c) = Event (f c)
-
--- | The type 'Event' is isomorphic to 'Maybe'. The 'Applicative' instance of
--- 'Event' is analogous to the 'Applicative' instance of 'Maybe', where the
--- lack of a value (i.e., 'NoEvent') causes '(<*>)' to produce no value
--- ('NoEvent').
-instance Applicative Event where
-  pure = Event
-
-  Event f <*> Event x = Event (f x)
-  _       <*> _       = NoEvent
-
--- | The type 'Event' is isomorphic to 'Maybe'. The 'Monad' instance of 'Event'
--- is analogous to the 'Monad' instance of 'Maybe', where the lack of a value
--- (i.e., 'NoEvent') causes bind to produce no value ('NoEvent').
-instance Monad Event where
-  return = pure
-
-  Event x >>= f = f x
-  NoEvent >>= _ = NoEvent
 
 -- ** Lifting
 arrPrim :: Monad m => (a -> b) -> SF m a b
