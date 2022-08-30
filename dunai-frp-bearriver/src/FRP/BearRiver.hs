@@ -519,9 +519,7 @@ parC sf = parC0 sf
 
 hold :: Monad m => a -> SF m (Event a) a
 hold a = feedback a $ arr $ \(e,a') ->
-    dup (event a' id e)
-  where
-    dup x = (x,x)
+  dup (event a' id e)
 
 -- ** Accumulators
 
@@ -653,4 +651,4 @@ replaceOnce :: Monad m => a -> SF m a a
 replaceOnce a = dSwitch (arr $ const (a, Event ())) (const $ arr id)
 
 -- ** Tuples
-dup  x     = (x,x)
+dup x = (x,x)
