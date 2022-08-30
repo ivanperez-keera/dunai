@@ -587,12 +587,12 @@ dSwitch sf sfC = MSF $ \a -> do
 -- of outputs. See 'par'.
 --
 -- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
 #if MIN_VERSION_base(4,8,0)
 parB :: (Monad m) => [SF m a b] -> SF m a [b]
 #else
 parB :: (Functor m, Monad m) => [SF m a b] -> SF m a [b]
 #endif
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
 parB = widthFirst . sequenceS
 
 
@@ -600,7 +600,7 @@ parB = widthFirst . sequenceS
 --   signal functions spatially composed in parallel). See 'dpSwitch'.
 --
 -- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
 dpSwitchB :: (Functor m, Monad m , Traversable col)
           => col (SF m a b) -> SF m (a, col b) (Event c) -> (col (SF m a b) -> c -> SF m a (col b))
           -> SF m a (col b)
