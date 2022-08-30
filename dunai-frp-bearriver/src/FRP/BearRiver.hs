@@ -71,6 +71,7 @@ type DTime = Double
 -- Signal function that transforms a signal carrying values of some type 'a'
 -- into a signal carrying values of some type 'b'. You can think of it as
 -- (Signal a -> Signal b). A signal is, conceptually, a
+-- function from 'Time' to value.
 type SF m        = MSF (ClockInfo m)
 
 -- | Information on the progress of time.
@@ -580,24 +581,23 @@ dSwitch sf sfC = MSF $ \a -> do
 
 -- ** Parallel composition and switching over collections with broadcasting
 
--- | Spatial parallel composition of a signal function collection.
+#if MIN_VERSION_base(4,8,0)
+parB :: (Monad m) => [SF m a b] -> SF m a [b]
+#else
+parB :: (Functor m, Monad m) => [SF m a b] -> SF m a [b]
+#endif
+-- ^ Spatial parallel composition of a signal function collection.
 -- Given a collection of signal functions, it returns a signal
 -- function that broadcasts its input signal to every element
 -- of the collection, to return a signal carrying a collection
 -- of outputs. See 'par'.
 --
 -- For more information on how parallel composition works, check
-#if MIN_VERSION_base(4,8,0)
-parB :: (Monad m) => [SF m a b] -> SF m a [b]
-#else
-parB :: (Functor m, Monad m) => [SF m a b] -> SF m a [b]
-#endif
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
 parB = widthFirst . sequenceS
 
-
 -- | Decoupled parallel switch with broadcasting (dynamic collection of
---   signal functions spatially composed in parallel). See 'dpSwitch'.
+-- signal functions spatially composed in parallel). See 'dpSwitch'.
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
@@ -686,6 +686,8 @@ accumHoldBy f b = feedback b $ arr $ \(a, b') ->
 -- * State keeping combinators
 
 -- ** Loops with guaranteed well-defined feedback
+
+-- | Loop with an initial value for the signal being fed back.
 loopPre :: Monad m => c -> SF m (a, c) (b, c) -> SF m a b
 loopPre = feedback
 
