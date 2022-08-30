@@ -1,3 +1,4 @@
+{-# OPTIONS_HADDOCK ignore-exports #-}
 {-# LANGUAGE Arrows     #-}
 {-# LANGUAGE CPP        #-}
 {-# LANGUAGE RankNTypes #-}
