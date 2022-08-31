@@ -167,17 +167,21 @@ instance MonadFix Event where
     mfix f = let a = f (unEvent a) in a
              where unEvent (Event x) = x
                    unEvent NoEvent   = errorWithoutStackTrace "mfix Event: NoEvent"
+#if __GLASGOW_HASKELL__ < 800
+                   errorWithoutStackTrace = error
+#endif
 
 -- from GHC.Show
 deriving instance Show a => Show (Event a)
 
-#if __GLASGOW_HASKELL__ >= 800
 -- from Control.Monad.Fail
+#if __GLASGOW_HASKELL__ >= 800
 instance MonadFail Event where
     fail _ = NoEvent
 #endif
 
 -- from Data.Foldable
+#if __GLASGOW_HASKELL__ >= 800
 instance Foldable Event where
     foldMap = event mempty
 
@@ -186,6 +190,7 @@ instance Foldable Event where
 
     foldl _ z NoEvent   = z
     foldl f z (Event x) = f z x
+#endif
 
 -- from Data.Traversable
 instance Traversable Event where
