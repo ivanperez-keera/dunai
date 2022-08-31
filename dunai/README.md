@@ -255,7 +255,7 @@ are.
 
 The best introduction to the fundamentals of Monadic Stream Functions is:
 
-- [Functional Reactive Programming, Refactored](https://dl.acm.org/authorize?N34896) ([official ACM page](http://dl.acm.org/citation.cfm?id=2976010)) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
+- [Functional Reactive Programming, Refactored](https://dl.acm.org/authorize?N34896) ([official ACM page](http://dl.acm.org/citation.cfm?id=2976010)) ([mirror](http://www.cs.nott.ac.uk/~psxip1/)) ([updated paper examples](https://github.com/ivanperez-keera/dunai/tree/develop/dunai-examples/paper)).
 
 The following papers are also related to MSFs:
 
