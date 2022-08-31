@@ -1,3 +1,6 @@
+2022-08-31 Ivan Perez <ivan.perez@keera.co.uk>
+        * Add link to updated paper examples from README (#319).
+
 2022-08-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.9.0) (#313).
         * Document haskell-titan support in readme (#176).
