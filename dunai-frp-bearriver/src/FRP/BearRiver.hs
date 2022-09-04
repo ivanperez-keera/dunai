@@ -520,8 +520,6 @@ parC sf = parC0 sf
 hold :: Monad m => a -> SF m (Event a) a
 hold a = feedback a $ arr $ \(e,a') ->
     dup (event a' id e)
-  where
-    dup x = (x,x)
 
 -- ** Accumulators
 
