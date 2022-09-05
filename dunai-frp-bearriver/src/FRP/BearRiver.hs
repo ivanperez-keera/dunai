@@ -73,7 +73,7 @@ type ClockInfo m = ReaderT DTime m
 --
 -- Used to represent discrete-time signals.
 data Event a = Event a | NoEvent
- deriving (Eq, Show)
+ deriving (Eq, Ord, Show)
 
 -- | The type 'Event' is isomorphic to 'Maybe'. The 'Functor' instance of
 -- 'Event' is analogous to the 'Functo' instance of 'Maybe', where the given
