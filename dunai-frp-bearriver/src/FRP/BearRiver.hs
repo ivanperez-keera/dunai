@@ -26,7 +26,9 @@ module FRP.BearRiver
 import           Control.Applicative
 import           Control.Arrow             as X
 import qualified Control.Category          as Category
+import           Control.DeepSeq           (NFData (..))
 import           Control.Monad             (mapM)
+import qualified Control.Monad.Fail        as Fail
 import           Control.Monad.Random
 import           Control.Monad.Trans.Maybe
 import           Data.Functor.Identity
@@ -73,7 +75,7 @@ type ClockInfo m = ReaderT DTime m
 --
 -- Used to represent discrete-time signals.
 data Event a = Event a | NoEvent
- deriving (Eq, Show)
+ deriving (Eq, Ord, Show)
 
 -- | The type 'Event' is isomorphic to 'Maybe'. The 'Functor' instance of
 -- 'Event' is analogous to the 'Functo' instance of 'Maybe', where the given
@@ -100,6 +102,26 @@ instance Monad Event where
 
   Event x >>= f = f x
   NoEvent >>= _ = NoEvent
+
+-- | MonadFail instance
+instance Fail.MonadFail Event where
+  -- | Fail with 'NoEvent'.
+  fail _ = NoEvent
+
+-- | Alternative instance
+instance Alternative Event where
+  -- | An empty alternative carries no event, so it is ignored.
+  empty = NoEvent
+  -- | Merge favouring the left event ('NoEvent' only if both are
+  -- 'NoEvent').
+  NoEvent <|> r = r
+  l       <|> _ = l
+
+-- | NFData instance
+instance NFData a => NFData (Event a) where
+  -- | Evaluate value carried by event.
+  rnf NoEvent   = ()
+  rnf (Event a) = rnf a `seq` ()
 
 -- ** Lifting
 arrPrim :: Monad m => (a -> b) -> SF m a b
