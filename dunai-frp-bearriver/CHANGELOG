@@ -1,5 +1,6 @@
-2022-09-04 Ivan Perez <ivan.perez@keera.co.uk>
-        * src/: Remove unnecessary auxiliary function (#321).
+2022-09-05 Ivan Perez <ivan.perez@keera.co.uk>
+        * src/: Remove unnecessary auxiliary function (#321), add missing
+          instances for Event (#326).
 
 2022-08-21 Ivan Perez <ivan.perez@keera.co.uk>
         * bearriver.cabal: Version bump (0.13.6) (#302), add version bounds for
