@@ -26,6 +26,7 @@ module FRP.BearRiver
 import           Control.Applicative
 import           Control.Arrow             as X
 import qualified Control.Category          as Category
+import           Control.DeepSeq           (NFData (..))
 import           Control.Monad             (mapM)
 import qualified Control.Monad.Fail        as Fail
 import           Control.Monad.Random
@@ -115,6 +116,12 @@ instance Alternative Event where
   -- 'NoEvent').
   NoEvent <|> r = r
   l       <|> _ = l
+
+-- | NFData instance
+instance NFData a => NFData (Event a) where
+  -- | Evaluate value carried by event.
+  rnf NoEvent   = ()
+  rnf (Event a) = rnf a `seq` ()
 
 -- ** Lifting
 arrPrim :: Monad m => (a -> b) -> SF m a b
