@@ -88,3 +88,7 @@ library
 
   hs-source-dirs:
     src/
+
+  if !impl(ghc >= 8.0)
+    build-depends:
+      fail == 4.9.*

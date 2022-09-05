@@ -27,6 +27,7 @@ import           Control.Applicative
 import           Control.Arrow             as X
 import qualified Control.Category          as Category
 import           Control.Monad             (mapM)
+import qualified Control.Monad.Fail        as Fail
 import           Control.Monad.Random
 import           Control.Monad.Trans.Maybe
 import           Data.Functor.Identity
@@ -100,6 +101,11 @@ instance Monad Event where
 
   Event x >>= f = f x
   NoEvent >>= _ = NoEvent
+
+-- | MonadFail instance
+instance Fail.MonadFail Event where
+  -- | Fail with 'NoEvent'.
+  fail _ = NoEvent
 
 -- ** Lifting
 arrPrim :: Monad m => (a -> b) -> SF m a b
