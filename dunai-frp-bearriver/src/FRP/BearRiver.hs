@@ -107,6 +107,15 @@ instance Fail.MonadFail Event where
   -- | Fail with 'NoEvent'.
   fail _ = NoEvent
 
+-- | Alternative instance
+instance Alternative Event where
+  -- | An empty alternative carries no event, so it is ignored.
+  empty = NoEvent
+  -- | Merge favouring the left event ('NoEvent' only if both are
+  -- 'NoEvent').
+  NoEvent <|> r = r
+  l       <|> _ = l
+
 -- ** Lifting
 arrPrim :: Monad m => (a -> b) -> SF m a b
 arrPrim = arr
