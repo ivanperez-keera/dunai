@@ -1,3 +1,6 @@
+2022-09-06 Ivan Perez <ivan.perez@keera.co.uk>
+        * src/: added dpSwitch (#331).
+
 2022-08-21 Ivan Perez <ivan.perez@keera.co.uk>
         * bearriver.cabal: Version bump (0.13.6) (#302), add version bounds for
           dependencies (#303).
