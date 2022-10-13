@@ -36,7 +36,10 @@ maintainer:    ivan.perez@keera.co.uk
 homepage:      https://github.com/ivanperez-keera/dunai
 license:       BSD3
 license-file:  LICENSE
-copyright:     Copyright (c) 2016 - Ivan Perez and Manuel Bärenz
+copyright:
+  Copyright (c) 2019-2022 - Ivan Perez
+  ,
+  Copyright (c) 2016-2018 - Ivan Perez and Manuel Bärenz
 category:      FRP
 synopsis:      FRP Yampa replacement implemented with Monadic Stream Functions.
 description:

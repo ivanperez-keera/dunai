@@ -1,6 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 -- |
--- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- Copyright  : (c) Ivan Perez, 2019-2022
+--              (c) Ivan Perez and Manuel Baerenz, 2016-2018
 -- License    : BSD3
 -- Maintainer : ivan.perez@keera.co.uk
 --
