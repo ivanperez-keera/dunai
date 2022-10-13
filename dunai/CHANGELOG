@@ -1,5 +1,6 @@
-2022-08-31 Ivan Perez <ivan.perez@keera.co.uk>
+2022-10-13 Ivan Perez <ivan.perez@keera.co.uk>
         * Add link to updated paper examples from README (#319).
+        * Update Travis script (#333).
 
 2022-08-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.9.0) (#313).
