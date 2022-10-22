@@ -8,7 +8,8 @@
 #else
 {-# OPTIONS_GHC -Wno-deprecations #-}
 #endif
--- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- Copyright  : (c) Ivan Perez, 2019-2022
+--              (c) Ivan Perez and Manuel Baerenz, 2016-2018
 -- License    : BSD3
 -- Maintainer : ivan.perez@keera.co.uk
 module FRP.BearRiver
@@ -26,7 +27,9 @@ module FRP.BearRiver
 import           Control.Applicative
 import           Control.Arrow             as X
 import qualified Control.Category          as Category
+import           Control.DeepSeq           (NFData (..))
 import           Control.Monad             (mapM)
+import qualified Control.Monad.Fail        as Fail
 import           Control.Monad.Random
 import           Control.Monad.Trans.Maybe
 import           Data.Functor.Identity
@@ -56,24 +59,32 @@ infixr 0 -->, -:>, >--, >=-
 
 -- * Basic definitions
 
--- | Absolute time.
+-- | Time is used both for time intervals (duration), and time w.r.t. some
+-- agreed reference point in time.
 type Time  = Double
 
--- | Time deltas or increments (conceptually positive).
+-- | DTime is the time type for lengths of sample intervals. Conceptually,
+-- DTime = R+ = { x in R | x > 0 }. Don't assume Time and DTime have the
+-- same representation.
 type DTime = Double
 
 -- | Extensible signal function (signal function with a notion of time, but
 -- which can be extended with actions).
+-- Signal function that transforms a signal carrying values of some type 'a'
+-- into a signal carrying values of some type 'b'. You can think of it as
+-- (Signal a -> Signal b). A signal is, conceptually, a
+-- function from 'Time' to value.
 type SF m        = MSF (ClockInfo m)
 
 -- | Information on the progress of time.
 type ClockInfo m = ReaderT DTime m
 
--- | A value that may or may not exist.
---
--- Used to represent discrete-time signals.
+-- | A single possible event occurrence, that is, a value that may or may not
+-- occur. Events are used to represent values that are not produced
+-- continuously, such as mouse clicks (only produced when the mouse is clicked,
+-- as opposed to mouse positions, which are always defined).
 data Event a = Event a | NoEvent
- deriving (Eq, Show)
+ deriving (Eq, Ord, Show)
 
 -- | The type 'Event' is isomorphic to 'Maybe'. The 'Functor' instance of
 -- 'Event' is analogous to the 'Functo' instance of 'Maybe', where the given
@@ -101,10 +112,34 @@ instance Monad Event where
   Event x >>= f = f x
   NoEvent >>= _ = NoEvent
 
+-- | MonadFail instance
+instance Fail.MonadFail Event where
+  -- | Fail with 'NoEvent'.
+  fail _ = NoEvent
+
+-- | Alternative instance
+instance Alternative Event where
+  -- | An empty alternative carries no event, so it is ignored.
+  empty = NoEvent
+  -- | Merge favouring the left event ('NoEvent' only if both are
+  -- 'NoEvent').
+  NoEvent <|> r = r
+  l       <|> _ = l
+
+-- | NFData instance
+instance NFData a => NFData (Event a) where
+  -- | Evaluate value carried by event.
+  rnf NoEvent   = ()
+  rnf (Event a) = rnf a `seq` ()
+
 -- ** Lifting
+
+-- | Lifts a pure function into a signal function (applied pointwise).
 arrPrim :: Monad m => (a -> b) -> SF m a b
 arrPrim = arr
 
+-- | Lifts a pure function into a signal function applied to events (applied
+-- pointwise).
 arrEPrim :: Monad m => (Event a -> b) -> SF m (Event a) b
 arrEPrim = arr
 
@@ -112,15 +147,27 @@ arrEPrim = arr
 
 -- ** Basic signal functions
 
+-- | Identity: identity = arr id
+--
+-- Using 'identity' is preferred over lifting id, since the arrow combinators
+-- know how to optimise certain networks based on the transformations being
+-- applied.
 identity :: Monad m => SF m a a
 identity = Category.id
 
+-- | Identity: constant b = arr (const b)
+--
+-- Using 'constant' is preferred over lifting const, since the arrow combinators
+-- know how to optimise certain networks based on the transformations being
+-- applied.
 constant :: Monad m => b -> SF m a b
 constant = arr . const
 
+-- | Outputs the time passed since the signal function instance was started.
 localTime :: Monad m => SF m a Time
 localTime = constant 1.0 >>> integral
 
+-- | Alternative name for localTime.
 time :: Monad m => SF m a Time
 time = localTime
 
@@ -158,10 +205,20 @@ initially :: Monad m => a -> SF m a a
 initially = (--> identity)
 
 -- * Simple, stateful signal processing
+
+-- | Applies a function point-wise, using the last output as next input. This
+-- creates a well-formed loop based on a pure, auxiliary function.
 sscan :: Monad m => (b -> a -> b) -> b -> SF m a b
 sscan f b_init = feedback b_init u
   where u = undefined -- (arr f >>^ dup)
 
+-- | Generic version of 'sscan', in which the auxiliary function produces
+-- an internal accumulator and an "held" output.
+--
+-- Applies a function point-wise, using the last known 'Just' output to form
+-- the output, and next input accumulator. If the output is 'Nothing', the last
+-- known accumulators are used. This creates a well-formed loop based on a
+-- pure, auxiliary function.
 sscanPrim :: Monad m => (c -> a -> Maybe (c, b)) -> c -> b -> SF m a b
 sscanPrim f c_init b_init = MSF $ \a -> do
   let o = f c_init a
@@ -179,6 +236,8 @@ never = constant NoEvent
 now :: Monad m => b -> SF m a (Event b)
 now b0 = Event b0 --> never
 
+-- | Event source with a single occurrence at or as soon after (local) time /q/
+-- as possible.
 after :: Monad m
       => Time -- ^ The time /q/ after which the event should be produced
       -> b    -- ^ Value to produce at that time
@@ -191,6 +250,12 @@ after q x = feedback q go
                   ct = if t' < 0 then constant (NoEvent, t') else go
               return ((e, t'), ct)
 
+-- | Event source with repeated occurrences with interval q.
+-- Note: If the interval is too short w.r.t. the sampling intervals,
+-- the result will be that events occur at every sample. However, no more
+-- than one event results from any sampling interval, thus avoiding an
+-- "event backlog" should sampling become more frequent at some later
+-- point in time.
 repeatedly :: Monad m => Time -> b -> SF m a (Event b)
 repeatedly q x
     | q > 0     = afterEach qxs
@@ -252,9 +317,15 @@ boolToEvent False = NoEvent
 
 -- * Hybrid SF m combinators
 
+-- | A rising edge detector. Useful for things like detecting key presses.
+-- It is initialised as /up/, meaning that events occurring at time 0 will
+-- not be detected.
 edge :: Monad m => SF m Bool (Event ())
 edge = edgeFrom True
 
+-- | A rising edge detector that can be initialized as up ('True', meaning
+-- that events occurring at time 0 will not be detected) or down
+-- ('False', meaning that events occurring at time 0 will be detected).
 iEdge :: Monad m => Bool -> SF m Bool (Event ())
 iEdge = edgeFrom
 
@@ -280,10 +351,14 @@ edgeJust = edgeBy isJustEdge (Just undefined)
         isJustEdge (Just _) (Just _)    = Nothing
         isJustEdge (Just _) Nothing     = Nothing
 
+-- | Edge detector parameterized on the edge detection function and initial
+-- state, i.e., the previous input sample. The first argument to the
+-- edge detection function is the previous sample, the second the current one.
 edgeBy :: Monad m => (a -> a -> Maybe b) -> a -> SF m a (Event b)
 edgeBy isEdge a_prev = MSF $ \a ->
   return (maybeToEvent (isEdge a_prev a), edgeBy isEdge a)
 
+-- | Convert a maybe value into a event ('Event' is isomorphic to 'Maybe').
 maybeToEvent :: Maybe a -> Event a
 maybeToEvent = maybe NoEvent Event
 
@@ -321,6 +396,8 @@ dropEvents n = dSwitch (never &&& identity)
 
 -- * Pointwise functions on events
 
+-- | Make the NoEvent constructor available. Useful e.g. for initialization,
+-- ((-->) & friends), and it's easily available anyway (e.g. mergeEvents []).
 noEvent :: Event a
 noEvent = NoEvent
 
@@ -333,19 +410,27 @@ noEventFst (_, b) = (NoEvent, b)
 noEventSnd :: (a, Event b) -> (a, Event c)
 noEventSnd (a, _) = (a, NoEvent)
 
+-- | An event-based version of the maybe function.
 event :: a -> (b -> a) -> Event b -> a
 event _ f (Event x) = f x
 event x _ NoEvent   = x
 
+-- | Extract the value from an event. Fails if there is no event.
 fromEvent (Event x) = x
 fromEvent _         = error "fromEvent NoEvent"
 
+-- | Tests whether the input represents an actual event.
 isEvent (Event _) = True
 isEvent _         = False
 
+-- | Negation of 'isEvent'.
 isNoEvent (Event _) = False
 isNoEvent _         = True
 
+-- | Tags an (occurring) event with a value ("replacing" the old value).
+--
+-- Applicative-based definition:
+-- tag = ($>)
 tag :: Event a -> b -> Event b
 tag NoEvent   _ = NoEvent
 tag (Event _) b = Event b
@@ -370,9 +455,12 @@ lMerge = mergeBy (\e1 _ -> e1)
 rMerge :: Event a -> Event a -> Event a
 rMerge = flip lMerge
 
+-- | Unbiased event merge: simultaneous occurrence is an error.
 merge :: Event a -> Event a -> Event a
 merge = mergeBy $ error "Bearriver: merge: Simultaneous event occurrence."
 
+-- Applicative-based definition:
+-- mergeBy f le re = (f <$> le <*> re) <|> le <|> re
 mergeBy :: (a -> a -> a) -> Event a -> Event a -> Event a
 mergeBy _       NoEvent      NoEvent      = NoEvent
 mergeBy _       le@(Event _) NoEvent      = le
@@ -454,6 +542,22 @@ e `gate` True  = e
 
 -- ** Basic switchers
 
+-- | Basic switch.
+--
+-- By default, the first signal function is applied. Whenever the second value
+-- in the pair actually is an event, the value carried by the event is used to
+-- obtain a new signal function to be applied *at that time and at future
+-- times*. Until that happens, the first value in the pair is produced in the
+-- output signal.
+--
+-- Important note: at the time of switching, the second signal function is
+-- applied immediately. If that second SF can also switch at time zero, then a
+-- double (nested) switch might take place. If the second SF refers to the
+-- first one, the switch might take place infinitely many times and never be
+-- resolved.
+--
+-- Remember: The continuation is evaluated strictly at the time
+-- of switching!
 switch :: Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
 switch sf sfC = MSF $ \a -> do
   (o, ct) <- unMSF sf a
@@ -461,6 +565,29 @@ switch sf sfC = MSF $ \a -> do
     (_, Event c) -> local (const 0) (unMSF (sfC c) a)
     (b, NoEvent) -> return (b, switch ct sfC)
 
+-- | Switch with delayed observation.
+--
+-- By default, the first signal function is applied.
+--
+-- Whenever the second value in the pair actually is an event,
+-- the value carried by the event is used to obtain a new signal
+-- function to be applied *at future times*.
+--
+-- Until that happens, the first value in the pair is produced
+-- in the output signal.
+--
+-- Important note: at the time of switching, the second
+-- signal function is used immediately, but the current
+-- input is fed by it (even though the actual output signal
+-- value at time 0 is discarded).
+--
+-- If that second SF can also switch at time zero, then a
+-- double (nested) -- switch might take place. If the second SF refers to the
+-- first one, the switch might take place infinitely many times and never be
+-- resolved.
+--
+-- Remember: The continuation is evaluated strictly at the time
+-- of switching!
 dSwitch ::  Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
 dSwitch sf sfC = MSF $ \a -> do
   (o, ct) <- unMSF sf a
@@ -479,8 +606,21 @@ parB :: (Monad m) => [SF m a b] -> SF m a [b]
 #else
 parB :: (Functor m, Monad m) => [SF m a b] -> SF m a [b]
 #endif
+-- ^ Spatial parallel composition of a signal function collection.
+-- Given a collection of signal functions, it returns a signal
+-- function that broadcasts its input signal to every element
+-- of the collection, to return a signal carrying a collection
+-- of outputs. See 'par'.
+--
+-- For more information on how parallel composition works, check
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
 parB = widthFirst . sequenceS
 
+-- | Decoupled parallel switch with broadcasting (dynamic collection of
+-- signal functions spatially composed in parallel). See 'dpSwitch'.
+--
+-- For more information on how parallel composition works, check
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
 dpSwitchB :: (Functor m, Monad m , Traversable col)
           => col (SF m a b) -> SF m (a, col b) (Event c) -> (col (SF m a b) -> c -> SF m a (col b))
           -> SF m a (col b)
@@ -496,6 +636,25 @@ dpSwitchB sfs sfF sfCs = MSF $ \a -> do
 
 -- ** Parallel composition over collections
 
+-- | Apply an SF to every element of a list.
+--
+--   Example:
+--
+--   >>> embed (parC integral) (deltaEncode 0.1 [[1, 2], [2, 4], [3, 6], [4.0, 8.0 :: Float]])
+--   [[0.0,0.0],[0.1,0.2],[0.3,0.6],[0.6,1.2]]
+--
+--   The number of SFs or expected inputs is determined by the first input
+--   list, and not expected to vary over time.
+--
+--   If more inputs come in a subsequent list, they are ignored.
+--
+--   >>> embed (parC (arr (+1))) (deltaEncode 0.1 [[0], [1, 1], [3, 4], [6, 7, 8], [1, 1], [0, 0], [1, 9, 8]])
+--   [[1],[2],[4],[7],[2],[1],[2]]
+--
+--   If less inputs come in a subsequent list, an exception is thrown.
+--
+--   >>> embed (parC (arr (+1))) (deltaEncode 0.1 [[0, 0], [1, 1], [3, 4], [6, 7, 8], [1, 1], [0, 0], [1, 9, 8]])
+--   [[1,1],[2,2],[4,5],[7,8],[2,2],[1,1],[2,10]]
 parC :: Monad m => SF m a b -> SF m [a] [b]
 parC sf = parC0 sf
   where
@@ -517,11 +676,18 @@ parC sf = parC0 sf
 
 -- ** Wave-form generation
 
+-- | Zero-order hold.
+--
+-- Converts a discrete-time signal into a continuous-time signal, by holding
+-- the last value until it changes in the input signal. The given parameter
+-- may be used for time zero, and until the first event occurs in the input
+-- signal, so hold is always well-initialized.
+--
+-- >>> embed (hold 1) (deltaEncode 0.1 [NoEvent, NoEvent, Event 2, NoEvent, Event 3, NoEvent])
+-- [1,1,2,2,3,3]
 hold :: Monad m => a -> SF m (Event a) a
 hold a = feedback a $ arr $ \(e,a') ->
     dup (event a' id e)
-  where
-    dup x = (x,x)
 
 -- ** Accumulators
 
@@ -529,6 +695,7 @@ hold a = feedback a $ arr $ \(e,a') ->
 accumBy :: Monad m => (b -> a -> b) -> b -> SF m (Event a) (Event b)
 accumBy f b = mapEventS $ accumulateWith (flip f) b
 
+-- | Zero-order hold accumulator parameterized by the accumulation function.
 accumHoldBy :: Monad m => (b -> a -> b) -> b -> SF m (Event a) b
 accumHoldBy f b = feedback b $ arr $ \(a, b') ->
   let b'' = event b' (f b') a
@@ -537,19 +704,28 @@ accumHoldBy f b = feedback b $ arr $ \(a, b') ->
 -- * State keeping combinators
 
 -- ** Loops with guaranteed well-defined feedback
+
+-- | Loop with an initial value for the signal being fed back.
 loopPre :: Monad m => c -> SF m (a, c) (b, c) -> SF m a b
 loopPre = feedback
 
 -- * Integration and differentiation
 
+-- | Integration using the rectangle rule.
 integral :: (Monad m, VectorSpace a s) => SF m a a
 integral = integralFrom zeroVector
 
+
+-- | Integrate using an auxiliary function that takes the current and the last
+-- input, the time between those samples, and the last output, and returns a
+-- new output.
 integralFrom :: (Monad m, VectorSpace a s) => a -> SF m a a
 integralFrom a0 = proc a -> do
   dt <- constM ask         -< ()
   accumulateWith (^+^) a0 -< realToFrac dt *^ a
 
+-- | A very crude version of a derivative. It simply divides the
+-- value difference by the time difference. Use at your own risk.
 derivative :: (Monad m, VectorSpace a s) => SF m a a
 derivative = derivativeFrom zeroVector
 
@@ -569,6 +745,11 @@ iterFrom f b = MSF $ \a -> do
 
 -- * Noise (random signal) sources and stochastic event sources
 
+-- | Stochastic event source with events occurring on average once every t_avg
+-- seconds. However, no more than one event results from any one sampling
+-- interval in the case of relatively sparse sampling, thus avoiding an
+-- "event backlog" should sampling become more frequent at some later
+-- point in time.
 occasionally :: MonadRandom m
              => Time -- ^ The time /q/ after which the event should be produced on average
              -> b    -- ^ Value to produce at time of event
@@ -588,6 +769,28 @@ occasionally tAvg b
 
 -- ** Reactimation
 
+-- | Convenience function to run a signal function indefinitely, using a IO
+-- actions to obtain new input and process the output.
+--
+-- This function first runs the initialization action, which provides the
+-- initial input for the signal transformer at time 0.
+--
+-- Afterwards, an input sensing action is used to obtain new input (if any) and
+-- the time since the last iteration. The argument to the input sensing
+-- function indicates if it can block. If no new input is received, it is
+-- assumed to be the same as in the last iteration.
+--
+-- After applying the signal function to the input, the actuation IO action is
+-- executed. The first argument indicates if the output has changed, the second
+-- gives the actual output). Actuation functions may choose to ignore the first
+-- argument altogether. This action should return True if the reactimation must
+-- stop, and False if it should continue.
+--
+-- Note that this becomes the program's /main loop/, which makes using this
+-- function incompatible with GLUT, Gtk and other graphics libraries. It may
+-- also impose a sizeable constraint in larger projects in which different
+-- subparts run at different time steps. If you need to control the main loop
+-- yourself for these or other reasons, use 'reactInit' and 'react'.
 reactimate :: Monad m => m a -> (Bool -> m (DTime, Maybe a)) -> (Bool -> b -> m Bool) -> SF Identity a b -> m ()
 reactimate senseI sense actuate sf = do
   -- runMaybeT $ MSF.reactimate $ liftMSFTrans (senseSF >>> sfIO) >>> actuateSF

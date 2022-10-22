@@ -1,4 +1,5 @@
-Copyright (c) 2016, Ivan Perez and Manuel Bärenz
+Copyright (c) 2019-2022, Ivan Perez
+Copyright (c) 2016-2018, Ivan Perez and Manuel Bärenz
 
 All rights reserved.
 
@@ -28,3 +29,10 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+This project borrows from the Yampa project, which is itself:
+Copyright (c) 2014-2022, Ivan Perez
+Copyright (c) 2007-2012, George Griogidge
+Copyright (c) 2005-2006, Henrik Nilsson
+Copyright (c) 2003-2004, Henrik Nilsson, Antony Courtney and Yale University.
+All rights reserved.

@@ -1,3 +1,11 @@
+2022-10-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * bearriver.cabal: Version bump (0.13.7) (#335), update copyright
+          owners, years (#332).
+        * LICENSE: Update copyright owners, years (#332).
+        * src/: Remove unnecessary auxiliary function (#321), add missing
+          instances for Event (#326), update copyright notices (#332), add
+          documentation (#323).
+
 2022-08-21 Ivan Perez <ivan.perez@keera.co.uk>
         * bearriver.cabal: Version bump (0.13.6) (#302), add version bounds for
           dependencies (#303).
