@@ -38,13 +38,14 @@ instance Monad m => Monad (MSFAsync i m) where
             unMSFAsync $ f a
             go msf'
           Left () -> return ()
+
 -- |
 -- Concatenates a monadic stream of lists to a monadic stream.
 -- The stream of lists will be called exactly when new data is needed.
 --
 -- Example:
 --
--- >>> let intstream = constS $ putStrLn "Enter a list of Ints:" >> readLn :: MStream IO [Int]
+-- >>> let intstream = constM $ putStrLn "Enter a list of Ints:" >> readLn :: MStream IO [Int]
 -- >>> reactimate $ concatS intstream >>> arrM print
 -- Enter a list of Ints:
 -- [1, 2, 33]
