@@ -1,5 +1,6 @@
-2022-12-15 Ivan Perez <ivan.perez@keera.co.uk>
+2022-12-18 Ivan Perez <ivan.perez@keera.co.uk>
         * Bump version bounds for MonadRandom (#337).
+        * Adjust to work with simple-affine-space-0.2 (#339).
 
 2022-10-21 Ivan Perez <ivan.perez@keera.co.uk>
         * bearriver.cabal: Version bump (0.13.7) (#335), update copyright

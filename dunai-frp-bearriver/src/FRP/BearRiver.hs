@@ -712,24 +712,24 @@ loopPre = feedback
 -- * Integration and differentiation
 
 -- | Integration using the rectangle rule.
-integral :: (Monad m, VectorSpace a s) => SF m a a
+integral :: (Monad m, Fractional s, VectorSpace a s) => SF m a a
 integral = integralFrom zeroVector
 
 
 -- | Integrate using an auxiliary function that takes the current and the last
 -- input, the time between those samples, and the last output, and returns a
 -- new output.
-integralFrom :: (Monad m, VectorSpace a s) => a -> SF m a a
+integralFrom :: (Monad m, Fractional s, VectorSpace a s) => a -> SF m a a
 integralFrom a0 = proc a -> do
   dt <- constM ask         -< ()
   accumulateWith (^+^) a0 -< realToFrac dt *^ a
 
 -- | A very crude version of a derivative. It simply divides the
 -- value difference by the time difference. Use at your own risk.
-derivative :: (Monad m, VectorSpace a s) => SF m a a
+derivative :: (Monad m, Fractional s, VectorSpace a s) => SF m a a
 derivative = derivativeFrom zeroVector
 
-derivativeFrom :: (Monad m, VectorSpace a s) => a -> SF m a a
+derivativeFrom :: (Monad m, Fractional s, VectorSpace a s) => a -> SF m a a
 derivativeFrom a0 = proc a -> do
   dt   <- constM ask   -< ()
   aOld <- MSF.iPre a0 -< a
