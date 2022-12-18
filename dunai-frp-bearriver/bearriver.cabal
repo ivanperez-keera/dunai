@@ -82,7 +82,7 @@ library
       base >= 4.6 && <5
     , deepseq             >= 1.3.0.0 && < 1.5
     , dunai >= 0.6.0 && < 0.10
-    , MonadRandom         >= 0.2   && < 0.6
+    , MonadRandom         >= 0.2   && < 0.7
     , mtl                 >= 2.1.2 && < 2.3
     , simple-affine-space >= 0.1   && < 0.2
     , transformers >= 0.3 && < 0.7
@@ -92,6 +92,10 @@ library
 
   hs-source-dirs:
     src/
+
+  if impl(ghc <= 7.8.4)
+    build-depends:
+      MonadRandom >= 0.2 && < 0.6
 
   if !impl(ghc >= 8.0)
     build-depends:
