@@ -67,9 +67,9 @@ render (p,_) = do
 -- integrating linearly changing inputs. Uses the average between the last
 -- input and the current input as the value to integrate.
 #ifdef BEARRIVER
-integralLinear :: (Monad m, VectorSpace a s) => a -> SF m a a
+integralLinear :: (Monad m, Fractional s, VectorSpace a s) => a -> SF m a a
 #else
-integralLinear :: VectorSpace a s => a -> SF a a
+integralLinear :: (Fractional s, VectorSpace a s) => a -> SF a a
 #endif
 integralLinear initial = average >>> integral
   where
