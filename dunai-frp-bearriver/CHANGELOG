@@ -1,3 +1,10 @@
+2022-12-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * bearriver.cabal: Version bump (0.14) (#340).
+        * Bump version bounds for MonadRandom (#337).
+        * Adjust to work with simple-affine-space-0.2 (#339).
+        * src/BearRiver.hs: show sections in haddock (#322).
+        * Thanks: @geroldmeisinger.
+
 2022-10-21 Ivan Perez <ivan.perez@keera.co.uk>
         * bearriver.cabal: Version bump (0.13.7) (#335), update copyright
           owners, years (#332).
