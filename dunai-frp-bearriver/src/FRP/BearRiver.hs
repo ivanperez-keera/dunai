@@ -8,6 +8,7 @@
 #else
 {-# OPTIONS_GHC -Wno-deprecations #-}
 #endif
+{-# OPTIONS_HADDOCK ignore-exports #-}
 -- Copyright  : (c) Ivan Perez, 2019-2022
 --              (c) Ivan Perez and Manuel Baerenz, 2016-2018
 -- License    : BSD3
