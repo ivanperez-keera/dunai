@@ -1,3 +1,6 @@
+2023-02-18 Ivan Perez <ivan.perez@keera.co.uk>
+        * Remove the function FRP.Dunai.LTLPast.prev (#341).
+
 2022-12-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.9.2) (#340).
 
