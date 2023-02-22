@@ -1,4 +1,7 @@
 2023-02-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * Enable FlexibleContexts in VectorSpace instance module (#344).
+
+2023-02-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.10.0) (#342).
         * Implement dot in MSF's instance of VectorSpace (#298).
         * Adjust version bounds for simple-affine-space (#343).
