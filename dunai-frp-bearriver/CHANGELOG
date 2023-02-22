@@ -1,3 +1,6 @@
+2023-02-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * Version bump (0.14.1) (#342).
+
 2022-12-21 Ivan Perez <ivan.perez@keera.co.uk>
         * bearriver.cabal: Version bump (0.14) (#340).
         * Bump version bounds for MonadRandom (#337).
