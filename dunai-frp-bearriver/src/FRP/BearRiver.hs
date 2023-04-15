@@ -14,16 +14,11 @@
 --              (c) Ivan Perez and Manuel Baerenz, 2016-2018
 -- License    : BSD3
 -- Maintainer : ivan.perez@keera.co.uk
+--
+-- Implementation of Yampa using Monadic Stream Processing library.
 module FRP.BearRiver
   (module FRP.BearRiver, module X)
  where
--- This is an implementation of Yampa using our Monadic Stream Processing
--- library. We focus only on core Yampa. We will use this module later to
--- reimplement an example of a Yampa system.
---
--- While we may not introduce all the complexity of Yampa today (all kinds of
--- switches, etc.) our goal is to show that the approach is promising and that
--- there do not seem to exist any obvious limitations.
 
 -- External imports
 import           Control.Applicative
