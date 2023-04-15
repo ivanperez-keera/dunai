@@ -489,8 +489,17 @@ mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
 --
 -- Applicative-based definition:
 -- mapMerge lf rf lrf le re = (f <$> le <*> re) <|> (lf <$> le) <|> (rf <$> re)
-mapMerge :: (a -> c) -> (b -> c) -> (a -> b -> c)
-            -> Event a -> Event b -> Event c
+mapMerge :: (a -> c)
+            -- ^ Mapping function used when first event is present.
+         -> (b -> c)
+            -- ^ Mapping function used when second event is present.
+         -> (a -> b -> c)
+            -- ^ Mapping function used when both events are present.
+         -> Event a
+            -- ^ First event
+         -> Event b
+            -- ^ Second event
+         -> Event c
 mapMerge _  _  _   NoEvent   NoEvent   = NoEvent
 mapMerge lf _  _   (Event l) NoEvent   = Event (lf l)
 mapMerge _  rf _   NoEvent   (Event r) = Event (rf r)
