@@ -14,7 +14,7 @@ import qualified FRP.BearRiver as BR
 
 -- | Signal function (conceptually, a function between signals that respects
 -- causality).
-type SF       = BR.SF Identity
+type SF = BR.SF Identity
 
 -- | Future signal function (conceptually, a function between fugure signals
 -- that respects causality).
