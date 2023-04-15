@@ -675,7 +675,7 @@ dpSwitchB sfs sfF sfCs = MSF $ \a -> do
 -- >>> embed (parC (arr (+1))) (deltaEncode 0.1 [[0, 0], [1, 1], [3, 4], [6, 7, 8], [1, 1], [0, 0], [1, 9, 8]])
 -- [[1,1],[2,2],[4,5],[7,8],[2,2],[1,1],[2,10]]
 parC :: Monad m => SF m a b -> SF m [a] [b]
-parC sf = parC0 sf
+parC = parC0
   where
     parC0 :: Monad m => SF m a b -> SF m [a] [b]
     parC0 sf0 = MSF $ \as -> do
