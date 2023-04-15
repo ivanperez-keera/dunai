@@ -637,7 +637,7 @@ parB = widthFirst . sequenceS
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
-dpSwitchB :: (Functor m, Monad m , Traversable col)
+dpSwitchB :: (Functor m, Monad m, Traversable col)
           => col (SF m a b)
           -> SF m (a, col b) (Event c)
           -> (col (SF m a b) -> c -> SF m a (col b))
