@@ -17,8 +17,8 @@
 --
 -- Implementation of Yampa using Monadic Stream Processing library.
 module FRP.BearRiver
-  (module FRP.BearRiver, module X)
- where
+    (module FRP.BearRiver, module X)
+  where
 
 -- External imports
 #if !MIN_VERSION_base(4,8,0)
@@ -80,7 +80,7 @@ type ClockInfo m = ReaderT DTime m
 -- continuously, such as mouse clicks (only produced when the mouse is clicked,
 -- as opposed to mouse positions, which are always defined).
 data Event a = Event a | NoEvent
- deriving (Eq, Ord, Show)
+  deriving (Eq, Ord, Show)
 
 -- | The type 'Event' is isomorphic to 'Maybe'. The 'Functor' instance of
 -- 'Event' is analogous to the 'Functo' instance of 'Maybe', where the given
@@ -243,12 +243,12 @@ after :: Monad m
       -> b    -- ^ Value to produce at that time
       -> SF m a (Event b)
 after q x = feedback q go
- where go = MSF $ \(_, t) -> do
-              dt <- ask
-              let t' = t - dt
-                  e  = if t > 0 && t' < 0 then Event x else NoEvent
-                  ct = if t' < 0 then constant (NoEvent, t') else go
-              return ((e, t'), ct)
+  where go = MSF $ \(_, t) -> do
+               dt <- ask
+               let t' = t - dt
+                   e  = if t > 0 && t' < 0 then Event x else NoEvent
+                   ct = if t' < 0 then constant (NoEvent, t') else go
+               return ((e, t'), ct)
 
 -- | Event source with repeated occurrences with interval q.
 -- Note: If the interval is too short w.r.t. the sampling intervals,
@@ -354,11 +354,11 @@ edgeTag a = edge >>> arr (`tag` a)
 -- !!! in terms of sscan?
 edgeJust :: Monad m => SF m (Maybe a) (Event a)
 edgeJust = edgeBy isJustEdge (Just undefined)
-    where
-        isJustEdge Nothing  Nothing     = Nothing
-        isJustEdge Nothing  ma@(Just _) = ma
-        isJustEdge (Just _) (Just _)    = Nothing
-        isJustEdge (Just _) Nothing     = Nothing
+  where
+    isJustEdge Nothing  Nothing     = Nothing
+    isJustEdge Nothing  ma@(Just _) = ma
+    isJustEdge (Just _) (Just _)    = Nothing
+    isJustEdge (Just _) Nothing     = Nothing
 
 -- | Edge detector parameterized on the edge detection function and initial
 -- state, i.e., the previous input sample. The first argument to the
@@ -403,8 +403,8 @@ takeEvents n = dSwitch (arr dup) (const (NoEvent >-- takeEvents (n - 1)))
 -- Here dSwitch or switch does not really matter.
 dropEvents :: Monad m => Int -> SF m (Event a) (Event a)
 dropEvents n | n <= 0  = identity
-dropEvents n = dSwitch (never &&& identity)
-                             (const (NoEvent >-- dropEvents (n - 1)))
+dropEvents n =
+  dSwitch (never &&& identity) (const (NoEvent >-- dropEvents (n - 1)))
 
 -- * Pointwise functions on events
 
@@ -520,8 +520,8 @@ mergeEvents = foldr lMerge NoEvent
 -- carEvents e  = if (null e) then NoEvent else (sequenceA e)
 catEvents :: [Event a] -> Event [a]
 catEvents eas = case [ a | Event a <- eas ] of
-                    [] -> NoEvent
-                    as -> Event as
+                  [] -> NoEvent
+                  as -> Event as
 
 -- | Join (conjunction) of two events. Only produces an event
 -- if both events exist.
@@ -553,8 +553,8 @@ filterE _ NoEvent     = NoEvent
 mapFilterE :: (a -> Maybe b) -> Event a -> Event b
 mapFilterE _ NoEvent   = NoEvent
 mapFilterE f (Event a) = case f a of
-                            Nothing -> NoEvent
-                            Just b  -> Event b
+                           Nothing -> NoEvent
+                           Just b  -> Event b
 
 
 -- | Enable/disable event occurences based on an external condition.
@@ -711,7 +711,7 @@ parC sf = parC0 sf
 -- [1,1,2,2,3,3]
 hold :: Monad m => a -> SF m (Event a) a
 hold a = feedback a $ arr $ \(e,a') ->
-    dup (event a' id e)
+  dup (event a' id e)
 
 -- ** Accumulators
 
@@ -787,15 +787,15 @@ occasionally :: MonadRandom m
              -> b    -- ^ Value to produce at time of event
              -> SF m a (Event b)
 occasionally tAvg b
-  | tAvg <= 0 = error "bearriver: Non-positive average interval in occasionally."
-  | otherwise = proc _ -> do
-      r   <- getRandomRS (0, 1) -< ()
-      dt  <- timeDelta          -< ()
-      let p = 1 - exp (-(dt / tAvg))
-      returnA -< if r < p then Event b else NoEvent
- where
-  timeDelta :: Monad m => SF m a DTime
-  timeDelta = constM ask
+    | tAvg <= 0 = error "bearriver: Non-positive average interval in occasionally."
+    | otherwise = proc _ -> do
+        r   <- getRandomRS (0, 1) -< ()
+        dt  <- timeDelta          -< ()
+        let p = 1 - exp (-(dt / tAvg))
+        returnA -< if r < p then Event b else NoEvent
+  where
+    timeDelta :: Monad m => SF m a DTime
+    timeDelta = constM ask
 
 -- * Execution/simulation
 
@@ -825,27 +825,27 @@ occasionally tAvg b
 -- yourself for these or other reasons, use 'reactInit' and 'react'.
 reactimate :: Monad m => m a -> (Bool -> m (DTime, Maybe a)) -> (Bool -> b -> m Bool) -> SF Identity a b -> m ()
 reactimate senseI sense actuate sf = do
-  -- runMaybeT $ MSF.reactimate $ liftMSFTrans (senseSF >>> sfIO) >>> actuateSF
-  MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
-  return ()
- where sfIO        = morphS (return.runIdentity) (runReaderS sf)
+    -- runMaybeT $ MSF.reactimate $ liftMSFTrans (senseSF >>> sfIO) >>> actuateSF
+    MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
+    return ()
+  where sfIO        = morphS (return.runIdentity) (runReaderS sf)
 
-       -- Sense
-       senseSF     = MSF.dSwitch senseFirst senseRest
+        -- Sense
+        senseSF     = MSF.dSwitch senseFirst senseRest
 
-       -- Sense: First sample
-       senseFirst = constM senseI >>> arr (\x -> ((0, x), Just x))
+        -- Sense: First sample
+        senseFirst = constM senseI >>> arr (\x -> ((0, x), Just x))
 
-       -- Sense: Remaining samples
-       senseRest a = constM (sense True) >>> (arr id *** keepLast a)
+        -- Sense: Remaining samples
+        senseRest a = constM (sense True) >>> (arr id *** keepLast a)
 
-       keepLast :: Monad m => a -> MSF m (Maybe a) a
-       keepLast a = MSF $ \ma -> let a' = fromMaybe a ma in a' `seq` return (a', keepLast a')
+        keepLast :: Monad m => a -> MSF m (Maybe a) a
+        keepLast a = MSF $ \ma -> let a' = fromMaybe a ma in a' `seq` return (a', keepLast a')
 
-       -- Consume/render
-       -- actuateSF :: MSF IO b ()
-       -- actuateSF    = arr (\x -> (True, x)) >>> liftMSF (lift . uncurry actuate) >>> exitIf
-       actuateSF    = arr (\x -> (True, x)) >>> arrM (uncurry actuate)
+        -- Consume/render
+        -- actuateSF :: MSF IO b ()
+        -- actuateSF    = arr (\x -> (True, x)) >>> liftMSF (lift . uncurry actuate) >>> exitIf
+        actuateSF    = arr (\x -> (True, x)) >>> arrM (uncurry actuate)
 
 -- * Debugging / Step by step simulation
 
