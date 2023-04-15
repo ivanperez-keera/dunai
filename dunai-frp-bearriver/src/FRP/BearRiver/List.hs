@@ -66,11 +66,11 @@ dlSwitch' sfs = MSF $ \a -> do
   let contListSFs = concatMap (\((_b, _dead, newSFs), _contSF) -> newSFs) bsfs0
       contSFs     = map listSF contListSFs
 
-  -- Run the new SFs (listSFs) with the current input to "initialize" them). We
+  -- Run the new SFs (listSFs) with the current input to "initialize" them. We
   -- use snd to keep only the continuation and discard the output.
   newSFs <- fmap snd <$> mapM (\sf -> unMSF sf a) contSFs
 
-  -- Only here to indicate the type of nsfs.
+  -- Only here to indicate the type of newSFs.
   let constraintNSFs :: [ SF m a (b, Bool, [ListSF m a b]) ]
       constraintNSFs = newSFs
 
