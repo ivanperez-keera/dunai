@@ -16,7 +16,7 @@ import qualified FRP.BearRiver as BR
 -- causality).
 type SF = BR.SF Identity
 
--- | Future signal function (conceptually, a function between fugure signals
+-- | Future signal function (conceptually, a function between future signals
 -- that respects causality).
 --
 -- A future signal is a signal that is only defined for positive times.
