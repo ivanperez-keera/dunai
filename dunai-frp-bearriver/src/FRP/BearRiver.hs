@@ -290,12 +290,11 @@ afterEachCat = afterEachCat' 0
     fireEvents :: [b] -> Time -> [(Time, b)] -> ([b], Time, [(Time, b)])
     fireEvents ev t []       = (ev, t, [])
     fireEvents ev t (qx:qxs)
-      | fst qx < 0 = error "bearriver: afterEachCat: Non-positive period."
-      | otherwise =
-          let overdue = t - fst qx in
-          if overdue >= 0
-            then fireEvents (snd qx:ev) overdue qxs
-            else (ev, t, qx:qxs)
+        | fst qx < 0   = error "bearriver: afterEachCat: Non-positive period."
+        | overdue >= 0 = fireEvents (snd qx:ev) overdue qxs
+        | otherwise    = (ev, t, qx:qxs)
+      where
+        overdue = t - fst qx
 
 -- * Events
 
