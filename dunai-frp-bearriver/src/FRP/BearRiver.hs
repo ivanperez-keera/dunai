@@ -192,11 +192,15 @@ b -:> sf = iPost b sf
 (>--) :: Monad m => a -> SF m a b -> SF m a b
 a0 >-- sf = replaceOnce a0 >>> sf
 
+-- | Transform initial input value.
+--
+-- Applies a transformation 'f' only to the first input value at time zero.
 (>=-) :: Monad m => (a -> a) -> SF m a b -> SF m a b
 f >=- sf = MSF $ \a -> do
   (b, sf') <- unMSF sf (f a)
   return (b, sf')
 
+-- | Override initial value of input signal.
 initially :: Monad m => a -> SF m a a
 initially = (--> identity)
 
@@ -305,9 +309,17 @@ mapEventS msf = proc eventA -> case eventA of
 
 -- ** Relation to other types
 
+-- | Convert an 'Event' into a 'Maybe' value.
+--
+-- Both types are isomorphic, where a value containing an event is mapped to a
+-- 'Just', and 'NoEvent' is mapped to 'Nothing'. There is, however, a semantic
+-- difference: a signal carrying a Maybe may change constantly, but, for a
+-- signal carrying an 'Event', there should be a bounded frequency such that
+-- sampling the signal faster does not render more event ocurrences.
 eventToMaybe :: Event a -> Maybe a
 eventToMaybe = event Nothing Just
 
+-- | Create an event if a 'Bool' is 'True'.
 boolToEvent :: Bool -> Event ()
 boolToEvent True  = Event ()
 boolToEvent False = NoEvent
@@ -359,6 +371,9 @@ edgeBy isEdge a_prev = MSF $ \a ->
 maybeToEvent :: Maybe a -> Event a
 maybeToEvent = maybe NoEvent Event
 
+-- | A rising edge detector that can be initialized as up ('True', meaning
+-- that events occurring at time 0 will not be detected) or down
+-- ('False', meaning that events occurring at time 0 will be detected).
 edgeFrom :: Monad m => Bool -> SF m Bool (Event())
 edgeFrom prev = MSF $ \a -> do
   let res | prev      = NoEvent
@@ -729,11 +744,19 @@ integralFrom a0 = proc a -> do
 derivative :: (Monad m, Fractional s, VectorSpace a s) => SF m a a
 derivative = derivativeFrom zeroVector
 
+-- | A very crude version of a derivative. It simply divides the
+-- value difference by the time difference. Use at your own risk.
+--
+-- Starts from a given value for the input signal at time zero.
 derivativeFrom :: (Monad m, Fractional s, VectorSpace a s) => a -> SF m a a
 derivativeFrom a0 = proc a -> do
   dt   <- constM ask -< ()
   aOld <- iPre a0    -< a
   returnA            -< (a ^-^ aOld) ^/ realToFrac dt
+
+-- | Integrate using an auxiliary function that takes the current and the last
+-- input, the time between those samples, and the last output, and returns a
+-- new output.
 
 -- NOTE: BUG in this function, it needs two a's but we
 -- can only provide one
@@ -852,9 +875,14 @@ evalFuture sf = flip (evalAt sf)
 -- * Auxiliary functions
 
 -- ** Event handling
+
+-- | Replace the value of the input signal at time zero with the given
+-- argument.
 replaceOnce :: Monad m => a -> SF m a a
 replaceOnce a = dSwitch (arr $ const (a, Event ())) (const $ arr id)
 
 -- ** Tuples
+
+-- | Duplicate an input.
 dup :: a -> (a, a)
 dup  x     = (x,x)
