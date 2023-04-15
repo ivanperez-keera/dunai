@@ -57,7 +57,7 @@ infixr 0 -->, -:>, >--, >=-
 
 -- | Time is used both for time intervals (duration), and time w.r.t. some
 -- agreed reference point in time.
-type Time  = Double
+type Time = Double
 
 -- | DTime is the time type for lengths of sample intervals. Conceptually,
 -- DTime = R+ = { x in R | x > 0 }. Don't assume Time and DTime have the same
@@ -71,7 +71,7 @@ type DTime = Double
 -- into a signal carrying values of some type 'b'. You can think of it as
 -- (Signal a -> Signal b). A signal is, conceptually, a function from 'Time' to
 -- value.
-type SF m        = MSF (ClockInfo m)
+type SF m = MSF (ClockInfo m)
 
 -- | Information on the progress of time.
 type ClockInfo m = ReaderT DTime m
@@ -401,7 +401,7 @@ takeEvents n = dSwitch (arr dup) (const (NoEvent >-- takeEvents (n - 1)))
 
 -- Here dSwitch or switch does not really matter.
 dropEvents :: Monad m => Int -> SF m (Event a) (Event a)
-dropEvents n | n <= 0  = identity
+dropEvents n | n <= 0 = identity
 dropEvents n =
   dSwitch (never &&& identity) (const (NoEvent >-- dropEvents (n - 1)))
 
@@ -606,7 +606,7 @@ switch sf sfC = MSF $ \a -> do
 --
 -- Remember: The continuation is evaluated strictly at the time
 -- of switching!
-dSwitch ::  Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
+dSwitch :: Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
 dSwitch sf sfC = MSF $ \a -> do
   (o, ct) <- unMSF sf a
   case o of
@@ -740,7 +740,7 @@ integral = integralFrom zeroVector
 -- new output.
 integralFrom :: (Monad m, Fractional s, VectorSpace a s) => a -> SF m a a
 integralFrom a0 = proc a -> do
-  dt <- constM ask         -< ()
+  dt <- constM ask        -< ()
   accumulateWith (^+^) a0 -< realToFrac dt *^ a
 
 -- | A very crude version of a derivative. It simply divides the value
@@ -827,10 +827,10 @@ reactimate :: Monad m
 reactimate senseI sense actuate sf = do
     MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
     return ()
-  where sfIO        = morphS (return.runIdentity) (runReaderS sf)
+  where sfIO = morphS (return.runIdentity) (runReaderS sf)
 
         -- Sense
-        senseSF     = MSF.dSwitch senseFirst senseRest
+        senseSF = MSF.dSwitch senseFirst senseRest
 
         -- Sense: First sample
         senseFirst = constM senseI >>> arr (\x -> ((0, x), Just x))
@@ -844,7 +844,7 @@ reactimate senseI sense actuate sf = do
           in a' `seq` return (a', keepLast a')
 
         -- Consume/render
-        actuateSF    = arr (\x -> (True, x)) >>> arrM (uncurry actuate)
+        actuateSF = arr (\x -> (True, x)) >>> arrM (uncurry actuate)
 
 -- * Debugging / Step by step simulation
 
@@ -893,4 +893,4 @@ replaceOnce a = dSwitch (arr $ const (a, Event ())) (const $ arr id)
 
 -- | Duplicate an input.
 dup :: a -> (a, a)
-dup  x     = (x, x)
+dup x = (x, x)
