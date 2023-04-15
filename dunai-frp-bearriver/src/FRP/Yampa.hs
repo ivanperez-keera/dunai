@@ -6,7 +6,7 @@
 module FRP.Yampa (module X, SF, FutureSF) where
 
 -- External imports
-import Data.Functor.Identity
+import Data.Functor.Identity (Identity)
 
 -- Internal imports
 import           FRP.BearRiver as X hiding (SF, andThen)
