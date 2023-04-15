@@ -9,7 +9,7 @@ module FRP.Yampa (module X, SF, FutureSF) where
 import Data.Functor.Identity (Identity)
 
 -- Internal imports
-import           FRP.BearRiver as X hiding (SF, andThen)
+import           FRP.BearRiver as X hiding (SF)
 import qualified FRP.BearRiver as BR
 
 -- | Signal function (conceptually, a function between signals that respects
