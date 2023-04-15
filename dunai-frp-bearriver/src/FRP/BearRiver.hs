@@ -824,7 +824,8 @@ reactimate :: Monad m
            => m a
            -> (Bool -> m (DTime, Maybe a))
            -> (Bool -> b -> m Bool)
-           -> SF Identity a b -> m ()
+           -> SF Identity a b
+           -> m ()
 reactimate senseI sense actuate sf = do
     MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
     return ()
