@@ -643,7 +643,9 @@ parB = widthFirst . sequenceS
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
 dpSwitchB :: (Functor m, Monad m , Traversable col)
-          => col (SF m a b) -> SF m (a, col b) (Event c) -> (col (SF m a b) -> c -> SF m a (col b))
+          => col (SF m a b)
+          -> SF m (a, col b) (Event c)
+          -> (col (SF m a b) -> c -> SF m a (col b))
           -> SF m a (col b)
 dpSwitchB sfs sfF sfCs = MSF $ \a -> do
   res <- T.mapM (`unMSF` a) sfs
@@ -778,11 +780,14 @@ iterFrom f b = MSF $ \a -> do
 -- interval in the case of relatively sparse sampling, thus avoiding an "event
 -- backlog" should sampling become more frequent at some later point in time.
 occasionally :: MonadRandom m
-             => Time -- ^ The time /q/ after which the event should be produced on average
+             => Time -- ^ The time /q/ after which the event should be produced
+                     -- on average
              -> b    -- ^ Value to produce at time of event
              -> SF m a (Event b)
 occasionally tAvg b
-    | tAvg <= 0 = error "bearriver: Non-positive average interval in occasionally."
+    | tAvg <= 0
+    = error "bearriver: Non-positive average interval in occasionally."
+
     | otherwise = proc _ -> do
         r   <- getRandomRS (0, 1) -< ()
         dt  <- timeDelta          -< ()
@@ -818,9 +823,12 @@ occasionally tAvg b
 -- also impose a sizeable constraint in larger projects in which different
 -- subparts run at different time steps. If you need to control the main loop
 -- yourself for these or other reasons, use 'reactInit' and 'react'.
-reactimate :: Monad m => m a -> (Bool -> m (DTime, Maybe a)) -> (Bool -> b -> m Bool) -> SF Identity a b -> m ()
+reactimate :: Monad m
+           => m a
+           -> (Bool -> m (DTime, Maybe a))
+           -> (Bool -> b -> m Bool)
+           -> SF Identity a b -> m ()
 reactimate senseI sense actuate sf = do
-    -- runMaybeT $ MSF.reactimate $ liftMSFTrans (senseSF >>> sfIO) >>> actuateSF
     MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
     return ()
   where sfIO        = morphS (return.runIdentity) (runReaderS sf)
@@ -835,11 +843,11 @@ reactimate senseI sense actuate sf = do
         senseRest a = constM (sense True) >>> (arr id *** keepLast a)
 
         keepLast :: Monad m => a -> MSF m (Maybe a) a
-        keepLast a = MSF $ \ma -> let a' = fromMaybe a ma in a' `seq` return (a', keepLast a')
+        keepLast a = MSF $ \ma ->
+          let a' = fromMaybe a ma
+          in a' `seq` return (a', keepLast a')
 
         -- Consume/render
-        -- actuateSF :: MSF IO b ()
-        -- actuateSF    = arr (\x -> (True, x)) >>> liftMSF (lift . uncurry actuate) >>> exitIf
         actuateSF    = arr (\x -> (True, x)) >>> arrM (uncurry actuate)
 
 -- * Debugging / Step by step simulation
