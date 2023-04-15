@@ -1,5 +1,6 @@
 2023-04-15 Ivan Perez <ivan.perez@keera.co.uk>
         * Remove unused module FRP.Yampa.VectorSpace (#351).
+        * Conformance with style guide (#347).
 
 2023-02-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.14.1) (#342).
