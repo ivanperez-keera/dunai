@@ -619,7 +619,7 @@ dSwitch sf sfC = MSF $ \a -> do
 -- ** Parallel composition and switching over collections with broadcasting
 
 #if MIN_VERSION_base(4,8,0)
-parB :: (Monad m) => [SF m a b] -> SF m a [b]
+parB :: Monad m => [SF m a b] -> SF m a [b]
 #else
 parB :: (Functor m, Monad m) => [SF m a b] -> SF m a [b]
 #endif
