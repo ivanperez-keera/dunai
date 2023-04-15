@@ -28,10 +28,8 @@ import           Control.Applicative       (Alternative (..))
 import           Control.Arrow             as X
 import qualified Control.Category          as Category
 import           Control.DeepSeq           (NFData (..))
-import           Control.Monad             (mapM)
 import qualified Control.Monad.Fail        as Fail
 import           Control.Monad.Random      (MonadRandom)
-import           Control.Monad.Trans.Maybe ()
 import           Data.Functor.Identity     (Identity (..))
 import           Data.Maybe                (fromMaybe)
 import           Data.Traversable          as T
@@ -41,15 +39,12 @@ import           Data.VectorSpace          as X
 import           Control.Monad.Trans.MSF                 hiding (dSwitch,
                                                           switch)
 import qualified Control.Monad.Trans.MSF                 as MSF
-import           Control.Monad.Trans.MSF.Except          as MSF hiding (dSwitch,
-                                                                 switch)
 import           Control.Monad.Trans.MSF.List            (sequenceS, widthFirst)
-import           Control.Monad.Trans.MSF.Random          ()
-import           Data.MonadicStreamFunction              as X hiding (dSwitch,
-                                                               reactimate,
-                                                               repeatedly, sum,
-                                                               switch, trace)
 import           Data.MonadicStreamFunction              (iPre)
+import           Data.MonadicStreamFunction              as X hiding
+                                                              (reactimate,
+                                                               repeatedly,
+                                                               trace)
 import           Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- Internal imports (dunai, instances)
