@@ -255,19 +255,19 @@ are.
 
 The best introduction to the fundamentals of Monadic Stream Functions is:
 
-- [Functional Reactive Programming, Refactored](https://dl.acm.org/authorize?N34896) ([official ACM page](http://dl.acm.org/citation.cfm?id=2976010)) ([mirror](http://www.cs.nott.ac.uk/~psxip1/)) ([updated paper examples](https://github.com/ivanperez-keera/dunai/tree/develop/dunai-examples/paper)).
+- [Functional Reactive Programming, Refactored](https://dl.acm.org/doi/10.1145/2976002.2976010?cid=99658741366) ([official ACM page](http://dl.acm.org/citation.cfm?id=2976010)) ([mirror](https://ivanperez.io/#FRPRefactored)) ([updated paper examples](https://github.com/ivanperez-keera/dunai/tree/develop/dunai-examples/paper)).
 
 The following papers are also related to MSFs:
 
-- [Fault Tolerant Functional Reactive Programming](https://dl.acm.org/citation.cfm?id=3236791)
+- [Fault Tolerant Functional Reactive Programming](https://dl.acm.org/doi/10.1145/3236791?cid=99658741366) ([mirror](https://ivanperez.io/#ftfrp))
 
 - [Fault Tolerant Functional Reactive Programming (extended version)](https://www.cambridge.org/core/journals/journal-of-functional-programming/article/abs/faulttolerant-functional-reactive-programming-extended-version/F0C270C83E218FA5627D96A7FD6C56E9)
 
-- [Rhine: FRP with type-level clocks](https://dl.acm.org/citation.cfm?id=3242757)
+- [Rhine: FRP with type-level clocks](https://dl.acm.org/doi/10.1145/3242744.3242757?cid=99658741366) ([mirror](https://ivanperez.io/#rhine))
 
-- [Back to the Future: time travel in FRP](http://dl.acm.org/citation.cfm?id=3122957) ([mirror](http://www.cs.nott.ac.uk/~psxip1/))
+- [Back to the Future: time travel in FRP](https://dl.acm.org/doi/10.1145/3122955.3122957?cid=99658741366) ([mirror](https://ivanperez.io/#backtothefuture))
 
-- [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/citation.cfm?id=3110246)
+- [Testing and Debugging Functional Reactive Programming](https://dl.acm.org/doi/10.1145/3110246?cid=99658741366) ([mirror](https://ivanperez.io/#testingfrp))
 
 ## Videos
 <sup>[(Back to top)](#table-of-contents)</sup>
