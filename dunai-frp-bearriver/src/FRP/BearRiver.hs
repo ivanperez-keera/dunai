@@ -305,6 +305,7 @@ mapEventS msf = proc eventA -> case eventA of
 
 -- ** Relation to other types
 
+eventToMaybe :: Event a -> Maybe a
 eventToMaybe = event Nothing Just
 
 boolToEvent :: Bool -> Event ()
@@ -412,14 +413,17 @@ event _ f (Event x) = f x
 event x _ NoEvent   = x
 
 -- | Extract the value from an event. Fails if there is no event.
+fromEvent :: Event a -> a
 fromEvent (Event x) = x
 fromEvent _         = error "fromEvent NoEvent"
 
 -- | Tests whether the input represents an actual event.
+isEvent :: Event a -> Bool
 isEvent (Event _) = True
 isEvent _         = False
 
 -- | Negation of 'isEvent'.
+isNoEvent :: Event a -> Bool
 isNoEvent (Event _) = False
 isNoEvent _         = True
 
@@ -852,4 +856,5 @@ replaceOnce :: Monad m => a -> SF m a a
 replaceOnce a = dSwitch (arr $ const (a, Event ())) (const $ arr id)
 
 -- ** Tuples
+dup :: a -> (a, a)
 dup  x     = (x,x)
