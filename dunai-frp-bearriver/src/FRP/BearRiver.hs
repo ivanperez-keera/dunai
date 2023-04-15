@@ -879,7 +879,6 @@ evalAt sf dt a = runIdentity $ runReaderT (unMSF sf a) dt
 -- intended only for debugging/testing. Apart from being potentially slower and
 -- consuming more memory, it also breaks the FRP abstraction by making samples
 -- discrete and step based.
---
 evalFuture :: SF Identity a b -> a -> DTime -> (b, SF Identity a b)
 evalFuture sf = flip (evalAt sf)
 
