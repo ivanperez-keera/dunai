@@ -208,7 +208,8 @@ initially = (--> identity)
 -- creates a well-formed loop based on a pure, auxiliary function.
 sscan :: Monad m => (b -> a -> b) -> b -> SF m a b
 sscan f bInit = feedback bInit u
-  where u = undefined -- (arr f >>^ dup)
+  where
+    u = undefined -- (arr f >>^ dup)
 
 -- | Generic version of 'sscan', in which the auxiliary function produces an
 -- internal accumulator and an "held" output.
@@ -240,12 +241,13 @@ after :: Monad m
       -> b    -- ^ Value to produce at that time
       -> SF m a (Event b)
 after q x = feedback q go
-  where go = MSF $ \(_, t) -> do
-               dt <- ask
-               let t' = t - dt
-                   e  = if t > 0 && t' < 0 then Event x else NoEvent
-                   ct = if t' < 0 then constant (NoEvent, t') else go
-               return ((e, t'), ct)
+  where
+    go = MSF $ \(_, t) -> do
+           dt <- ask
+           let t' = t - dt
+               e  = if t > 0 && t' < 0 then Event x else NoEvent
+               ct = if t' < 0 then constant (NoEvent, t') else go
+           return ((e, t'), ct)
 
 -- | Event source with repeated occurrences with interval q.
 --
@@ -826,24 +828,25 @@ reactimate :: Monad m
 reactimate senseI sense actuate sf = do
     MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
     return ()
-  where sfIO = morphS (return.runIdentity) (runReaderS sf)
+  where
+    sfIO = morphS (return.runIdentity) (runReaderS sf)
 
-        -- Sense
-        senseSF = MSF.dSwitch senseFirst senseRest
+    -- Sense
+    senseSF = MSF.dSwitch senseFirst senseRest
 
-        -- Sense: First sample
-        senseFirst = constM senseI >>> arr (\x -> ((0, x), Just x))
+    -- Sense: First sample
+    senseFirst = constM senseI >>> arr (\x -> ((0, x), Just x))
 
-        -- Sense: Remaining samples
-        senseRest a = constM (sense True) >>> (arr id *** keepLast a)
+    -- Sense: Remaining samples
+    senseRest a = constM (sense True) >>> (arr id *** keepLast a)
 
-        keepLast :: Monad m => a -> MSF m (Maybe a) a
-        keepLast a = MSF $ \ma ->
-          let a' = fromMaybe a ma
-          in a' `seq` return (a', keepLast a')
+    keepLast :: Monad m => a -> MSF m (Maybe a) a
+    keepLast a = MSF $ \ma ->
+      let a' = fromMaybe a ma
+      in a' `seq` return (a', keepLast a')
 
-        -- Consume/render
-        actuateSF = arr (\x -> (True, x)) >>> arrM (uncurry actuate)
+    -- Consume/render
+    actuateSF = arr (\x -> (True, x)) >>> arrM (uncurry actuate)
 
 -- * Debugging / Step by step simulation
 
