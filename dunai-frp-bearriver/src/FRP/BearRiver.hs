@@ -209,7 +209,7 @@ initially = (--> identity)
 -- | Applies a function point-wise, using the last output as next input. This
 -- creates a well-formed loop based on a pure, auxiliary function.
 sscan :: Monad m => (b -> a -> b) -> b -> SF m a b
-sscan f b_init = feedback b_init u
+sscan f bInit = feedback bInit u
   where u = undefined -- (arr f >>^ dup)
 
 -- | Generic version of 'sscan', in which the auxiliary function produces
@@ -220,11 +220,11 @@ sscan f b_init = feedback b_init u
 -- known accumulators are used. This creates a well-formed loop based on a
 -- pure, auxiliary function.
 sscanPrim :: Monad m => (c -> a -> Maybe (c, b)) -> c -> b -> SF m a b
-sscanPrim f c_init b_init = MSF $ \a -> do
-  let o = f c_init a
+sscanPrim f cInit bInit = MSF $ \a -> do
+  let o = f cInit a
   case o of
-    Nothing       -> return (b_init, sscanPrim f c_init b_init)
-    Just (c', b') -> return (b',     sscanPrim f c' b')
+    Nothing       -> return (bInit, sscanPrim f cInit bInit)
+    Just (c', b') -> return (b',    sscanPrim f c' b')
 
 
 -- | Event source that never occurs.
@@ -364,8 +364,8 @@ edgeJust = edgeBy isJustEdge (Just undefined)
 -- state, i.e., the previous input sample. The first argument to the
 -- edge detection function is the previous sample, the second the current one.
 edgeBy :: Monad m => (a -> a -> Maybe b) -> a -> SF m a (Event b)
-edgeBy isEdge a_prev = MSF $ \a ->
-  return (maybeToEvent (isEdge a_prev a), edgeBy isEdge a)
+edgeBy isEdge aPrev = MSF $ \a ->
+  return (maybeToEvent (isEdge aPrev a), edgeBy isEdge a)
 
 -- | Convert a maybe value into a event ('Event' is isomorphic to 'Maybe').
 maybeToEvent :: Maybe a -> Event a
@@ -777,7 +777,7 @@ iterFrom f b = MSF $ \a -> do
 
 -- * Noise (random signal) sources and stochastic event sources
 
--- | Stochastic event source with events occurring on average once every t_avg
+-- | Stochastic event source with events occurring on average once every tAvg
 -- seconds. However, no more than one event results from any one sampling
 -- interval in the case of relatively sparse sampling, thus avoiding an
 -- "event backlog" should sampling become more frequent at some later
