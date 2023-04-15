@@ -277,7 +277,7 @@ afterEachCat :: Monad m => [(Time, b)] -> SF m a (Event [b])
 afterEachCat = afterEachCat' 0
   where
     afterEachCat' :: Monad m => Time -> [(Time, b)] -> SF m a (Event [b])
-    afterEachCat' _ [] = never
+    afterEachCat' _ []  = never
     afterEachCat' t qxs = MSF $ \_ -> do
       dt <- ask
       let (ev, t', qxs') = fireEvents [] (t + dt) qxs
@@ -288,7 +288,7 @@ afterEachCat = afterEachCat' 0
       return (ev', afterEachCat' t' qxs')
 
     fireEvents :: [b] -> Time -> [(Time, b)] -> ([b], Time, [(Time, b)])
-    fireEvents ev t [] = (ev, t, [])
+    fireEvents ev t []       = (ev, t, [])
     fireEvents ev t (qx:qxs)
       | fst qx < 0 = error "bearriver: afterEachCat: Non-positive period."
       | otherwise =
