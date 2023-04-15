@@ -513,10 +513,6 @@ mergeEvents :: [Event a] -> Event a
 mergeEvents = foldr lMerge NoEvent
 
 -- | Collect simultaneous event occurrences; no event if none.
---
--- Traverable-based definition:
--- catEvents :: Foldable t => t (Event a) -> Event (t a)
--- carEvents e  = if (null e) then NoEvent else (sequenceA e)
 catEvents :: [Event a] -> Event [a]
 catEvents eas = case [ a | Event a <- eas ] of
                   [] -> NoEvent
