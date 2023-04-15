@@ -258,7 +258,7 @@ repeatedly q x
     | q > 0     = afterEach qxs
     | otherwise = error "bearriver: repeatedly: Non-positive period."
   where
-    qxs = (q,x):qxs
+    qxs = (q, x):qxs
 
 -- | Event source with consecutive occurrences at the given intervals.
 --
@@ -266,17 +266,17 @@ repeatedly q x
 -- only the first will in fact occur to avoid an event backlog.
 
 -- After all, after, repeatedly etc. are defined in terms of afterEach.
-afterEach :: Monad m => [(Time,b)] -> SF m a (Event b)
+afterEach :: Monad m => [(Time, b)] -> SF m a (Event b)
 afterEach qxs = afterEachCat qxs >>> arr (fmap head)
 
 -- | Event source with consecutive occurrences at the given intervals.
 --
 -- Should more than one event be scheduled to occur in any sampling interval,
 -- the output list will contain all events produced during that interval.
-afterEachCat :: Monad m => [(Time,b)] -> SF m a (Event [b])
+afterEachCat :: Monad m => [(Time, b)] -> SF m a (Event [b])
 afterEachCat = afterEachCat' 0
   where
-    afterEachCat' :: Monad m => Time -> [(Time,b)] -> SF m a (Event [b])
+    afterEachCat' :: Monad m => Time -> [(Time, b)] -> SF m a (Event [b])
     afterEachCat' _ [] = never
     afterEachCat' t qxs = MSF $ \_ -> do
       dt <- ask
@@ -287,7 +287,7 @@ afterEachCat = afterEachCat' 0
 
       return (ev', afterEachCat' t' qxs')
 
-    fireEvents :: [b] -> Time -> [(Time,b)] -> ([b], Time, [(Time,b)])
+    fireEvents :: [b] -> Time -> [(Time, b)] -> ([b], Time, [(Time, b)])
     fireEvents ev t [] = (ev, t, [])
     fireEvents ev t (qx:qxs)
       | fst qx < 0 = error "bearriver: afterEachCat: Non-positive period."
@@ -385,7 +385,7 @@ edgeFrom prev = MSF $ \a -> do
 
 -- | Suppression of initial (at local time 0) event.
 notYet :: Monad m => SF m (Event a) (Event a)
-notYet = feedback False $ arr (\(e,c) ->
+notYet = feedback False $ arr (\(e, c) ->
   if c then (e, True) else (NoEvent, True))
 
 -- | Suppress all but the first event.
@@ -526,15 +526,15 @@ catEvents eas = case [ a | Event a <- eas ] of
 --
 -- Applicative-based definition:
 -- joinE = liftA2 (,)
-joinE :: Event a -> Event b -> Event (a,b)
+joinE :: Event a -> Event b -> Event (a, b)
 joinE NoEvent   _         = NoEvent
 joinE _         NoEvent   = NoEvent
-joinE (Event l) (Event r) = Event (l,r)
+joinE (Event l) (Event r) = Event (l, r)
 
 -- | Split event carrying pairs into two events.
-splitE :: Event (a,b) -> (Event a, Event b)
-splitE NoEvent       = (NoEvent, NoEvent)
-splitE (Event (a,b)) = (Event a, Event b)
+splitE :: Event (a, b) -> (Event a, Event b)
+splitE NoEvent        = (NoEvent, NoEvent)
+splitE (Event (a, b)) = (Event a, Event b)
 
 ------------------------------------------------------------------------------
 -- Event filtering
@@ -610,7 +610,7 @@ dSwitch ::  Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
 dSwitch sf sfC = MSF $ \a -> do
   (o, ct) <- unMSF sf a
   case o of
-    (b, Event c) -> do (_,ct') <- local (const 0) (unMSF (sfC c) a)
+    (b, Event c) -> do (_, ct') <- local (const 0) (unMSF (sfC c) a)
                        return (b, ct')
     (b, NoEvent) -> return (b, dSwitch ct sfC)
 
@@ -646,7 +646,7 @@ dpSwitchB sfs sfF sfCs = MSF $ \a -> do
   res <- T.mapM (`unMSF` a) sfs
   let bs   = fmap fst res
       sfs' = fmap snd res
-  (e,sfF') <- unMSF sfF (a, bs)
+  (e, sfF') <- unMSF sfF (a, bs)
   ct <- case e of
           Event c -> snd <$> unMSF (sfCs sfs c) a
           NoEvent -> return (dpSwitchB sfs' sfF' sfCs)
@@ -678,14 +678,16 @@ parC sf = parC0 sf
   where
     parC0 :: Monad m => SF m a b -> SF m [a] [b]
     parC0 sf0 = MSF $ \as -> do
-      os <- T.mapM (\(a,sf) -> unMSF sf a) $ zip as (replicate (length as) sf0)
+      os <- T.mapM (\(a, sf) -> unMSF sf a) $
+              zip as (replicate (length as) sf0)
+
       let bs  = fmap fst os
           cts = fmap snd os
       return (bs, parC' cts)
 
     parC' :: Monad m => [SF m a b] -> SF m [a] [b]
     parC' sfs = MSF $ \as -> do
-      os <- T.mapM (\(a,sf) -> unMSF sf a) $ zip as sfs
+      os <- T.mapM (\(a, sf) -> unMSF sf a) $ zip as sfs
       let bs  = fmap fst os
           cts = fmap snd os
       return (bs, parC' cts)
@@ -704,7 +706,7 @@ parC sf = parC0 sf
 -- >>> embed (hold 1) (deltaEncode 0.1 [NoEvent, NoEvent, Event 2, NoEvent, Event 3, NoEvent])
 -- [1,1,2,2,3,3]
 hold :: Monad m => a -> SF m (Event a) a
-hold a = feedback a $ arr $ \(e,a') ->
+hold a = feedback a $ arr $ \(e, a') ->
   dup (event a' id e)
 
 -- ** Accumulators
@@ -891,4 +893,4 @@ replaceOnce a = dSwitch (arr $ const (a, Event ())) (const $ arr id)
 
 -- | Duplicate an input.
 dup :: a -> (a, a)
-dup  x     = (x,x)
+dup  x     = (x, x)
