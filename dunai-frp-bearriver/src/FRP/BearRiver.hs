@@ -224,7 +224,6 @@ sscanPrim f cInit bInit = MSF $ \a -> do
     Nothing       -> return (bInit, sscanPrim f cInit bInit)
     Just (c', b') -> return (b',    sscanPrim f c' b')
 
-
 -- | Event source that never occurs.
 never :: Monad m => SF m a (Event b)
 never = constant NoEvent
@@ -417,7 +416,6 @@ noEvent = NoEvent
 noEventFst :: (Event a, b) -> (Event c, b)
 noEventFst (_, b) = (NoEvent, b)
 
-
 -- | Suppress any event in the second component of a pair.
 noEventSnd :: (a, Event b) -> (a, Event c)
 noEventSnd (a, _) = (a, NoEvent)
@@ -547,7 +545,6 @@ filterE :: (a -> Bool) -> Event a -> Event a
 filterE p e@(Event a) = if p a then e else NoEvent
 filterE _ NoEvent     = NoEvent
 
-
 -- | Combined event mapping and filtering. Note: since 'Event' is a 'Functor',
 -- see 'fmap' for a simpler version of this function with no filtering.
 mapFilterE :: (a -> Maybe b) -> Event a -> Event b
@@ -555,7 +552,6 @@ mapFilterE _ NoEvent   = NoEvent
 mapFilterE f (Event a) = case f a of
                            Nothing -> NoEvent
                            Just b  -> Event b
-
 
 -- | Enable/disable event occurences based on an external condition.
 gate :: Event a -> Bool -> Event a
@@ -617,7 +613,6 @@ dSwitch sf sfC = MSF $ \a -> do
     (b, Event c) -> do (_,ct') <- local (const 0) (unMSF (sfC c) a)
                        return (b, ct')
     (b, NoEvent) -> return (b, dSwitch ct sfC)
-
 
 -- * Parallel composition and switching
 
@@ -737,7 +732,6 @@ loopPre = feedback
 -- | Integration using the rectangle rule.
 integral :: (Monad m, Fractional s, VectorSpace a s) => SF m a a
 integral = integralFrom zeroVector
-
 
 -- | Integrate using an auxiliary function that takes the current and the last
 -- input, the time between those samples, and the last output, and returns a
