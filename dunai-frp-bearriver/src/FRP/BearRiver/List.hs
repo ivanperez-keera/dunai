@@ -18,7 +18,7 @@ module FRP.BearRiver.List
     )
   where
 
--- External imports
+-- Internal imports (dunai)
 import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- Internal imports
