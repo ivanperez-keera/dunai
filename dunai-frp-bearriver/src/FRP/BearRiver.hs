@@ -84,7 +84,7 @@ data Event a = Event a | NoEvent
   deriving (Eq, Ord, Show)
 
 -- | The type 'Event' is isomorphic to 'Maybe'. The 'Functor' instance of
--- 'Event' is analogous to the 'Functo' instance of 'Maybe', where the given
+-- 'Event' is analogous to the 'Functor' instance of 'Maybe', where the given
 -- function is applied to the value inside the 'Event', if any.
 instance Functor Event where
   fmap _ NoEvent   = NoEvent
@@ -315,7 +315,7 @@ mapEventS msf = proc eventA -> case eventA of
 -- 'Just', and 'NoEvent' is mapped to 'Nothing'. There is, however, a semantic
 -- difference: a signal carrying a Maybe may change constantly, but, for a
 -- signal carrying an 'Event', there should be a bounded frequency such that
--- sampling the signal faster does not render more event ocurrences.
+-- sampling the signal faster does not render more event occurrences.
 eventToMaybe :: Event a -> Maybe a
 eventToMaybe = event Nothing Just
 
@@ -344,7 +344,7 @@ iEdge = edgeFrom
 edgeTag :: Monad m => a -> SF m Bool (Event a)
 edgeTag a = edge >>> arr (`tag` a)
 
--- | Edge detector particularized for detecting transtitions on a 'Maybe'
+-- | Edge detector particularized for detecting transitions on a 'Maybe'
 -- signal from 'Nothing' to 'Just'.
 --
 -- From Yampa
@@ -554,7 +554,7 @@ mapFilterE f (Event a) = case f a of
                            Nothing -> NoEvent
                            Just b  -> Event b
 
--- | Enable/disable event occurences based on an external condition.
+-- | Enable/disable event occurrences based on an external condition.
 gate :: Event a -> Bool -> Event a
 _ `gate` False = NoEvent
 e `gate` True  = e
