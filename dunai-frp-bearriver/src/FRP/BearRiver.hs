@@ -21,16 +21,19 @@ module FRP.BearRiver
  where
 
 -- External imports
-import           Control.Applicative
+#if !MIN_VERSION_base(4,8,0)
+import           Control.Applicative       (Applicative (..), (<$>))
+#endif
+import           Control.Applicative       (Alternative (..))
 import           Control.Arrow             as X
 import qualified Control.Category          as Category
 import           Control.DeepSeq           (NFData (..))
 import           Control.Monad             (mapM)
 import qualified Control.Monad.Fail        as Fail
-import           Control.Monad.Random
-import           Control.Monad.Trans.Maybe
-import           Data.Functor.Identity
-import           Data.Maybe
+import           Control.Monad.Random      (MonadRandom)
+import           Control.Monad.Trans.Maybe ()
+import           Data.Functor.Identity     (Identity (..))
+import           Data.Maybe                (fromMaybe)
 import           Data.Traversable          as T
 import           Data.VectorSpace          as X
 
@@ -41,16 +44,17 @@ import qualified Control.Monad.Trans.MSF                 as MSF
 import           Control.Monad.Trans.MSF.Except          as MSF hiding (dSwitch,
                                                                  switch)
 import           Control.Monad.Trans.MSF.List            (sequenceS, widthFirst)
-import           Control.Monad.Trans.MSF.Random
+import           Control.Monad.Trans.MSF.Random          ()
 import           Data.MonadicStreamFunction              as X hiding (dSwitch,
                                                                reactimate,
                                                                repeatedly, sum,
                                                                switch, trace)
-import qualified Data.MonadicStreamFunction              as MSF
-import           Data.MonadicStreamFunction.InternalCore
+import           Data.MonadicStreamFunction              (iPre)
+import           Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- Internal imports (dunai, instances)
-import Data.MonadicStreamFunction.Instances.ArrowLoop
+import Data.MonadicStreamFunction.Instances.ArrowLoop () -- not needed, just
+                                                         -- re-exported
 
 infixr 0 -->, -:>, >--, >=-
 
@@ -728,9 +732,9 @@ derivative = derivativeFrom zeroVector
 
 derivativeFrom :: (Monad m, Fractional s, VectorSpace a s) => a -> SF m a a
 derivativeFrom a0 = proc a -> do
-  dt   <- constM ask   -< ()
-  aOld <- MSF.iPre a0 -< a
-  returnA             -< (a ^-^ aOld) ^/ realToFrac dt
+  dt   <- constM ask -< ()
+  aOld <- iPre a0    -< a
+  returnA            -< (a ^-^ aOld) ^/ realToFrac dt
 
 -- NOTE: BUG in this function, it needs two a's but we
 -- can only provide one
