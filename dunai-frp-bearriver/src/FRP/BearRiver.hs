@@ -34,7 +34,7 @@ import           Data.Maybe
 import           Data.Traversable          as T
 import           Data.VectorSpace          as X
 
--- Internal imports
+-- Internal imports (dunai)
 import           Control.Monad.Trans.MSF                 hiding (dSwitch,
                                                           switch)
 import qualified Control.Monad.Trans.MSF                 as MSF
@@ -49,7 +49,7 @@ import           Data.MonadicStreamFunction              as X hiding (dSwitch,
 import qualified Data.MonadicStreamFunction              as MSF
 import           Data.MonadicStreamFunction.InternalCore
 
--- Internal imports (instances)
+-- Internal imports (dunai, instances)
 import Data.MonadicStreamFunction.Instances.ArrowLoop
 
 infixr 0 -->, -:>, >--, >=-
