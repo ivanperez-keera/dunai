@@ -17,7 +17,24 @@
 -- The main function to generate streams is 'generateStream'. The specific time
 -- deltas can be customized further using 'generateStreamWith'. Some helper
 -- functions are provided to facilitate testing.
-module FRP.Dunai.QuickCheck where
+module FRP.Dunai.QuickCheck
+    (
+      -- * Random stream generation
+      generateStream
+    , generateStreamWith
+
+      -- ** Parameters used to generate random input streams
+    , Distribution(..)
+    , Range
+    , Length
+
+      -- ** Helpers for common cases
+    , uniDistStream
+    , uniDistStreamMaxDT
+    , fixedDelayStream
+    , fixedDelayStreamWith
+    )
+  where
 
 -- Examples accompanying the ICFP 2017 paper.
 --
