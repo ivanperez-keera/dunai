@@ -26,8 +26,15 @@ import Data.MonadicStreamFunction              (MSF)
 import Data.MonadicStreamFunction.InternalCore (unMSF)
 
 -- * Types
+
+-- | A stream of samples, with their sampling times.
 type SignalSampleStream a = SampleStream (DTime, a)
+
+-- | A stream of samples, with no sampling time.
 type SampleStream a = [a]
+
+-- | DTime is the time type for lengths of sample intervals. Conceptually,
+-- DTime = R+ = { x in R | x > 0 }.
 type DTime    = Double
 
 
@@ -46,9 +53,11 @@ groupDeltas xs ds = zip (0:ds) xs
 samples :: SignalSampleStream a -> [a]
 samples = map snd
 
+-- | Return the first sample in a signal sample stream.
 firstSample :: SignalSampleStream a -> a
 firstSample = head . samples
 
+-- | Return the last sample in a signal sample stream.
 lastSample :: SignalSampleStream a -> a
 lastSample = last . samples
 
@@ -56,6 +65,8 @@ lastSample = last . samples
 
 -- ** Merging
 
+-- | Merge two streams, using an auxilary function to merge samples that fall
+-- at the exact same sampling time.
 sMerge :: (a -> a -> a) -> SignalSampleStream a -> SignalSampleStream a -> SignalSampleStream a
 sMerge f []              xs2             = xs2
 sMerge f xs1             []              = xs1
@@ -66,16 +77,27 @@ sMerge f ((dt1, x1):xs1) ((dt2, x2):xs2)
 
 -- ** Concatenating
 
+-- | Concatenate two sample streams, separating them by a given time delta.
 sConcat :: SignalSampleStream a -> SignalSampleStream a -> SignalSampleStream a
 sConcat xs1 xs2 = xs1 ++ xs2
 
 -- ** Refining
+
+-- | Refine a signal sample stream by establishing the maximum time delta.
+--
+-- If two samples are separated by a time delta bigger than the given max DT,
+-- the former is replicated as many times as necessary.
 sRefine :: DTime -> a -> SignalSampleStream a -> SignalSampleStream a
 sRefine maxDT _ [] = []
 sRefine maxDT a0 ((dt, a):as)
   | dt > maxDT = (maxDT, a0) : sRefine maxDT a0 ((dt - maxDT, a):as)
   | otherwise  = (dt, a) : sRefine maxDT a as
 
+-- | Refine a stream by establishing the maximum time delta.
+--
+-- If two samples are separated by a time delta bigger than the given max DT,
+-- the auxiliary interpolation function is used to determine the intermendiate
+-- sample.
 refineWith :: (a -> a -> a) -> DTime -> a -> SignalSampleStream a -> SignalSampleStream a
 refineWith interpolate maxDT _  [] = []
 refineWith interpolate maxDT a0 ((dt, a):as)
@@ -85,20 +107,26 @@ refineWith interpolate maxDT a0 ((dt, a):as)
 
 -- ** Clipping (dropping samples)
 
+-- | Clip a signal sample stream at a given number of samples.
 sClipAfterFrame :: Int -> SignalSampleStream a -> SignalSampleStream a
 sClipAfterFrame = take
 
+-- | Clip a signal sample stream after a certain (non-zero) time.
 sClipAfterTime :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sClipAfterTime dt [] = []
 sClipAfterTime dt ((dt',x):xs)
   | dt < dt'  = []
   | otherwise = (dt', x) : sClipAfterTime (dt - dt') xs
 
+-- | Drop the first n samples of a signal sample stream. The time
+-- deltas are not re-calculated.
 sClipBeforeFrame :: Int -> SignalSampleStream a -> SignalSampleStream a
 sClipBeforeFrame 0 xs@(_:_) = xs
 sClipBeforeFrame n xs@[x]   = xs
 sClipBeforeFrame n xs       = sClipBeforeFrame (n-1) xs
 
+-- | Drop the first samples of a signal sample stream up to a given time. The
+-- time deltas are not re-calculated to match the original stream.
 sClipBeforeTime  :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sClipBeforeTime dt xs
   | dt <= 0   = xs
@@ -108,6 +136,11 @@ sClipBeforeTime dt xs
                                          | otherwise -> sClipBeforeTime (dt - dt') ((0,x'):xs')
 
 
+-- | Evaluate an SF with a 'SignalSampleStream', obtaining an output stream and
+-- a continuation.
+--
+-- You should never use this for actual execution in your applications, only
+-- for testing.
 evalSF :: Monad m
        => MSF (ReaderT DTime m) a b
        -> SignalSampleStream a
@@ -118,6 +151,11 @@ evalSF fsf as = do
   return (ss, readerS msf')
 
 
+-- | Evaluate an MSF with a 'SampleStream', obtaining an output stream and a
+-- continuation.
+--
+-- You should never use this for actual execution in your applications, only
+-- for testing.
 evalMSF :: Monad m
         => MSF m a b
        -> SampleStream a
