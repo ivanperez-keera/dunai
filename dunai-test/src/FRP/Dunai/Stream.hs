@@ -21,8 +21,8 @@
 module FRP.Dunai.Stream where
 
 -- External imports
-import Control.Monad.Trans.MSF.Reader
-import Data.MonadicStreamFunction
+import Control.Monad.Trans.MSF.Reader          (ReaderT, readerS, runReaderS)
+import Data.MonadicStreamFunction              (MSF)
 import Data.MonadicStreamFunction.InternalCore (unMSF)
 
 -- * Types
