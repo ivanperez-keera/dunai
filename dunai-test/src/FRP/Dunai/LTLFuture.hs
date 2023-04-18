@@ -28,12 +28,12 @@ module FRP.Dunai.LTLFuture
 import Control.Applicative (Applicative, pure, (<$>), (<*>))
 #endif
 
-import Control.Monad.Trans.MSF.Reader
-import Data.MonadicStreamFunction
+import Control.Monad.Trans.MSF.Reader          (ReaderT, readerS, runReaderS)
+import Data.MonadicStreamFunction              (MSF)
 import Data.MonadicStreamFunction.InternalCore (unMSF)
 
 -- Internal imports
-import FRP.Dunai.Stream
+import FRP.Dunai.Stream (DTime, SignalSampleStream)
 
 -- * Temporal Logics based on SFs
 
