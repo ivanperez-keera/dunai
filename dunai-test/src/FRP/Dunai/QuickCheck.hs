@@ -51,8 +51,8 @@ module FRP.Dunai.QuickCheck
 import Control.Applicative ((<$>), pure)
 #endif
 
-import Data.Random.Normal
 import Data.MonadicStreamFunction
+import Data.Random.Normal
 import Test.QuickCheck
 import Test.QuickCheck.Gen
 
