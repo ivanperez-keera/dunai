@@ -20,6 +20,7 @@
 -- continuation MSF.
 module FRP.Dunai.Stream where
 
+-- External imports
 import Data.MonadicStreamFunction
 import Data.MonadicStreamFunction.InternalCore (unMSF)
 import Control.Monad.Trans.MSF.Reader
