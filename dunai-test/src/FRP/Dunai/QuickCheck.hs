@@ -1,6 +1,10 @@
 {-# LANGUAGE CPP                 #-}
 {-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+-- |
+-- Copyright  : (c) Ivan Perez, 2017-2023
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
 module FRP.Dunai.QuickCheck where
 
 -- Examples accompanying the ICFP 2017 paper.
