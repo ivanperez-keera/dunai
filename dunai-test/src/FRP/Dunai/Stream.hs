@@ -88,6 +88,7 @@ refineWith interpolate maxDT a0 ((dt, a):as)
 sClipAfterFrame :: Int -> SignalSampleStream a -> SignalSampleStream a
 sClipAfterFrame = take
 
+sClipAfterTime :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sClipAfterTime dt [] = []
 sClipAfterTime dt ((dt',x):xs)
   | dt < dt'  = []
