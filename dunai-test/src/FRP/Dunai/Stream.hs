@@ -1,4 +1,8 @@
 {-# LANGUAGE MultiWayIf #-}
+-- |
+-- Copyright  : (c) Ivan Perez, 2017-2023
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
 module FRP.Dunai.Stream where
 
 import Data.MonadicStreamFunction
