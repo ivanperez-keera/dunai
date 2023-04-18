@@ -43,8 +43,8 @@ impliesSF = arr $ \(i,p) -> not i || p
 
 -- | Output True when every input up until the current time has been True.
 --
--- This corresponds to Historically, or the past-time version of Globally
--- or Always.
+-- This corresponds to Historically, or the past-time version of Globally or
+-- Always.
 sofarSF :: Monad m => MSF m Bool Bool
 sofarSF = feedback True $ arr $ \(n,o) -> let n' = o && n in (n', n')
 
@@ -124,16 +124,15 @@ implySF' sf1 sf2 = orSF' sf2 (notSF' sf1)
 -- | Output True at a time if the input has always been True up until that
 -- time.
 --
--- This corresponds to Historically, or the past-time version of Globally
--- or Always.
+-- This corresponds to Historically, or the past-time version of Globally or
+-- Always.
 history' :: Monad m => SPred m a -> SPred m a
 history' sf = feedback True $ proc (a, last) -> do
   b <- sf -< a
   let cur = last && b
   returnA -< (cur, cur)
 
--- | Output True at a time if the input has ever been True up until that
--- time.
+-- | Output True at a time if the input has ever been True up until that time.
 --
 -- This corresponds to Ever, or the past-time version of Eventually.
 ever' :: Monad m => SPred m a -> SPred m a
