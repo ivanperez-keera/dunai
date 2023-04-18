@@ -201,12 +201,18 @@ timeStampsUntilWith arb = timeStampsUntilWith' arb []
 
 -- ** Parameters used to generate random input streams
 
-data Distribution = DistConstant
-                  | DistNormal (DTime, DTime)
-                  | DistRandom
+-- | Distributions used for time delta (DT) generation.
+data Distribution
+  = DistConstant              -- ^ Constant DT for the whole stream.
+  | DistNormal (DTime, DTime) -- ^ Variable DT following normal distribution,
+                              --   with an average and a standard deviation.
+  | DistRandom                -- ^ Completely random (positive) DT.
 
+-- | Upper and lower bounds of time deltas for random DT generation.
 type Range = (Maybe DTime, Maybe DTime)
 
+-- | Optional maximum length for a stream, given as a time, or a number of
+-- samples.
 type Length = Maybe (Either Int DTime)
 
 -- ** Helpers for common cases
