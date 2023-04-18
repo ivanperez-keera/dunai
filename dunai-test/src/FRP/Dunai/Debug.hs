@@ -6,6 +6,7 @@
 -- Debug FRP networks by inspecting their behaviour inside.
 module FRP.Dunai.Debug where
 
+-- External imports
 import Debug.Trace
 import Data.MonadicStreamFunction hiding (trace)
 import System.IO.Unsafe
