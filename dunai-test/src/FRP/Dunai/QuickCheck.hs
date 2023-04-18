@@ -158,13 +158,6 @@ generateStreamLenDT range len = do
 
 -- ** Time delta generation
 
--- | Generate a random delta according to some required specifications.
-generateDeltas :: Distribution -> Range -> Length -> Gen DTime
-generateDeltas DistConstant            (mn, mx) len = generateDelta mn mx
-generateDeltas DistRandom              (mn, mx) len = generateDelta mn mx
-generateDeltas (DistNormal (avg, dev)) (mn, mx) len =
-  generateDSNormal avg dev mn mx
-
 -- | Generate one random delta, possibly within a range.
 generateDelta :: Maybe DTime -> Maybe DTime -> Gen DTime
 generateDelta (Just x)  (Just y)  = choose (x, y)
@@ -180,10 +173,6 @@ generateDSNormal avg stddev m n = suchThat gen (\x -> mx x && mn x)
     gen = MkGen (\r _ -> let (x,_) = normal' (avg, stddev) r in x)
     mn  = maybe (const True) (<=) m
     mx  = maybe (const True) (>=) n
-
--- | Generate random samples up until a max time.
-timeStampsUntil :: DTime -> Gen [DTime]
-timeStampsUntil = timeStampsUntilWith arbitrary
 
 -- | Generate random samples up until a max time, with a given time delta
 --   generation function.
