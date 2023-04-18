@@ -1,5 +1,10 @@
 {-# LANGUAGE Arrows #-}
--- | Past-time LTL using MSFs.
+-- |
+-- Copyright  : (c) Ivan Perez, 2017
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- Past-time LTL using MSFs.
 --
 -- This module provides ways of defining past-, discrete-time temporal
 -- predicates with MSFs.
