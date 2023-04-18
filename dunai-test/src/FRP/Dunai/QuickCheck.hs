@@ -5,6 +5,18 @@
 -- Copyright  : (c) Ivan Perez, 2017-2023
 -- License    : BSD3
 -- Maintainer : ivan.perez@keera.co.uk
+--
+-- QuickCheck generators for input streams.
+--
+-- Random stream generation can be customized usin three parameters:
+--
+-- - The distribution for the random time deltas ('Distribution').
+-- - The maximum and minimum bounds for the time deltas ('Range').
+-- - The maximum stream length ('Length').
+--
+-- The main function to generate streams is 'generateStream'. The specific time
+-- deltas can be customized further using 'generateStreamWith'. Some helper
+-- functions are provided to facilitate testing.
 module FRP.Dunai.QuickCheck where
 
 -- Examples accompanying the ICFP 2017 paper.
