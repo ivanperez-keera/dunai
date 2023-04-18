@@ -91,8 +91,8 @@ evalT op              (x:xs) = do
 
 -- | Multi-valued logic result
 data MultiRes
-    = Def Bool    -- ^ Definite value known
-    | SoFar Bool  -- ^ Value so far, but could change
+  = Def Bool    -- ^ Definite value known
+  | SoFar Bool  -- ^ Value so far, but could change
 
 -- | Multi-valued implementation of @and@.
 andM :: MultiRes -> MultiRes -> MultiRes
