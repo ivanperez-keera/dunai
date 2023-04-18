@@ -154,8 +154,8 @@ generateDelta (Just x)  Nothing   = (x+) . getPositive <$> arbitrary
 generateDelta Nothing   (Just y)  = choose (2.2251e-308, y)
 generateDelta Nothing   Nothing   = getPositive <$> arbitrary
 
--- | Generate a random delta following a normal distribution,
---   and possibly within a given range.
+-- | Generate a random delta following a normal distribution, and possibly
+-- within a given range.
 generateDSNormal :: DTime -> DTime -> Maybe DTime -> Maybe DTime -> Gen DTime
 generateDSNormal avg stddev m n = suchThat gen (\x -> mx x && mn x)
   where
@@ -164,7 +164,7 @@ generateDSNormal avg stddev m n = suchThat gen (\x -> mx x && mn x)
     mx  = maybe (const True) (>=) n
 
 -- | Generate random samples up until a max time, with a given time delta
---   generation function.
+-- generation function.
 timeStampsUntilWith :: Gen DTime -> DTime -> Gen [DTime]
 timeStampsUntilWith arb = timeStampsUntilWith' arb []
   where
