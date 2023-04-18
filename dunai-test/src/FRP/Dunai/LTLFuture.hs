@@ -25,7 +25,7 @@ module FRP.Dunai.LTLFuture
 
 -- External imports
 #if !MIN_VERSION_base(4,8,0)
-import Control.Applicative (Applicative, (<$>), (<*>), pure)
+import Control.Applicative (Applicative, pure, (<$>), (<*>))
 #endif
 
 import Control.Monad.Trans.MSF.Reader
