@@ -14,6 +14,7 @@
 -- (Past-time LTL as MSF combinators).
 module FRP.Dunai.LTLPast where
 
+-- External imports
 import Control.Monad.Trans.MSF.Maybe
 import Data.Maybe
 import Data.MonadicStreamFunction
