@@ -23,6 +23,7 @@ module FRP.Dunai.LTLFuture
     )
   where
 
+-- External imports
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative (Applicative, (<$>), (<*>), pure)
 #endif
@@ -30,6 +31,8 @@ import Control.Applicative (Applicative, (<$>), (<*>), pure)
 import Control.Monad.Trans.MSF.Reader
 import Data.MonadicStreamFunction
 import Data.MonadicStreamFunction.InternalCore (unMSF)
+
+-- Internal imports
 import FRP.Dunai.Stream
 
 -- * Temporal Logics based on SFs
