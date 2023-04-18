@@ -103,7 +103,6 @@ andM x             (Def True)    = x
 andM (SoFar False) (SoFar _)     = SoFar False
 andM (SoFar _)     (SoFar False) = SoFar False
 andM (SoFar True)  (SoFar x)     = SoFar x
-andM (SoFar x)     (SoFar True)  = SoFar x
 
 -- | Multi-valued implementation of @or@.
 orM :: MultiRes -> MultiRes -> MultiRes
@@ -114,7 +113,6 @@ orM x             (Def True)    = x
 orM (SoFar False) (SoFar _)     = SoFar False
 orM (SoFar _)     (SoFar False) = SoFar False
 orM (SoFar True)  (SoFar x)     = SoFar x
-orM (SoFar x)     (SoFar True)  = SoFar x
 
 -- | Perform one step of evaluation of a temporal predicate.
 stepF :: (Applicative m, Monad m)
