@@ -51,10 +51,9 @@ module FRP.Dunai.QuickCheck
 import Control.Applicative (pure, (<$>))
 #endif
 
-import Data.MonadicStreamFunction ()
-import Data.Random.Normal         (normal')
-import Test.QuickCheck            (Arbitrary, arbitrary, getPositive)
-import Test.QuickCheck.Gen        (Gen (MkGen), choose, suchThat)
+import Data.Random.Normal  (normal')
+import Test.QuickCheck     (Arbitrary, arbitrary, getPositive)
+import Test.QuickCheck.Gen (Gen (MkGen), choose, suchThat)
 
 -- Internal imports
 import FRP.Dunai.Stream (DTime, SignalSampleStream, groupDeltas)
