@@ -9,7 +9,6 @@ module FRP.Dunai.Debug where
 -- External imports
 import Data.MonadicStreamFunction hiding (trace)
 import Debug.Trace                (trace)
-import System.IO.Unsafe           ()
 
 -- ** Debugging
 
