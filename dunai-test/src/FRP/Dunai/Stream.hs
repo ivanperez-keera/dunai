@@ -3,6 +3,21 @@
 -- Copyright  : (c) Ivan Perez, 2017-2023
 -- License    : BSD3
 -- Maintainer : ivan.perez@keera.co.uk
+--
+-- Streams and stream manipulation API.
+--
+-- The evaluation of Dunai MSFs, especially for testing purposes, needs the
+-- generation of suitable input streams.
+--
+-- While some streams can be generated randomly using QuickCheck, it is
+-- sometimes useful to be able to preprend or adapt an input stream. It is also
+-- useful to debug programs when you have recorded input streams using Haskell
+-- Titan.
+--
+-- This module defines types for input streams, as well as an API to create,
+-- examine and combine streams. It also provides evaluation functions that are
+-- needed to apply an MSF to a stream and obtain an output stream and a
+-- continuation MSF.
 module FRP.Dunai.Stream where
 
 import Data.MonadicStreamFunction
