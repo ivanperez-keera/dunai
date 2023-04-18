@@ -41,8 +41,8 @@ type DTime    = Double
 
 -- | Group a series of samples with a series of time deltas.
 --
---   The first sample will have no delta. Unused samples and deltas will be
---   dropped.
+-- The first sample will have no delta. Unused samples and deltas will be
+-- dropped.
 groupDeltas :: [a] -> [DTime] -> SignalSampleStream a
 groupDeltas xs ds = zip (0:ds) xs
 
@@ -117,8 +117,8 @@ sClipAfterTime dt ((dt',x):xs)
   | dt < dt'  = []
   | otherwise = (dt', x) : sClipAfterTime (dt - dt') xs
 
--- | Drop the first n samples of a signal sample stream. The time
--- deltas are not re-calculated.
+-- | Drop the first n samples of a signal sample stream. The time deltas are
+-- not re-calculated.
 sClipBeforeFrame :: Int -> SignalSampleStream a -> SignalSampleStream a
 sClipBeforeFrame 0 xs@(_:_) = xs
 sClipBeforeFrame _ xs@[_]   = xs
