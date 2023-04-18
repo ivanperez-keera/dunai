@@ -15,9 +15,10 @@
 module FRP.Dunai.LTLPast where
 
 -- External imports
-import Control.Monad.Trans.MSF.Maybe
-import Data.Maybe
-import Data.MonadicStreamFunction
+import Control.Monad.Trans.MSF.Maybe (MaybeT, catchMaybe, inMaybeT)
+import Data.Maybe                    ()
+import Data.MonadicStreamFunction    (MSF, arr, feedback, iPre, liftTransS,
+                                      returnA, (&&&), (>>>), (^>>))
 
 -- * Past-time linear temporal logic using MSFs.
 
