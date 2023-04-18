@@ -46,15 +46,18 @@ module FRP.Dunai.QuickCheck
 -- - The function uniDistStreamMaxDT had the wrong type and the name on the
 --   paper was: uniDistStream. This has been fixed.
 
+-- External imports
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative ((<$>), pure)
 #endif
 
 import Data.Random.Normal
 import Data.MonadicStreamFunction
-import FRP.Dunai.Stream
 import Test.QuickCheck
 import Test.QuickCheck.Gen
+
+-- Internal imports
+import FRP.Dunai.Stream
 
 -- * Random stream generation
 
