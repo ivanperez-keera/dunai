@@ -21,9 +21,9 @@
 module FRP.Dunai.Stream where
 
 -- External imports
+import Control.Monad.Trans.MSF.Reader
 import Data.MonadicStreamFunction
 import Data.MonadicStreamFunction.InternalCore (unMSF)
-import Control.Monad.Trans.MSF.Reader
 
 -- * Types
 type SignalSampleStream a = SampleStream (DTime, a)
