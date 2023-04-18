@@ -1,7 +1,6 @@
 {-# LANGUAGE CPP                 #-}
 {-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-
 module FRP.Dunai.QuickCheck where
 
 -- Examples accompanying the ICFP 2017 paper.
