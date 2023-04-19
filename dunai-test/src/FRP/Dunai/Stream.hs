@@ -122,7 +122,7 @@ sClipAfterFrame = take
 -- | Clip a signal sample stream after a certain (non-zero) time.
 sClipAfterTime :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sClipAfterTime _  [] = []
-sClipAfterTime dt ((dt',x):xs)
+sClipAfterTime dt ((dt', x):xs)
   | dt < dt'  = []
   | otherwise = (dt', x) : sClipAfterTime (dt - dt') xs
 
@@ -140,9 +140,9 @@ sClipBeforeTime dt xs
     | dt <= 0        = xs
     | length xs == 1 = xs
     | dt < dt'       = ((dt'- dt, x'):xs')
-    | otherwise      = sClipBeforeTime (dt - dt') ((0,x'):xs')
+    | otherwise      = sClipBeforeTime (dt - dt') ((0, x'):xs')
   where
-    (_:(dt',x'):xs') = xs
+    (_:(dt', x'):xs') = xs
 
 -- | Evaluate an SF with a 'SignalSampleStream', obtaining an output stream and
 -- a continuation.
