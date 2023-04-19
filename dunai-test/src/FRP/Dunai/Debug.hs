@@ -16,7 +16,7 @@ import Debug.Trace                (trace)
 -- 'trace'.
 traceMSF :: Monad m
          => Show a
-        => MSF m a a
+         => MSF m a a
 traceMSF = traceMSFWith show
 
 -- | Monadic Stream Function that prints the value passing through using
