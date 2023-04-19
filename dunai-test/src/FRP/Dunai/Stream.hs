@@ -63,7 +63,7 @@ lastSample = last . samples
 
 -- ** Merging
 
--- | Merge two streams, using an auxilary function to merge samples that fall
+-- | Merge two streams, using an auxiliary function to merge samples that fall
 -- at the exact same sampling time.
 sMerge :: (a -> a -> a)
        -> SignalSampleStream a
@@ -97,7 +97,7 @@ sRefine maxDT a0 ((dt, a) : as)
 -- | Refine a stream by establishing the maximum time delta.
 --
 -- If two samples are separated by a time delta bigger than the given max DT,
--- the auxiliary interpolation function is used to determine the intermendiate
+-- the auxiliary interpolation function is used to determine the intermediate
 -- sample.
 refineWith :: (a -> a -> a)
            -> DTime
