@@ -36,7 +36,6 @@ type SampleStream a = [a]
 -- DTime = R+ = { x in R | x > 0 }.
 type DTime    = Double
 
-
 -- ** Creation
 
 -- | Group a series of samples with a series of time deltas.
@@ -145,7 +144,6 @@ sClipBeforeTime dt xs
   where
     (_:(dt',x'):xs') = xs
 
-
 -- | Evaluate an SF with a 'SignalSampleStream', obtaining an output stream and
 -- a continuation.
 --
@@ -159,7 +157,6 @@ evalSF fsf as = do
   let msf'' = runReaderS fsf
   (ss, msf') <- evalMSF msf'' as
   return (ss, readerS msf')
-
 
 -- | Evaluate an MSF with a 'SampleStream', obtaining an output stream and a
 -- continuation.
