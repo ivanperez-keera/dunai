@@ -35,16 +35,6 @@ module FRP.Dunai.QuickCheck
     )
   where
 
--- Examples accompanying the ICFP 2017 paper.
---
--- Changes with respect to the paper:
---
--- - The signature of ballTrulyFalling' in the paper was SF () Double. It's
---   been changed to the intended meaning: TPred ()
-
--- - The function uniDistStreamMaxDT had the wrong type and the name on the
---   paper was: uniDistStream. This has been fixed.
-
 -- External imports
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative (pure, (<$>))
