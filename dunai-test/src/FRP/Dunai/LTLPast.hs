@@ -37,7 +37,7 @@ notSF = arr not
 
 -- | Output True when the second input is True or the first one is False.
 impliesSF :: Monad m => MSF m (Bool, Bool) Bool
-impliesSF = arr $ \(i,p) -> not i || p
+impliesSF = arr $ \(i, p) -> not i || p
 
 -- ** Temporal MSFs
 
@@ -46,14 +46,14 @@ impliesSF = arr $ \(i,p) -> not i || p
 -- This corresponds to Historically, or the past-time version of Globally or
 -- Always.
 sofarSF :: Monad m => MSF m Bool Bool
-sofarSF = feedback True $ arr $ \(n,o) -> let n' = o && n in (n', n')
+sofarSF = feedback True $ arr $ \(n, o) -> let n' = o && n in (n', n')
 
 -- | Output True when at least one input up until the current time has been
 -- True.
 --
 -- This corresponds to Ever, or the past-time version of Eventually.
 everSF :: Monad m => MSF m Bool Bool
-everSF = feedback False $ arr $ \(n,o) -> let n' = o || n in (n', n')
+everSF = feedback False $ arr $ \(n, o) -> let n' = o || n in (n', n')
 
 -- | Output True if the first element has always been True, or the second has
 -- been True ever since the first one became False.
@@ -66,7 +66,7 @@ untilSF =
 
     untilMaybeB :: Monad m => MSF m a (b, Bool) -> MSF (MaybeT m) a b
     untilMaybeB msf = proc a -> do
-      (b,c) <- liftTransS msf -< a
+      (b, c) <- liftTransS msf -< a
       inMaybeT -< if c then Nothing else Just b
 
     cond ((i, u), o) = ((n, o && u), n)
