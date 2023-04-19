@@ -139,7 +139,7 @@ sClipBeforeTime :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sClipBeforeTime dt xs
     | dt <= 0        = xs
     | length xs == 1 = xs
-    | dt < dt'       = ((dt' - dt, x') : xs')
+    | dt < dt'       = (dt' - dt, x') : xs'
     | otherwise      = sClipBeforeTime (dt - dt') ((0, x') : xs')
   where
     (_ : (dt', x') : xs') = xs
