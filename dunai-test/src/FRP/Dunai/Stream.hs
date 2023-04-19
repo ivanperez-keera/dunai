@@ -34,7 +34,7 @@ type SampleStream a = [a]
 
 -- | DTime is the time type for lengths of sample intervals. Conceptually,
 -- DTime = R+ = { x in R | x > 0 }.
-type DTime    = Double
+type DTime = Double
 
 -- ** Creation
 
@@ -135,7 +135,7 @@ sClipBeforeFrame n xs       = sClipBeforeFrame (n - 1) xs
 
 -- | Drop the first samples of a signal sample stream up to a given time. The
 -- time deltas are not re-calculated to match the original stream.
-sClipBeforeTime  :: DTime -> SignalSampleStream a -> SignalSampleStream a
+sClipBeforeTime :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sClipBeforeTime dt xs
     | dt <= 0        = xs
     | length xs == 1 = xs
@@ -171,5 +171,5 @@ evalMSF fsf [] = return ([], fsf)
 evalMSF fsf (a:as) = do
   (b, fsf')   <- unMSF fsf a
   (bs, fsf'') <- evalMSF fsf' as
-  let outputStrm  = b : bs
+  let outputStrm = b : bs
   return (outputStrm, fsf'')
