@@ -67,51 +67,28 @@ generateStreamWith :: (Int -> DTime -> Gen a)
 generateStreamWith arb DistConstant range  len     =
   generateConstantStream arb =<< generateStreamLenDT range len
 
-generateStreamWith arb DistRandom   (m, n) Nothing = do
-  l <- arbitrary
-  x <- arb 0 0
-  ds <- vectorOfWith l (\_ -> generateDelta m n)
-  let f n = arb n (ds!!(n-1))
-  xs <- vectorOfWith l f
-  return $ groupDeltas (x:xs) ds
+generateStreamWith arb dist (m, n) len = do
+    ds <- generateDeltas len
+    let l = length ds
+    let f n = arb n (ds!!(n-1))
+    xs <- vectorOfWith l f
 
-generateStreamWith arb DistRandom (m, n) (Just (Left l)) = do
-  x <- arb 0 0
-  ds <- vectorOfWith l (\_ -> generateDelta m n)
-  let f n = arb n (ds!!(n-1))
-  xs <- vectorOfWith l f
-  return $ groupDeltas (x:xs) ds
+    x <- arb 0 0
+    return $ groupDeltas (x:xs) ds
 
-generateStreamWith arb DistRandom (m, n) (Just (Right maxds)) = do
-  ds <- timeStampsUntilWith (generateDelta m n) maxds
-  let l = length ds
-  x  <- arb 0 0
-  let f n = arb n (ds!!(n-1))
-  xs <- vectorOfWith l f
-  return $ groupDeltas (x:xs) ds
+  where
 
-generateStreamWith arb (DistNormal (avg, stddev)) (m, n) Nothing = do
-  l <- arbitrary
-  x <- arb 0 0
-  ds <- vectorOfWith l (\_ -> generateDSNormal avg stddev m n)
-  let f n = arb n (ds!!(n-1))
-  xs <- vectorOfWith l f
-  return $ groupDeltas (x:xs) ds
+    deltaF :: Gen DTime
+    deltaF = case dist of
+               DistRandom -> generateDelta m n
+               DistNormal (avg, stddev) -> generateDSNormal avg stddev m n
+               _ -> error "dunai-test: generateStreamWith"
 
-generateStreamWith arb (DistNormal (avg, stddev)) (m, n) (Just (Left l)) = do
-  x <- arb 0 0
-  ds <- vectorOfWith l (\_ -> generateDSNormal avg stddev m n)
-  let f n = arb n (ds!!(n-1))
-  xs <- vectorOfWith l f
-  return $ groupDeltas (x:xs) ds
-
-generateStreamWith arb (DistNormal (avg, stddev)) (m, n) (Just (Right maxds)) = do
-  ds <- timeStampsUntilWith (generateDSNormal avg stddev m n) maxds
-  let l = length ds
-  x <- arb 0 0
-  let f n = arb n (ds!!(n-1))
-  xs <- vectorOfWith l f
-  return $ groupDeltas (x:xs) ds
+    generateDeltas :: Length -> Gen [DTime]
+    generateDeltas Nothing              = do l <- arbitrary
+                                             vectorOfWith l (\_ -> deltaF)
+    generateDeltas (Just (Left l))      = vectorOfWith l (\_ -> deltaF)
+    generateDeltas (Just (Right maxds)) = timeStampsUntilWith deltaF maxds
 
 -- | Generate arbitrary stream with fixed length and constant delta.
 generateConstantStream :: (Int -> DTime -> Gen a)
