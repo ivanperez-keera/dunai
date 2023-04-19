@@ -95,9 +95,10 @@ generateConstantStream :: (Int -> DTime -> Gen a)
                        -> (DTime, Int)
                        -> Gen (SignalSampleStream a)
 generateConstantStream arb (x, length) = do
-  ys <- vectorOfWith length (`arb` x)
-  let ds = repeat x
-  return $ groupDeltas ys ds
+    ys <- vectorOfWith length (`arb` x)
+    return $ groupDeltas ys ds
+  where
+    ds = repeat x
 
 -- | Generate arbitrary stream
 generateStreamLenDT :: (Maybe DTime, Maybe DTime)
@@ -136,7 +137,7 @@ generateDelta Nothing  Nothing  = getPositive <$> arbitrary
 generateDSNormal :: DTime -> DTime -> Maybe DTime -> Maybe DTime -> Gen DTime
 generateDSNormal avg stddev m n = suchThat gen (\x -> mx x && mn x)
   where
-    gen = MkGen (\r _ -> let (x, _) = normal' (avg, stddev) r in x)
+    gen = MkGen (\r _ -> fst $ normal' (avg, stddev) r)
     mn  = maybe (const True) (<=) m
     mx  = maybe (const True) (>=) n
 
