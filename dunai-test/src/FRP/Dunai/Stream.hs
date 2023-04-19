@@ -69,8 +69,8 @@ sMerge :: (a -> a -> a)
        -> SignalSampleStream a
        -> SignalSampleStream a
        -> SignalSampleStream a
-sMerge _ []              xs2                = xs2
-sMerge _ xs1             []                 = xs1
+sMerge _ []                xs2               = xs2
+sMerge _ xs1               []                = xs1
 sMerge f ((dt1, x1) : xs1) ((dt2, x2) : xs2)
   | dt1 == dt2 = (dt1, f x1 x2) : sMerge f xs1 xs2
   | dt1 <  dt2 = (dt1, x1) : sMerge f xs1 ((dt2 - dt1, x2) : xs2)
@@ -89,7 +89,7 @@ sConcat xs1 xs2 = xs1 ++ xs2
 -- If two samples are separated by a time delta bigger than the given max DT,
 -- the former is replicated as many times as necessary.
 sRefine :: DTime -> a -> SignalSampleStream a -> SignalSampleStream a
-sRefine _     _ [] = []
+sRefine _     _  []             = []
 sRefine maxDT a0 ((dt, a) : as)
   | dt > maxDT = (maxDT, a0) : sRefine maxDT a0 ((dt - maxDT, a) : as)
   | otherwise  = (dt, a) : sRefine maxDT a as
@@ -104,7 +104,7 @@ refineWith :: (a -> a -> a)
            -> a
            -> SignalSampleStream a
            -> SignalSampleStream a
-refineWith _           _     _  [] = []
+refineWith _           _     _  []             = []
 refineWith interpolate maxDT a0 ((dt, a) : as)
   | dt > maxDT
   = let a' = interpolate a0 a
@@ -121,7 +121,7 @@ sClipAfterFrame = take
 
 -- | Clip a signal sample stream after a certain (non-zero) time.
 sClipAfterTime :: DTime -> SignalSampleStream a -> SignalSampleStream a
-sClipAfterTime _  [] = []
+sClipAfterTime _  []              = []
 sClipAfterTime dt ((dt', x) : xs)
   | dt < dt'  = []
   | otherwise = (dt', x) : sClipAfterTime (dt - dt') xs
@@ -165,9 +165,9 @@ evalSF fsf as = do
 -- for testing.
 evalMSF :: Monad m
         => MSF m a b
-       -> SampleStream a
-       -> m (SampleStream b, MSF m a b)
-evalMSF fsf [] = return ([], fsf)
+        -> SampleStream a
+        -> m (SampleStream b, MSF m a b)
+evalMSF fsf []     = return ([], fsf)
 evalMSF fsf (a:as) = do
   (b, fsf')   <- unMSF fsf a
   (bs, fsf'') <- evalMSF fsf' as
