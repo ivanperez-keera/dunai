@@ -106,12 +106,13 @@ refineWith :: (a -> a -> a)
            -> SignalSampleStream a
 refineWith _           _     _  []             = []
 refineWith interpolate maxDT a0 ((dt, a) : as)
-  | dt > maxDT
-  = let a' = interpolate a0 a
-    in (maxDT, interpolate a0 a) :
-         refineWith interpolate maxDT a' ((dt - maxDT, a) : as)
-  | otherwise
-  = (dt, a) : refineWith interpolate maxDT a as
+    | dt > maxDT
+    = (maxDT, interpolate a0 a) :
+        refineWith interpolate maxDT a' ((dt - maxDT, a) : as)
+    | otherwise
+    = (dt, a) : refineWith interpolate maxDT a as
+  where
+    a' = interpolate a0 a
 
 -- ** Clipping (dropping samples)
 
@@ -154,9 +155,10 @@ evalSF :: Monad m
        -> SignalSampleStream a
        -> m (SampleStream b, MSF (ReaderT DTime m) a b)
 evalSF fsf as = do
-  let msf'' = runReaderS fsf
-  (ss, msf') <- evalMSF msf'' as
-  return (ss, readerS msf')
+    (ss, msf') <- evalMSF msf'' as
+    return (ss, readerS msf')
+  where
+    msf'' = runReaderS fsf
 
 -- | Evaluate an MSF with a 'SampleStream', obtaining an output stream and a
 -- continuation.
