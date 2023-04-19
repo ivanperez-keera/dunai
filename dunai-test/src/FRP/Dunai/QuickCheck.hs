@@ -136,7 +136,7 @@ generateDelta Nothing   Nothing   = getPositive <$> arbitrary
 generateDSNormal :: DTime -> DTime -> Maybe DTime -> Maybe DTime -> Gen DTime
 generateDSNormal avg stddev m n = suchThat gen (\x -> mx x && mn x)
   where
-    gen = MkGen (\r _ -> let (x,_) = normal' (avg, stddev) r in x)
+    gen = MkGen (\r _ -> let (x, _) = normal' (avg, stddev) r in x)
     mn  = maybe (const True) (<=) m
     mx  = maybe (const True) (>=) n
 
