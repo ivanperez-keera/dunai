@@ -64,7 +64,7 @@ generateStreamWith :: (Int -> DTime -> Gen a)
                    -> Length
                    -> Gen (SignalSampleStream a)
 
-generateStreamWith arb DistConstant range  len     =
+generateStreamWith arb DistConstant range len =
   generateConstantStream arb =<< generateStreamLenDT range len
 
 generateStreamWith arb dist (m, n) len = do
@@ -126,10 +126,10 @@ generateStreamLenDT range len = do
 
 -- | Generate one random delta, possibly within a range.
 generateDelta :: Maybe DTime -> Maybe DTime -> Gen DTime
-generateDelta (Just x)  (Just y)  = choose (x, y)
-generateDelta (Just x)  Nothing   = (x +) . getPositive <$> arbitrary
-generateDelta Nothing   (Just y)  = choose (2.2251e-308, y)
-generateDelta Nothing   Nothing   = getPositive <$> arbitrary
+generateDelta (Just x) (Just y) = choose (x, y)
+generateDelta (Just x) Nothing  = (x +) . getPositive <$> arbitrary
+generateDelta Nothing  (Just y) = choose (2.2251e-308, y)
+generateDelta Nothing  Nothing  = getPositive <$> arbitrary
 
 -- | Generate a random delta following a normal distribution, and possibly
 -- within a given range.
