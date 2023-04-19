@@ -1,5 +1,10 @@
 {-# LANGUAGE Arrows #-}
--- | Past-time LTL using MSFs.
+-- |
+-- Copyright  : (c) Ivan Perez, 2017
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- Past-time LTL using MSFs.
 --
 -- This module provides ways of defining past-, discrete-time temporal
 -- predicates with MSFs.
@@ -9,9 +14,10 @@
 -- (Past-time LTL as MSF combinators).
 module FRP.Dunai.LTLPast where
 
-import Control.Monad.Trans.MSF.Maybe
-import Data.Maybe
-import Data.MonadicStreamFunction
+-- External imports
+import Control.Monad.Trans.MSF.Maybe (MaybeT, catchMaybe, inMaybeT)
+import Data.MonadicStreamFunction    (MSF, arr, feedback, iPre, liftTransS,
+                                      returnA, (&&&), (>>>), (^>>))
 
 -- * Past-time linear temporal logic using MSFs.
 
@@ -31,23 +37,23 @@ notSF = arr not
 
 -- | Output True when the second input is True or the first one is False.
 impliesSF :: Monad m => MSF m (Bool, Bool) Bool
-impliesSF = arr $ \(i,p) -> not i || p
+impliesSF = arr $ \(i, p) -> not i || p
 
 -- ** Temporal MSFs
 
 -- | Output True when every input up until the current time has been True.
 --
--- This corresponds to Historically, or the past-time version of Globally
--- or Always.
+-- This corresponds to Historically, or the past-time version of Globally or
+-- Always.
 sofarSF :: Monad m => MSF m Bool Bool
-sofarSF = feedback True $ arr $ \(n,o) -> let n' = o && n in (n', n')
+sofarSF = feedback True $ arr $ \(n, o) -> let n' = o && n in (n', n')
 
 -- | Output True when at least one input up until the current time has been
 -- True.
 --
 -- This corresponds to Ever, or the past-time version of Eventually.
 everSF :: Monad m => MSF m Bool Bool
-everSF = feedback False $ arr $ \(n,o) -> let n' = o || n in (n', n')
+everSF = feedback False $ arr $ \(n, o) -> let n' = o || n in (n', n')
 
 -- | Output True if the first element has always been True, or the second has
 -- been True ever since the first one became False.
@@ -60,7 +66,7 @@ untilSF =
 
     untilMaybeB :: Monad m => MSF m a (b, Bool) -> MSF (MaybeT m) a b
     untilMaybeB msf = proc a -> do
-      (b,c) <- liftTransS msf -< a
+      (b, c) <- liftTransS msf -< a
       inMaybeT -< if c then Nothing else Just b
 
     cond ((i, u), o) = ((n, o && u), n)
@@ -72,22 +78,6 @@ untilSF =
 -- False at time zero.
 lastSF :: Monad m => MSF m Bool Bool
 lastSF = iPre False
-
--- data UnclearResult = Possibly Bool | Definitely Bool
---
--- causally :: SF a Bool -> SF a UnclearResult
--- causally = (>>> arr Definitely)
---
--- data TSF a = NonCausal (SF a UnclearResult)
---            | Causal    (SF a Bool)
---
--- evalTSF :: TSF a -> SignalSampleStream a -> Bool
--- evalTSF (Causal sf)    ss = firstSample $ fst $ evalSF sf ss
--- evalTSF (NonCausal sf) ss = clarifyResult $ lastSample $ fst $ evalSF sf ss
---
--- clarifyResult :: UnclearResult -> Bool
--- clarifyResult (Possibly x)   = x
--- clarifyResult (Definitely x) = x
 
 -- * Past-time linear temporal logic as MSF combinators.
 
@@ -118,16 +108,15 @@ implySF' sf1 sf2 = orSF' sf2 (notSF' sf1)
 -- | Output True at a time if the input has always been True up until that
 -- time.
 --
--- This corresponds to Historically, or the past-time version of Globally
--- or Always.
+-- This corresponds to Historically, or the past-time version of Globally or
+-- Always.
 history' :: Monad m => SPred m a -> SPred m a
 history' sf = feedback True $ proc (a, last) -> do
   b <- sf -< a
   let cur = last && b
   returnA -< (cur, cur)
 
--- | Output True at a time if the input has ever been True up until that
--- time.
+-- | Output True at a time if the input has ever been True up until that time.
 --
 -- This corresponds to Ever, or the past-time version of Eventually.
 ever' :: Monad m => SPred m a -> SPred m a

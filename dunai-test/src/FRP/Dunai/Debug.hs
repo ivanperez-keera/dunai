@@ -6,9 +6,9 @@
 -- Debug FRP networks by inspecting their behaviour inside.
 module FRP.Dunai.Debug where
 
-import Debug.Trace
+-- External imports
 import Data.MonadicStreamFunction hiding (trace)
-import System.IO.Unsafe
+import Debug.Trace                (trace)
 
 -- ** Debugging
 
@@ -16,7 +16,7 @@ import System.IO.Unsafe
 -- 'trace'.
 traceMSF :: Monad m
          => Show a
-        => MSF m a a
+         => MSF m a a
 traceMSF = traceMSFWith show
 
 -- | Monadic Stream Function that prints the value passing through using
