@@ -63,10 +63,8 @@ generateStreamWith :: (Int -> DTime -> Gen a)
                    -> Range
                    -> Length
                    -> Gen (SignalSampleStream a)
-
 generateStreamWith arb DistConstant range len =
   generateConstantStream arb =<< generateStreamLenDT range len
-
 generateStreamWith arb dist (m, n) len = do
     ds <- generateDeltas len
     let l = length ds
