@@ -1,4 +1,3 @@
-{-# LANGUAGE MultiWayIf #-}
 -- |
 -- Copyright  : (c) Ivan Perez, 2017-2023
 -- License    : BSD3
