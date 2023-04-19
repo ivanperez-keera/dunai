@@ -69,12 +69,12 @@ sMerge :: (a -> a -> a)
        -> SignalSampleStream a
        -> SignalSampleStream a
        -> SignalSampleStream a
-sMerge _ []              xs2             = xs2
-sMerge _ xs1             []              = xs1
-sMerge f ((dt1, x1):xs1) ((dt2, x2):xs2)
+sMerge _ []              xs2                = xs2
+sMerge _ xs1             []                 = xs1
+sMerge f ((dt1, x1) : xs1) ((dt2, x2) : xs2)
   | dt1 == dt2 = (dt1, f x1 x2) : sMerge f xs1 xs2
-  | dt1 <  dt2 = (dt1, x1) : sMerge f xs1 ((dt2-dt1, x2):xs2)
-  | otherwise  = (dt2, x2) : sMerge f ((dt1-dt2, x1):xs1) xs2
+  | dt1 <  dt2 = (dt1, x1) : sMerge f xs1 ((dt2 - dt1, x2) : xs2)
+  | otherwise  = (dt2, x2) : sMerge f ((dt1 - dt2, x1) : xs1) xs2
 
 -- ** Concatenating
 
@@ -90,8 +90,8 @@ sConcat xs1 xs2 = xs1 ++ xs2
 -- the former is replicated as many times as necessary.
 sRefine :: DTime -> a -> SignalSampleStream a -> SignalSampleStream a
 sRefine _     _ [] = []
-sRefine maxDT a0 ((dt, a):as)
-  | dt > maxDT = (maxDT, a0) : sRefine maxDT a0 ((dt - maxDT, a):as)
+sRefine maxDT a0 ((dt, a) : as)
+  | dt > maxDT = (maxDT, a0) : sRefine maxDT a0 ((dt - maxDT, a) : as)
   | otherwise  = (dt, a) : sRefine maxDT a as
 
 -- | Refine a stream by establishing the maximum time delta.
@@ -105,11 +105,11 @@ refineWith :: (a -> a -> a)
            -> SignalSampleStream a
            -> SignalSampleStream a
 refineWith _           _     _  [] = []
-refineWith interpolate maxDT a0 ((dt, a):as)
+refineWith interpolate maxDT a0 ((dt, a) : as)
   | dt > maxDT
   = let a' = interpolate a0 a
     in (maxDT, interpolate a0 a) :
-         refineWith interpolate maxDT a' ((dt - maxDT, a):as)
+         refineWith interpolate maxDT a' ((dt - maxDT, a) : as)
   | otherwise
   = (dt, a) : refineWith interpolate maxDT a as
 
@@ -122,7 +122,7 @@ sClipAfterFrame = take
 -- | Clip a signal sample stream after a certain (non-zero) time.
 sClipAfterTime :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sClipAfterTime _  [] = []
-sClipAfterTime dt ((dt', x):xs)
+sClipAfterTime dt ((dt', x) : xs)
   | dt < dt'  = []
   | otherwise = (dt', x) : sClipAfterTime (dt - dt') xs
 
@@ -131,7 +131,7 @@ sClipAfterTime dt ((dt', x):xs)
 sClipBeforeFrame :: Int -> SignalSampleStream a -> SignalSampleStream a
 sClipBeforeFrame 0 xs@(_:_) = xs
 sClipBeforeFrame _ xs@[_]   = xs
-sClipBeforeFrame n xs       = sClipBeforeFrame (n-1) xs
+sClipBeforeFrame n xs       = sClipBeforeFrame (n - 1) xs
 
 -- | Drop the first samples of a signal sample stream up to a given time. The
 -- time deltas are not re-calculated to match the original stream.
@@ -139,10 +139,10 @@ sClipBeforeTime  :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sClipBeforeTime dt xs
     | dt <= 0        = xs
     | length xs == 1 = xs
-    | dt < dt'       = ((dt'- dt, x'):xs')
-    | otherwise      = sClipBeforeTime (dt - dt') ((0, x'):xs')
+    | dt < dt'       = ((dt' - dt, x') : xs')
+    | otherwise      = sClipBeforeTime (dt - dt') ((0, x') : xs')
   where
-    (_:(dt', x'):xs') = xs
+    (_ : (dt', x') : xs') = xs
 
 -- | Evaluate an SF with a 'SignalSampleStream', obtaining an output stream and
 -- a continuation.
