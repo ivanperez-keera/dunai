@@ -66,7 +66,10 @@ lastSample = last . samples
 
 -- | Merge two streams, using an auxilary function to merge samples that fall
 -- at the exact same sampling time.
-sMerge :: (a -> a -> a) -> SignalSampleStream a -> SignalSampleStream a -> SignalSampleStream a
+sMerge :: (a -> a -> a)
+       -> SignalSampleStream a
+       -> SignalSampleStream a
+       -> SignalSampleStream a
 sMerge _ []              xs2             = xs2
 sMerge _ xs1             []              = xs1
 sMerge f ((dt1, x1):xs1) ((dt2, x2):xs2)
@@ -97,12 +100,19 @@ sRefine maxDT a0 ((dt, a):as)
 -- If two samples are separated by a time delta bigger than the given max DT,
 -- the auxiliary interpolation function is used to determine the intermendiate
 -- sample.
-refineWith :: (a -> a -> a) -> DTime -> a -> SignalSampleStream a -> SignalSampleStream a
+refineWith :: (a -> a -> a)
+           -> DTime
+           -> a
+           -> SignalSampleStream a
+           -> SignalSampleStream a
 refineWith _           _     _  [] = []
 refineWith interpolate maxDT a0 ((dt, a):as)
-  | dt > maxDT = let a' = interpolate a0 a
-                 in (maxDT, interpolate a0 a) : refineWith interpolate maxDT a' ((dt - maxDT, a):as)
-  | otherwise  = (dt, a) : refineWith interpolate maxDT a as
+  | dt > maxDT
+  = let a' = interpolate a0 a
+    in (maxDT, interpolate a0 a) :
+         refineWith interpolate maxDT a' ((dt - maxDT, a):as)
+  | otherwise
+  = (dt, a) : refineWith interpolate maxDT a as
 
 -- ** Clipping (dropping samples)
 
@@ -128,11 +138,12 @@ sClipBeforeFrame n xs       = sClipBeforeFrame (n-1) xs
 -- time deltas are not re-calculated to match the original stream.
 sClipBeforeTime  :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sClipBeforeTime dt xs
-  | dt <= 0   = xs
-  | otherwise = case xs of
-                  [_]              -> xs
-                  (_:(dt',x'):xs') -> if | dt < dt'  -> ((dt'- dt, x'):xs')
-                                         | otherwise -> sClipBeforeTime (dt - dt') ((0,x'):xs')
+    | dt <= 0        = xs
+    | length xs == 1 = xs
+    | dt < dt'       = ((dt'- dt, x'):xs')
+    | otherwise      = sClipBeforeTime (dt - dt') ((0,x'):xs')
+  where
+    (_:(dt',x'):xs') = xs
 
 
 -- | Evaluate an SF with a 'SignalSampleStream', obtaining an output stream and
