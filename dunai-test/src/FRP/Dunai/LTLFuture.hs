@@ -70,16 +70,18 @@ tPredMap f (Until t1 t2)   = Until      <$> tPredMap f t1 <*> tPredMap f t2
 --
 -- Returns 'True' if the temporal proposition is currently true.
 evalT :: (Functor m, Applicative m, Monad m)
-      => TPred (ReaderT DTime m) a -> SignalSampleStream a -> m Bool
-evalT (Prop _sf)      [] = return False
-evalT (And t1 t2)     [] = (&&) <$> evalT t1 [] <*> evalT t2 []
-evalT (Or  t1 t2)     [] = (||) <$> evalT t1 [] <*> evalT t2 []
-evalT (Not t1)        [] = not  <$> evalT t1 []
-evalT (Implies t1 t2) [] = (||) <$> (not <$> evalT t1 []) <*> evalT t2 []
-evalT (Always _t)     [] = return True
-evalT (Eventually _t) [] = return False
-evalT (Next _t)       [] = return False
-evalT (Until t1 t2)   [] = (||) <$> evalT t1 [] <*> evalT t2 []
+      => TPred (ReaderT DTime m) a
+      -> SignalSampleStream a
+      -> m Bool
+evalT (Prop _sf)      []     = return False
+evalT (And t1 t2)     []     = (&&) <$> evalT t1 [] <*> evalT t2 []
+evalT (Or  t1 t2)     []     = (||) <$> evalT t1 [] <*> evalT t2 []
+evalT (Not t1)        []     = not  <$> evalT t1 []
+evalT (Implies t1 t2) []     = (||) <$> (not <$> evalT t1 []) <*> evalT t2 []
+evalT (Always _t)     []     = return True
+evalT (Eventually _t) []     = return False
+evalT (Next _t)       []     = return False
+evalT (Until t1 t2)   []     = (||) <$> evalT t1 [] <*> evalT t2 []
 evalT op              (x:xs) = do
   (r, op') <- stepF op x
   case (r, xs) of
@@ -127,9 +129,9 @@ stepF (Prop sf) x = do
 stepF (Always sf) x = do
   (b, sf') <- stepF sf x
   case b of
-    Def True    -> pure (SoFar True, Always sf')
-    Def False   -> pure (Def False, Always sf')
-    SoFar True  -> pure (SoFar True, Always sf')
+    Def True    -> pure (SoFar True,  Always sf')
+    Def False   -> pure (Def False,   Always sf')
+    SoFar True  -> pure (SoFar True,  Always sf')
     SoFar False -> pure (SoFar False, Always sf')
 
 stepF (Eventually sf) x = do
@@ -143,7 +145,7 @@ stepF (Eventually sf) x = do
 stepF (Not sf) x = do
   (b, sf') <- stepF sf x
   case b of
-    Def x   -> pure (Def (not x), Not sf')
+    Def x   -> pure (Def (not x),   Not sf')
     SoFar x -> pure (SoFar (not x), Not sf')
 
 stepF (And sf1 sf2) x = do
