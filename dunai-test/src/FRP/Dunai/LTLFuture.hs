@@ -91,8 +91,8 @@ evalT op              (x:xs) = do
 
 -- | Multi-valued logic result
 data MultiRes
-  = Def Bool    -- ^ Definite value known
-  | SoFar Bool  -- ^ Value so far, but could change
+  = Def Bool   -- ^ Definite value known
+  | SoFar Bool -- ^ Value so far, but could change
 
 -- | Multi-valued implementation of @and@.
 andM :: MultiRes -> MultiRes -> MultiRes
@@ -120,7 +120,7 @@ stepF :: (Applicative m, Monad m)
       -> (DTime, a)
       -> m (MultiRes, TPred (ReaderT DTime m) a)
 
-stepF (Prop sf) x  = do
+stepF (Prop sf) x = do
   (b, sf') <- unMSF (runReaderS sf) x
   return (Def b, Prop (readerS sf'))
 
