@@ -30,7 +30,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          dunai
-version:       0.10.1
+version:       0.11.0
 author:        Ivan Perez, Manuel Bärenz
 maintainer:    ivan.perez@keera.co.uk
 homepage:      https://github.com/ivanperez-keera/dunai
@@ -69,7 +69,7 @@ description:
   .
   For a very detailed introduction to MSFs, see:
   <http://dl.acm.org/citation.cfm?id=2976010>
-  (mirror: <http://www.cs.nott.ac.uk/~psxip1/#FRPRefactored>).
+  (mirror: <http://ivanperez.io/#FRPRefactored>).
 
 
 extra-source-files:

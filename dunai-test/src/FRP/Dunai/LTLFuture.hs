@@ -23,14 +23,17 @@ module FRP.Dunai.LTLFuture
     )
   where
 
+-- External imports
 #if !MIN_VERSION_base(4,8,0)
-import Control.Applicative (Applicative, (<$>), (<*>), pure)
+import Control.Applicative (Applicative, pure, (<$>), (<*>))
 #endif
 
-import Control.Monad.Trans.MSF.Reader
-import Data.MonadicStreamFunction
+import Control.Monad.Trans.MSF.Reader          (ReaderT, readerS, runReaderS)
+import Data.MonadicStreamFunction              (MSF)
 import Data.MonadicStreamFunction.InternalCore (unMSF)
-import FRP.Dunai.Stream
+
+-- Internal imports
+import FRP.Dunai.Stream (DTime, SignalSampleStream)
 
 -- * Temporal Logics based on SFs
 
@@ -67,29 +70,31 @@ tPredMap f (Until t1 t2)   = Until      <$> tPredMap f t1 <*> tPredMap f t2
 --
 -- Returns 'True' if the temporal proposition is currently true.
 evalT :: (Functor m, Applicative m, Monad m)
-      => TPred (ReaderT DTime m) a -> SignalSampleStream a -> m Bool
-evalT (Prop sf)       [] = return False
-evalT (And t1 t2)     [] = (&&) <$> evalT t1 [] <*> evalT t2 []
-evalT (Or  t1 t2)     [] = (||) <$> evalT t1 [] <*> evalT t2 []
-evalT (Not t1)        [] = not  <$> evalT t1 []
-evalT (Implies t1 t2) [] = (||) <$> (not <$> evalT t1 []) <*> evalT t2 []
-evalT (Always t1)     [] = return True
-evalT (Eventually t1) [] = return False
-evalT (Next t1)       [] = return False
-evalT (Until t1 t2)   [] = (||) <$> evalT t1 [] <*> evalT t2 []
+      => TPred (ReaderT DTime m) a
+      -> SignalSampleStream a
+      -> m Bool
+evalT (Prop _sf)      []     = return False
+evalT (And t1 t2)     []     = (&&) <$> evalT t1 [] <*> evalT t2 []
+evalT (Or  t1 t2)     []     = (||) <$> evalT t1 [] <*> evalT t2 []
+evalT (Not t1)        []     = not  <$> evalT t1 []
+evalT (Implies t1 t2) []     = (||) <$> (not <$> evalT t1 []) <*> evalT t2 []
+evalT (Always _t)     []     = return True
+evalT (Eventually _t) []     = return False
+evalT (Next _t)       []     = return False
+evalT (Until t1 t2)   []     = (||) <$> evalT t1 [] <*> evalT t2 []
 evalT op              (x:xs) = do
   (r, op') <- stepF op x
   case (r, xs) of
     (Def x,    _) -> return x
     (SoFar x, []) -> return x
-    (SoFar x, xs) -> evalT op' xs
+    (SoFar _, xs) -> evalT op' xs
 
 -- ** Multi-valued temporal evaluation
 
 -- | Multi-valued logic result
 data MultiRes
-    = Def Bool    -- ^ Definite value known
-    | SoFar Bool  -- ^ Value so far, but could change
+  = Def Bool   -- ^ Definite value known
+  | SoFar Bool -- ^ Value so far, but could change
 
 -- | Multi-valued implementation of @and@.
 andM :: MultiRes -> MultiRes -> MultiRes
@@ -97,10 +102,9 @@ andM (Def False)   _             = Def False
 andM _             (Def False)   = Def False
 andM (Def True)    x             = x
 andM x             (Def True)    = x
-andM (SoFar False) (SoFar x)     = SoFar False
-andM (SoFar x)     (SoFar False) = SoFar False
+andM (SoFar False) (SoFar _)     = SoFar False
+andM (SoFar _)     (SoFar False) = SoFar False
 andM (SoFar True)  (SoFar x)     = SoFar x
-andM (SoFar x)     (SoFar True)  = SoFar x
 
 -- | Multi-valued implementation of @or@.
 orM :: MultiRes -> MultiRes -> MultiRes
@@ -108,10 +112,9 @@ orM (Def False)   x             = x
 orM _             (Def False)   = Def False
 orM (Def True)    x             = x
 orM x             (Def True)    = x
-orM (SoFar False) (SoFar x)     = SoFar False
-orM (SoFar x)     (SoFar False) = SoFar False
+orM (SoFar False) (SoFar _)     = SoFar False
+orM (SoFar _)     (SoFar False) = SoFar False
 orM (SoFar True)  (SoFar x)     = SoFar x
-orM (SoFar x)     (SoFar True)  = SoFar x
 
 -- | Perform one step of evaluation of a temporal predicate.
 stepF :: (Applicative m, Monad m)
@@ -119,16 +122,16 @@ stepF :: (Applicative m, Monad m)
       -> (DTime, a)
       -> m (MultiRes, TPred (ReaderT DTime m) a)
 
-stepF (Prop sf) x  = do
+stepF (Prop sf) x = do
   (b, sf') <- unMSF (runReaderS sf) x
   return (Def b, Prop (readerS sf'))
 
 stepF (Always sf) x = do
   (b, sf') <- stepF sf x
   case b of
-    Def True    -> pure (SoFar True, Always sf')
-    Def False   -> pure (Def False, Always sf')
-    SoFar True  -> pure (SoFar True, Always sf')
+    Def True    -> pure (SoFar True,  Always sf')
+    Def False   -> pure (Def False,   Always sf')
+    SoFar True  -> pure (SoFar True,  Always sf')
     SoFar False -> pure (SoFar False, Always sf')
 
 stepF (Eventually sf) x = do
@@ -142,7 +145,7 @@ stepF (Eventually sf) x = do
 stepF (Not sf) x = do
   (b, sf') <- stepF sf x
   case b of
-    Def x   -> pure (Def (not x), Not sf')
+    Def x   -> pure (Def (not x),   Not sf')
     SoFar x -> pure (SoFar (not x), Not sf')
 
 stepF (And sf1 sf2) x = do

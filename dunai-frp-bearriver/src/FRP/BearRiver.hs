@@ -9,52 +9,47 @@
 {-# OPTIONS_GHC -Wno-deprecations #-}
 #endif
 {-# OPTIONS_HADDOCK ignore-exports #-}
+-- |
 -- Copyright  : (c) Ivan Perez, 2019-2022
 --              (c) Ivan Perez and Manuel Baerenz, 2016-2018
 -- License    : BSD3
 -- Maintainer : ivan.perez@keera.co.uk
-module FRP.BearRiver
-  (module FRP.BearRiver, module X)
- where
--- This is an implementation of Yampa using our Monadic Stream Processing
--- library. We focus only on core Yampa. We will use this module later to
--- reimplement an example of a Yampa system.
 --
--- While we may not introduce all the complexity of Yampa today (all kinds of
--- switches, etc.) our goal is to show that the approach is promising and that
--- there do not seem to exist any obvious limitations.
+-- Implementation of Yampa using Monadic Stream Processing library.
+module FRP.BearRiver
+    (module FRP.BearRiver, module X)
+  where
 
 -- External imports
-import           Control.Applicative
+#if !MIN_VERSION_base(4,8,0)
+import           Control.Applicative       (Applicative (..), (<$>))
+#endif
+import           Control.Applicative       (Alternative (..))
 import           Control.Arrow             as X
 import qualified Control.Category          as Category
 import           Control.DeepSeq           (NFData (..))
-import           Control.Monad             (mapM)
 import qualified Control.Monad.Fail        as Fail
-import           Control.Monad.Random
-import           Control.Monad.Trans.Maybe
-import           Data.Functor.Identity
-import           Data.Maybe
+import           Control.Monad.Random      (MonadRandom)
+import           Data.Functor.Identity     (Identity (..))
+import           Data.Maybe                (fromMaybe)
 import           Data.Traversable          as T
 import           Data.VectorSpace          as X
 
--- Internal imports
+-- Internal imports (dunai)
 import           Control.Monad.Trans.MSF                 hiding (dSwitch,
                                                           switch)
 import qualified Control.Monad.Trans.MSF                 as MSF
-import           Control.Monad.Trans.MSF.Except          as MSF hiding (dSwitch,
-                                                                 switch)
 import           Control.Monad.Trans.MSF.List            (sequenceS, widthFirst)
-import           Control.Monad.Trans.MSF.Random
-import           Data.MonadicStreamFunction              as X hiding (dSwitch,
-                                                               reactimate,
-                                                               repeatedly, sum,
-                                                               switch, trace)
-import qualified Data.MonadicStreamFunction              as MSF
-import           Data.MonadicStreamFunction.InternalCore
+import           Data.MonadicStreamFunction              (iPre)
+import           Data.MonadicStreamFunction              as X hiding
+                                                              (reactimate,
+                                                               repeatedly,
+                                                               trace)
+import           Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
--- Internal imports (instances)
-import Data.MonadicStreamFunction.Instances.ArrowLoop
+-- Internal imports (dunai, instances)
+import Data.MonadicStreamFunction.Instances.ArrowLoop () -- not needed, just
+                                                         -- re-exported
 
 infixr 0 -->, -:>, >--, >=-
 
@@ -62,20 +57,21 @@ infixr 0 -->, -:>, >--, >=-
 
 -- | Time is used both for time intervals (duration), and time w.r.t. some
 -- agreed reference point in time.
-type Time  = Double
+type Time = Double
 
 -- | DTime is the time type for lengths of sample intervals. Conceptually,
--- DTime = R+ = { x in R | x > 0 }. Don't assume Time and DTime have the
--- same representation.
+-- DTime = R+ = { x in R | x > 0 }. Don't assume Time and DTime have the same
+-- representation.
 type DTime = Double
 
 -- | Extensible signal function (signal function with a notion of time, but
 -- which can be extended with actions).
+--
 -- Signal function that transforms a signal carrying values of some type 'a'
 -- into a signal carrying values of some type 'b'. You can think of it as
--- (Signal a -> Signal b). A signal is, conceptually, a
--- function from 'Time' to value.
-type SF m        = MSF (ClockInfo m)
+-- (Signal a -> Signal b). A signal is, conceptually, a function from 'Time' to
+-- value.
+type SF m = MSF (ClockInfo m)
 
 -- | Information on the progress of time.
 type ClockInfo m = ReaderT DTime m
@@ -85,10 +81,10 @@ type ClockInfo m = ReaderT DTime m
 -- continuously, such as mouse clicks (only produced when the mouse is clicked,
 -- as opposed to mouse positions, which are always defined).
 data Event a = Event a | NoEvent
- deriving (Eq, Ord, Show)
+  deriving (Eq, Ord, Show)
 
 -- | The type 'Event' is isomorphic to 'Maybe'. The 'Functor' instance of
--- 'Event' is analogous to the 'Functo' instance of 'Maybe', where the given
+-- 'Event' is analogous to the 'Functor' instance of 'Maybe', where the given
 -- function is applied to the value inside the 'Event', if any.
 instance Functor Event where
   fmap _ NoEvent   = NoEvent
@@ -122,8 +118,7 @@ instance Fail.MonadFail Event where
 instance Alternative Event where
   -- | An empty alternative carries no event, so it is ignored.
   empty = NoEvent
-  -- | Merge favouring the left event ('NoEvent' only if both are
-  -- 'NoEvent').
+  -- | Merge favouring the left event ('NoEvent' only if both are 'NoEvent').
   NoEvent <|> r = r
   l       <|> _ = l
 
@@ -158,9 +153,9 @@ identity = Category.id
 
 -- | Identity: constant b = arr (const b)
 --
--- Using 'constant' is preferred over lifting const, since the arrow combinators
--- know how to optimise certain networks based on the transformations being
--- applied.
+-- Using 'constant' is preferred over lifting const, since the arrow
+-- combinators know how to optimise certain networks based on the
+-- transformations being applied.
 constant :: Monad m => b -> SF m a b
 constant = arr . const
 
@@ -176,32 +171,34 @@ time = localTime
 
 -- | Initialization operator (cf. Lustre/Lucid Synchrone).
 --
--- The output at time zero is the first argument, and from
--- that point on it behaves like the signal function passed as
--- second argument.
+-- The output at time zero is the first argument, and from that point on it
+-- behaves like the signal function passed as second argument.
 (-->) :: Monad m => b -> SF m a b -> SF m a b
 b0 --> sf = sf >>> replaceOnce b0
 
 -- | Output pre-insert operator.
 --
--- Insert a sample in the output, and from that point on, behave
--- like the given sf.
+-- Insert a sample in the output, and from that point on, behave like the given
+-- sf.
 (-:>) :: Monad m => b -> SF m a b -> SF m a b
 b -:> sf = iPost b sf
 
 -- | Input initialization operator.
 --
--- The input at time zero is the first argument, and from
--- that point on it behaves like the signal function passed as
--- second argument.
+-- The input at time zero is the first argument, and from that point on it
+-- behaves like the signal function passed as second argument.
 (>--) :: Monad m => a -> SF m a b -> SF m a b
 a0 >-- sf = replaceOnce a0 >>> sf
 
+-- | Transform initial input value.
+--
+-- Applies a transformation 'f' only to the first input value at time zero.
 (>=-) :: Monad m => (a -> a) -> SF m a b -> SF m a b
 f >=- sf = MSF $ \a -> do
   (b, sf') <- unMSF sf (f a)
   return (b, sf')
 
+-- | Override initial value of input signal.
 initially :: Monad m => a -> SF m a a
 initially = (--> identity)
 
@@ -210,30 +207,30 @@ initially = (--> identity)
 -- | Applies a function point-wise, using the last output as next input. This
 -- creates a well-formed loop based on a pure, auxiliary function.
 sscan :: Monad m => (b -> a -> b) -> b -> SF m a b
-sscan f b_init = feedback b_init u
-  where u = undefined -- (arr f >>^ dup)
+sscan f bInit = feedback bInit u
+  where
+    u = undefined -- (arr f >>^ dup)
 
--- | Generic version of 'sscan', in which the auxiliary function produces
--- an internal accumulator and an "held" output.
+-- | Generic version of 'sscan', in which the auxiliary function produces an
+-- internal accumulator and an "held" output.
 --
 -- Applies a function point-wise, using the last known 'Just' output to form
 -- the output, and next input accumulator. If the output is 'Nothing', the last
 -- known accumulators are used. This creates a well-formed loop based on a
 -- pure, auxiliary function.
 sscanPrim :: Monad m => (c -> a -> Maybe (c, b)) -> c -> b -> SF m a b
-sscanPrim f c_init b_init = MSF $ \a -> do
-  let o = f c_init a
+sscanPrim f cInit bInit = MSF $ \a -> do
+  let o = f cInit a
   case o of
-    Nothing       -> return (b_init, sscanPrim f c_init b_init)
-    Just (c', b') -> return (b',     sscanPrim f c' b')
-
+    Nothing       -> return (bInit, sscanPrim f cInit bInit)
+    Just (c', b') -> return (b',    sscanPrim f c' b')
 
 -- | Event source that never occurs.
 never :: Monad m => SF m a (Event b)
 never = constant NoEvent
 
--- | Event source with a single occurrence at time 0. The value of the event
--- is given by the function argument.
+-- | Event source with a single occurrence at time 0. The value of the event is
+-- given by the function argument.
 now :: Monad m => b -> SF m a (Event b)
 now b0 = Event b0 --> never
 
@@ -244,42 +241,45 @@ after :: Monad m
       -> b    -- ^ Value to produce at that time
       -> SF m a (Event b)
 after q x = feedback q go
- where go = MSF $ \(_, t) -> do
-              dt <- ask
-              let t' = t - dt
-                  e  = if t > 0 && t' < 0 then Event x else NoEvent
-                  ct = if t' < 0 then constant (NoEvent, t') else go
-              return ((e, t'), ct)
+  where
+    go = MSF $ \(_, t) -> do
+           dt <- ask
+           let t' = t - dt
+               e  = if t > 0 && t' < 0 then Event x else NoEvent
+               ct = if t' < 0 then constant (NoEvent, t') else go
+           return ((e, t'), ct)
 
 -- | Event source with repeated occurrences with interval q.
--- Note: If the interval is too short w.r.t. the sampling intervals,
--- the result will be that events occur at every sample. However, no more
--- than one event results from any sampling interval, thus avoiding an
--- "event backlog" should sampling become more frequent at some later
--- point in time.
+--
+-- Note: If the interval is too short w.r.t. the sampling intervals, the result
+-- will be that events occur at every sample. However, no more than one event
+-- results from any sampling interval, thus avoiding an "event backlog" should
+-- sampling become more frequent at some later point in time.
 repeatedly :: Monad m => Time -> b -> SF m a (Event b)
 repeatedly q x
     | q > 0     = afterEach qxs
     | otherwise = error "bearriver: repeatedly: Non-positive period."
   where
-    qxs = (q,x):qxs
+    qxs = (q, x):qxs
 
 -- | Event source with consecutive occurrences at the given intervals.
+--
 -- Should more than one event be scheduled to occur in any sampling interval,
 -- only the first will in fact occur to avoid an event backlog.
 
 -- After all, after, repeatedly etc. are defined in terms of afterEach.
-afterEach :: Monad m => [(Time,b)] -> SF m a (Event b)
+afterEach :: Monad m => [(Time, b)] -> SF m a (Event b)
 afterEach qxs = afterEachCat qxs >>> arr (fmap head)
 
 -- | Event source with consecutive occurrences at the given intervals.
+--
 -- Should more than one event be scheduled to occur in any sampling interval,
 -- the output list will contain all events produced during that interval.
-afterEachCat :: Monad m => [(Time,b)] -> SF m a (Event [b])
+afterEachCat :: Monad m => [(Time, b)] -> SF m a (Event [b])
 afterEachCat = afterEachCat' 0
   where
-    afterEachCat' :: Monad m => Time -> [(Time,b)] -> SF m a (Event [b])
-    afterEachCat' _ [] = never
+    afterEachCat' :: Monad m => Time -> [(Time, b)] -> SF m a (Event [b])
+    afterEachCat' _ []  = never
     afterEachCat' t qxs = MSF $ \_ -> do
       dt <- ask
       let (ev, t', qxs') = fireEvents [] (t + dt) qxs
@@ -289,15 +289,14 @@ afterEachCat = afterEachCat' 0
 
       return (ev', afterEachCat' t' qxs')
 
-    fireEvents :: [b] -> Time -> [(Time,b)] -> ([b], Time, [(Time,b)])
-    fireEvents ev t [] = (ev, t, [])
+    fireEvents :: [b] -> Time -> [(Time, b)] -> ([b], Time, [(Time, b)])
+    fireEvents ev t []       = (ev, t, [])
     fireEvents ev t (qx:qxs)
-      | fst qx < 0 = error "bearriver: afterEachCat: Non-positive period."
-      | otherwise =
-          let overdue = t - fst qx in
-          if overdue >= 0
-            then fireEvents (snd qx:ev) overdue qxs
-            else (ev, t, qx:qxs)
+        | fst qx < 0   = error "bearriver: afterEachCat: Non-positive period."
+        | overdue >= 0 = fireEvents (snd qx:ev) overdue qxs
+        | otherwise    = (ev, t, qx:qxs)
+      where
+        overdue = t - fst qx
 
 -- * Events
 
@@ -310,23 +309,32 @@ mapEventS msf = proc eventA -> case eventA of
 
 -- ** Relation to other types
 
+-- | Convert an 'Event' into a 'Maybe' value.
+--
+-- Both types are isomorphic, where a value containing an event is mapped to a
+-- 'Just', and 'NoEvent' is mapped to 'Nothing'. There is, however, a semantic
+-- difference: a signal carrying a Maybe may change constantly, but, for a
+-- signal carrying an 'Event', there should be a bounded frequency such that
+-- sampling the signal faster does not render more event occurrences.
+eventToMaybe :: Event a -> Maybe a
 eventToMaybe = event Nothing Just
 
+-- | Create an event if a 'Bool' is 'True'.
 boolToEvent :: Bool -> Event ()
 boolToEvent True  = Event ()
 boolToEvent False = NoEvent
 
 -- * Hybrid SF m combinators
 
--- | A rising edge detector. Useful for things like detecting key presses.
--- It is initialised as /up/, meaning that events occurring at time 0 will
--- not be detected.
+-- | A rising edge detector. Useful for things like detecting key presses. It
+-- is initialised as /up/, meaning that events occurring at time 0 will not be
+-- detected.
 edge :: Monad m => SF m Bool (Event ())
 edge = edgeFrom True
 
--- | A rising edge detector that can be initialized as up ('True', meaning
--- that events occurring at time 0 will not be detected) or down
--- ('False', meaning that events occurring at time 0 will be detected).
+-- | A rising edge detector that can be initialized as up ('True', meaning that
+-- events occurring at time 0 will not be detected) or down ('False', meaning
+-- that events occurring at time 0 will be detected).
 iEdge :: Monad m => Bool -> SF m Bool (Event ())
 iEdge = edgeFrom
 
@@ -336,33 +344,36 @@ iEdge = edgeFrom
 edgeTag :: Monad m => a -> SF m Bool (Event a)
 edgeTag a = edge >>> arr (`tag` a)
 
--- | Edge detector particularized for detecting transtitions
---   on a 'Maybe' signal from 'Nothing' to 'Just'.
+-- | Edge detector particularized for detecting transitions on a 'Maybe'
+-- signal from 'Nothing' to 'Just'.
 --
 -- From Yampa
 
 -- !!! 2005-07-09: To be done or eliminated
--- !!! Maybe could be kept as is, but could be easy to implement directly
--- !!! in terms of sscan?
+-- !!! Maybe could be kept as is, but could be easy to implement directly in
+-- !!! terms of sscan?
 edgeJust :: Monad m => SF m (Maybe a) (Event a)
 edgeJust = edgeBy isJustEdge (Just undefined)
-    where
-        isJustEdge Nothing  Nothing     = Nothing
-        isJustEdge Nothing  ma@(Just _) = ma
-        isJustEdge (Just _) (Just _)    = Nothing
-        isJustEdge (Just _) Nothing     = Nothing
+  where
+    isJustEdge Nothing  Nothing     = Nothing
+    isJustEdge Nothing  ma@(Just _) = ma
+    isJustEdge (Just _) (Just _)    = Nothing
+    isJustEdge (Just _) Nothing     = Nothing
 
 -- | Edge detector parameterized on the edge detection function and initial
--- state, i.e., the previous input sample. The first argument to the
--- edge detection function is the previous sample, the second the current one.
+-- state, i.e., the previous input sample. The first argument to the edge
+-- detection function is the previous sample, the second the current one.
 edgeBy :: Monad m => (a -> a -> Maybe b) -> a -> SF m a (Event b)
-edgeBy isEdge a_prev = MSF $ \a ->
-  return (maybeToEvent (isEdge a_prev a), edgeBy isEdge a)
+edgeBy isEdge aPrev = MSF $ \a ->
+  return (maybeToEvent (isEdge aPrev a), edgeBy isEdge a)
 
 -- | Convert a maybe value into a event ('Event' is isomorphic to 'Maybe').
 maybeToEvent :: Maybe a -> Event a
 maybeToEvent = maybe NoEvent Event
 
+-- | A rising edge detector that can be initialized as up ('True', meaning that
+-- events occurring at time 0 will not be detected) or down ('False', meaning
+-- that events occurring at time 0 will be detected).
 edgeFrom :: Monad m => Bool -> SF m Bool (Event())
 edgeFrom prev = MSF $ \a -> do
   let res | prev      = NoEvent
@@ -375,7 +386,7 @@ edgeFrom prev = MSF $ \a -> do
 
 -- | Suppression of initial (at local time 0) event.
 notYet :: Monad m => SF m (Event a) (Event a)
-notYet = feedback False $ arr (\(e,c) ->
+notYet = feedback False $ arr (\(e, c) ->
   if c then (e, True) else (NoEvent, True))
 
 -- | Suppress all but the first event.
@@ -391,9 +402,9 @@ takeEvents n = dSwitch (arr dup) (const (NoEvent >-- takeEvents (n - 1)))
 
 -- Here dSwitch or switch does not really matter.
 dropEvents :: Monad m => Int -> SF m (Event a) (Event a)
-dropEvents n | n <= 0  = identity
-dropEvents n = dSwitch (never &&& identity)
-                             (const (NoEvent >-- dropEvents (n - 1)))
+dropEvents n | n <= 0 = identity
+dropEvents n =
+  dSwitch (never &&& identity) (const (NoEvent >-- dropEvents (n - 1)))
 
 -- * Pointwise functions on events
 
@@ -406,7 +417,6 @@ noEvent = NoEvent
 noEventFst :: (Event a, b) -> (Event c, b)
 noEventFst (_, b) = (NoEvent, b)
 
-
 -- | Suppress any event in the second component of a pair.
 noEventSnd :: (a, Event b) -> (a, Event c)
 noEventSnd (a, _) = (a, NoEvent)
@@ -417,14 +427,17 @@ event _ f (Event x) = f x
 event x _ NoEvent   = x
 
 -- | Extract the value from an event. Fails if there is no event.
+fromEvent :: Event a -> a
 fromEvent (Event x) = x
 fromEvent _         = error "fromEvent NoEvent"
 
 -- | Tests whether the input represents an actual event.
+isEvent :: Event a -> Bool
 isEvent (Event _) = True
 isEvent _         = False
 
 -- | Negation of 'isEvent'.
+isNoEvent :: Event a -> Bool
 isNoEvent (Event _) = False
 isNoEvent _         = True
 
@@ -468,15 +481,24 @@ mergeBy _       le@(Event _) NoEvent      = le
 mergeBy _       NoEvent      re@(Event _) = re
 mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
 
--- | A generic event merge-map utility that maps event occurrences,
--- merging the results. The first three arguments are mapping functions,
--- the third of which will only be used when both events are present.
--- Therefore, 'mergeBy' = 'mapMerge' 'id' 'id'
+-- | A generic event merge-map utility that maps event occurrences, merging the
+-- results. The first three arguments are mapping functions, the third of which
+-- will only be used when both events are present. Therefore, 'mergeBy' =
+-- 'mapMerge' 'id' 'id'
 --
 -- Applicative-based definition:
 -- mapMerge lf rf lrf le re = (f <$> le <*> re) <|> (lf <$> le) <|> (rf <$> re)
-mapMerge :: (a -> c) -> (b -> c) -> (a -> b -> c)
-            -> Event a -> Event b -> Event c
+mapMerge :: (a -> c)
+            -- ^ Mapping function used when first event is present.
+         -> (b -> c)
+            -- ^ Mapping function used when second event is present.
+         -> (a -> b -> c)
+            -- ^ Mapping function used when both events are present.
+         -> Event a
+            -- ^ First event
+         -> Event b
+            -- ^ Second event
+         -> Event c
 mapMerge _  _  _   NoEvent   NoEvent   = NoEvent
 mapMerge lf _  _   (Event l) NoEvent   = Event (lf l)
 mapMerge _  rf _   NoEvent   (Event r) = Event (rf r)
@@ -491,29 +513,25 @@ mergeEvents :: [Event a] -> Event a
 mergeEvents = foldr lMerge NoEvent
 
 -- | Collect simultaneous event occurrences; no event if none.
---
--- Traverable-based definition:
--- catEvents :: Foldable t => t (Event a) -> Event (t a)
--- carEvents e  = if (null e) then NoEvent else (sequenceA e)
 catEvents :: [Event a] -> Event [a]
 catEvents eas = case [ a | Event a <- eas ] of
-                    [] -> NoEvent
-                    as -> Event as
+                  [] -> NoEvent
+                  as -> Event as
 
--- | Join (conjunction) of two events. Only produces an event
--- if both events exist.
+-- | Join (conjunction) of two events. Only produces an event if both events
+-- exist.
 --
 -- Applicative-based definition:
 -- joinE = liftA2 (,)
-joinE :: Event a -> Event b -> Event (a,b)
+joinE :: Event a -> Event b -> Event (a, b)
 joinE NoEvent   _         = NoEvent
 joinE _         NoEvent   = NoEvent
-joinE (Event l) (Event r) = Event (l,r)
+joinE (Event l) (Event r) = Event (l, r)
 
 -- | Split event carrying pairs into two events.
-splitE :: Event (a,b) -> (Event a, Event b)
-splitE NoEvent       = (NoEvent, NoEvent)
-splitE (Event (a,b)) = (Event a, Event b)
+splitE :: Event (a, b) -> (Event a, Event b)
+splitE NoEvent        = (NoEvent, NoEvent)
+splitE (Event (a, b)) = (Event a, Event b)
 
 ------------------------------------------------------------------------------
 -- Event filtering
@@ -524,17 +542,15 @@ filterE :: (a -> Bool) -> Event a -> Event a
 filterE p e@(Event a) = if p a then e else NoEvent
 filterE _ NoEvent     = NoEvent
 
-
 -- | Combined event mapping and filtering. Note: since 'Event' is a 'Functor',
 -- see 'fmap' for a simpler version of this function with no filtering.
 mapFilterE :: (a -> Maybe b) -> Event a -> Event b
 mapFilterE _ NoEvent   = NoEvent
 mapFilterE f (Event a) = case f a of
-                            Nothing -> NoEvent
-                            Just b  -> Event b
+                           Nothing -> NoEvent
+                           Just b  -> Event b
 
-
--- | Enable/disable event occurences based on an external condition.
+-- | Enable/disable event occurrences based on an external condition.
 gate :: Event a -> Bool -> Event a
 _ `gate` False = NoEvent
 e `gate` True  = e
@@ -570,66 +586,64 @@ switch sf sfC = MSF $ \a -> do
 --
 -- By default, the first signal function is applied.
 --
--- Whenever the second value in the pair actually is an event,
--- the value carried by the event is used to obtain a new signal
--- function to be applied *at future times*.
+-- Whenever the second value in the pair actually is an event, the value
+-- carried by the event is used to obtain a new signal function to be applied
+-- *at future times*.
 --
--- Until that happens, the first value in the pair is produced
--- in the output signal.
+-- Until that happens, the first value in the pair is produced in the output
+-- signal.
 --
--- Important note: at the time of switching, the second
--- signal function is used immediately, but the current
--- input is fed by it (even though the actual output signal
--- value at time 0 is discarded).
+-- Important note: at the time of switching, the second signal function is used
+-- immediately, but the current input is fed by it (even though the actual
+-- output signal value at time 0 is discarded).
 --
--- If that second SF can also switch at time zero, then a
--- double (nested) -- switch might take place. If the second SF refers to the
--- first one, the switch might take place infinitely many times and never be
--- resolved.
+-- If that second SF can also switch at time zero, then a double (nested)
+-- switch might take place. If the second SF refers to the first one, the
+-- switch might take place infinitely many times and never be resolved.
 --
 -- Remember: The continuation is evaluated strictly at the time
 -- of switching!
-dSwitch ::  Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
+dSwitch :: Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
 dSwitch sf sfC = MSF $ \a -> do
   (o, ct) <- unMSF sf a
   case o of
-    (b, Event c) -> do (_,ct') <- local (const 0) (unMSF (sfC c) a)
+    (b, Event c) -> do (_, ct') <- local (const 0) (unMSF (sfC c) a)
                        return (b, ct')
     (b, NoEvent) -> return (b, dSwitch ct sfC)
-
 
 -- * Parallel composition and switching
 
 -- ** Parallel composition and switching over collections with broadcasting
 
 #if MIN_VERSION_base(4,8,0)
-parB :: (Monad m) => [SF m a b] -> SF m a [b]
+parB :: Monad m => [SF m a b] -> SF m a [b]
 #else
 parB :: (Functor m, Monad m) => [SF m a b] -> SF m a [b]
 #endif
--- ^ Spatial parallel composition of a signal function collection.
--- Given a collection of signal functions, it returns a signal
--- function that broadcasts its input signal to every element
--- of the collection, to return a signal carrying a collection
--- of outputs. See 'par'.
+-- ^ Spatial parallel composition of a signal function collection. Given a
+-- collection of signal functions, it returns a signal function that broadcasts
+-- its input signal to every element of the collection, to return a signal
+-- carrying a collection of outputs. See 'par'.
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
 parB = widthFirst . sequenceS
 
--- | Decoupled parallel switch with broadcasting (dynamic collection of
--- signal functions spatially composed in parallel). See 'dpSwitch'.
+-- | Decoupled parallel switch with broadcasting (dynamic collection of signal
+-- functions spatially composed in parallel). See 'dpSwitch'.
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
-dpSwitchB :: (Functor m, Monad m , Traversable col)
-          => col (SF m a b) -> SF m (a, col b) (Event c) -> (col (SF m a b) -> c -> SF m a (col b))
+dpSwitchB :: (Functor m, Monad m, Traversable col)
+          => col (SF m a b)
+          -> SF m (a, col b) (Event c)
+          -> (col (SF m a b) -> c -> SF m a (col b))
           -> SF m a (col b)
 dpSwitchB sfs sfF sfCs = MSF $ \a -> do
   res <- T.mapM (`unMSF` a) sfs
   let bs   = fmap fst res
       sfs' = fmap snd res
-  (e,sfF') <- unMSF sfF (a, bs)
+  (e, sfF') <- unMSF sfF (a, bs)
   ct <- case e of
           Event c -> snd <$> unMSF (sfCs sfs c) a
           NoEvent -> return (dpSwitchB sfs' sfF' sfCs)
@@ -639,36 +653,38 @@ dpSwitchB sfs sfF sfCs = MSF $ \a -> do
 
 -- | Apply an SF to every element of a list.
 --
---   Example:
+-- Example:
 --
---   >>> embed (parC integral) (deltaEncode 0.1 [[1, 2], [2, 4], [3, 6], [4.0, 8.0 :: Float]])
---   [[0.0,0.0],[0.1,0.2],[0.3,0.6],[0.6,1.2]]
+-- >>> embed (parC integral) (deltaEncode 0.1 [[1, 2], [2, 4], [3, 6], [4.0, 8.0 :: Float]])
+-- [[0.0,0.0],[0.1,0.2],[0.3,0.6],[0.6,1.2]]
 --
---   The number of SFs or expected inputs is determined by the first input
---   list, and not expected to vary over time.
+-- The number of SFs or expected inputs is determined by the first input
+-- list, and not expected to vary over time.
 --
---   If more inputs come in a subsequent list, they are ignored.
+-- If more inputs come in a subsequent list, they are ignored.
 --
---   >>> embed (parC (arr (+1))) (deltaEncode 0.1 [[0], [1, 1], [3, 4], [6, 7, 8], [1, 1], [0, 0], [1, 9, 8]])
---   [[1],[2],[4],[7],[2],[1],[2]]
+-- >>> embed (parC (arr (+1))) (deltaEncode 0.1 [[0], [1, 1], [3, 4], [6, 7, 8], [1, 1], [0, 0], [1, 9, 8]])
+-- [[1],[2],[4],[7],[2],[1],[2]]
 --
---   If less inputs come in a subsequent list, an exception is thrown.
+-- If less inputs come in a subsequent list, an exception is thrown.
 --
---   >>> embed (parC (arr (+1))) (deltaEncode 0.1 [[0, 0], [1, 1], [3, 4], [6, 7, 8], [1, 1], [0, 0], [1, 9, 8]])
---   [[1,1],[2,2],[4,5],[7,8],[2,2],[1,1],[2,10]]
+-- >>> embed (parC (arr (+1))) (deltaEncode 0.1 [[0, 0], [1, 1], [3, 4], [6, 7, 8], [1, 1], [0, 0], [1, 9, 8]])
+-- [[1,1],[2,2],[4,5],[7,8],[2,2],[1,1],[2,10]]
 parC :: Monad m => SF m a b -> SF m [a] [b]
-parC sf = parC0 sf
+parC = parC0
   where
     parC0 :: Monad m => SF m a b -> SF m [a] [b]
     parC0 sf0 = MSF $ \as -> do
-      os <- T.mapM (\(a,sf) -> unMSF sf a) $ zip as (replicate (length as) sf0)
+      os <- T.mapM (\(a, sf) -> unMSF sf a) $
+              zip as (replicate (length as) sf0)
+
       let bs  = fmap fst os
           cts = fmap snd os
       return (bs, parC' cts)
 
     parC' :: Monad m => [SF m a b] -> SF m [a] [b]
     parC' sfs = MSF $ \as -> do
-      os <- T.mapM (\(a,sf) -> unMSF sf a) $ zip as sfs
+      os <- T.mapM (\(a, sf) -> unMSF sf a) $ zip as sfs
       let bs  = fmap fst os
           cts = fmap snd os
       return (bs, parC' cts)
@@ -680,15 +696,15 @@ parC sf = parC0 sf
 -- | Zero-order hold.
 --
 -- Converts a discrete-time signal into a continuous-time signal, by holding
--- the last value until it changes in the input signal. The given parameter
--- may be used for time zero, and until the first event occurs in the input
--- signal, so hold is always well-initialized.
+-- the last value until it changes in the input signal. The given parameter may
+-- be used for time zero, and until the first event occurs in the input signal,
+-- so hold is always well-initialized.
 --
 -- >>> embed (hold 1) (deltaEncode 0.1 [NoEvent, NoEvent, Event 2, NoEvent, Event 3, NoEvent])
 -- [1,1,2,2,3,3]
 hold :: Monad m => a -> SF m (Event a) a
-hold a = feedback a $ arr $ \(e,a') ->
-    dup (event a' id e)
+hold a = feedback a $ arr $ \(e, a') ->
+  dup (event a' id e)
 
 -- ** Accumulators
 
@@ -716,28 +732,34 @@ loopPre = feedback
 integral :: (Monad m, Fractional s, VectorSpace a s) => SF m a a
 integral = integralFrom zeroVector
 
-
 -- | Integrate using an auxiliary function that takes the current and the last
 -- input, the time between those samples, and the last output, and returns a
 -- new output.
 integralFrom :: (Monad m, Fractional s, VectorSpace a s) => a -> SF m a a
 integralFrom a0 = proc a -> do
-  dt <- constM ask         -< ()
+  dt <- constM ask        -< ()
   accumulateWith (^+^) a0 -< realToFrac dt *^ a
 
--- | A very crude version of a derivative. It simply divides the
--- value difference by the time difference. Use at your own risk.
+-- | A very crude version of a derivative. It simply divides the value
+-- difference by the time difference. Use at your own risk.
 derivative :: (Monad m, Fractional s, VectorSpace a s) => SF m a a
 derivative = derivativeFrom zeroVector
 
+-- | A very crude version of a derivative. It simply divides the value
+-- difference by the time difference. Use at your own risk.
+--
+-- Starts from a given value for the input signal at time zero.
 derivativeFrom :: (Monad m, Fractional s, VectorSpace a s) => a -> SF m a a
 derivativeFrom a0 = proc a -> do
-  dt   <- constM ask   -< ()
-  aOld <- MSF.iPre a0 -< a
-  returnA             -< (a ^-^ aOld) ^/ realToFrac dt
+  dt   <- constM ask -< ()
+  aOld <- iPre a0    -< a
+  returnA            -< (a ^-^ aOld) ^/ realToFrac dt
 
--- NOTE: BUG in this function, it needs two a's but we
--- can only provide one
+-- | Integrate using an auxiliary function that takes the current and the last
+-- input, the time between those samples, and the last output, and returns a
+-- new output.
+
+-- NOTE: BUG in this function, it needs two a's but we can only provide one
 iterFrom :: Monad m => (a -> a -> DTime -> b -> b) -> b -> SF m a b
 iterFrom f b = MSF $ \a -> do
   dt <- ask
@@ -746,25 +768,27 @@ iterFrom f b = MSF $ \a -> do
 
 -- * Noise (random signal) sources and stochastic event sources
 
--- | Stochastic event source with events occurring on average once every t_avg
+-- | Stochastic event source with events occurring on average once every tAvg
 -- seconds. However, no more than one event results from any one sampling
--- interval in the case of relatively sparse sampling, thus avoiding an
--- "event backlog" should sampling become more frequent at some later
--- point in time.
+-- interval in the case of relatively sparse sampling, thus avoiding an "event
+-- backlog" should sampling become more frequent at some later point in time.
 occasionally :: MonadRandom m
-             => Time -- ^ The time /q/ after which the event should be produced on average
+             => Time -- ^ The time /q/ after which the event should be produced
+                     -- on average
              -> b    -- ^ Value to produce at time of event
              -> SF m a (Event b)
 occasionally tAvg b
-  | tAvg <= 0 = error "bearriver: Non-positive average interval in occasionally."
-  | otherwise = proc _ -> do
-      r   <- getRandomRS (0, 1) -< ()
-      dt  <- timeDelta          -< ()
-      let p = 1 - exp (-(dt / tAvg))
-      returnA -< if r < p then Event b else NoEvent
- where
-  timeDelta :: Monad m => SF m a DTime
-  timeDelta = constM ask
+    | tAvg <= 0
+    = error "bearriver: Non-positive average interval in occasionally."
+
+    | otherwise = proc _ -> do
+        r   <- getRandomRS (0, 1) -< ()
+        dt  <- timeDelta          -< ()
+        let p = 1 - exp (-(dt / tAvg))
+        returnA -< if r < p then Event b else NoEvent
+  where
+    timeDelta :: Monad m => SF m a DTime
+    timeDelta = constM ask
 
 -- * Execution/simulation
 
@@ -792,69 +816,79 @@ occasionally tAvg b
 -- also impose a sizeable constraint in larger projects in which different
 -- subparts run at different time steps. If you need to control the main loop
 -- yourself for these or other reasons, use 'reactInit' and 'react'.
-reactimate :: Monad m => m a -> (Bool -> m (DTime, Maybe a)) -> (Bool -> b -> m Bool) -> SF Identity a b -> m ()
+reactimate :: Monad m
+           => m a
+           -> (Bool -> m (DTime, Maybe a))
+           -> (Bool -> b -> m Bool)
+           -> SF Identity a b
+           -> m ()
 reactimate senseI sense actuate sf = do
-  -- runMaybeT $ MSF.reactimate $ liftMSFTrans (senseSF >>> sfIO) >>> actuateSF
-  MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
-  return ()
- where sfIO        = morphS (return.runIdentity) (runReaderS sf)
+    MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
+    return ()
+  where
+    sfIO = morphS (return.runIdentity) (runReaderS sf)
 
-       -- Sense
-       senseSF     = MSF.dSwitch senseFirst senseRest
+    -- Sense
+    senseSF = MSF.dSwitch senseFirst senseRest
 
-       -- Sense: First sample
-       senseFirst = constM senseI >>> arr (\x -> ((0, x), Just x))
+    -- Sense: First sample
+    senseFirst = constM senseI >>> arr (\x -> ((0, x), Just x))
 
-       -- Sense: Remaining samples
-       senseRest a = constM (sense True) >>> (arr id *** keepLast a)
+    -- Sense: Remaining samples
+    senseRest a = constM (sense True) >>> (arr id *** keepLast a)
 
-       keepLast :: Monad m => a -> MSF m (Maybe a) a
-       keepLast a = MSF $ \ma -> let a' = fromMaybe a ma in a' `seq` return (a', keepLast a')
+    keepLast :: Monad m => a -> MSF m (Maybe a) a
+    keepLast a = MSF $ \ma ->
+      let a' = fromMaybe a ma
+      in a' `seq` return (a', keepLast a')
 
-       -- Consume/render
-       -- actuateSF :: MSF IO b ()
-       -- actuateSF    = arr (\x -> (True, x)) >>> liftMSF (lift . uncurry actuate) >>> exitIf
-       actuateSF    = arr (\x -> (True, x)) >>> arrM (uncurry actuate)
+    -- Consume/render
+    actuateSF = arr (\x -> (True, x)) >>> arrM (uncurry actuate)
 
 -- * Debugging / Step by step simulation
 
 -- | Evaluate an SF, and return an output and an initialized SF.
 --
---   /WARN/: Do not use this function for standard simulation. This function is
---   intended only for debugging/testing. Apart from being potentially slower
---   and consuming more memory, it also breaks the FRP abstraction by making
---   samples discrete and step based.
+-- /WARN/: Do not use this function for standard simulation. This function is
+-- intended only for debugging/testing. Apart from being potentially slower and
+-- consuming more memory, it also breaks the FRP abstraction by making samples
+-- discrete and step based.
 evalAtZero :: SF Identity a b -> a -> (b, SF Identity a b)
 evalAtZero sf a = runIdentity $ runReaderT (unMSF sf a) 0
 
 -- | Evaluate an initialized SF, and return an output and a continuation.
 --
---   /WARN/: Do not use this function for standard simulation. This function is
---   intended only for debugging/testing. Apart from being potentially slower
---   and consuming more memory, it also breaks the FRP abstraction by making
---   samples discrete and step based.
+-- /WARN/: Do not use this function for standard simulation. This function is
+-- intended only for debugging/testing. Apart from being potentially slower and
+-- consuming more memory, it also breaks the FRP abstraction by making samples
+-- discrete and step based.
 evalAt :: SF Identity a b -> DTime -> a -> (b, SF Identity a b)
 evalAt sf dt a = runIdentity $ runReaderT (unMSF sf a) dt
 
 -- | Given a signal function and time delta, it moves the signal function into
---   the future, returning a new uninitialized SF and the initial output.
+-- the future, returning a new uninitialized SF and the initial output.
 --
---   While the input sample refers to the present, the time delta refers to the
---   future (or to the time between the current sample and the next sample).
+-- While the input sample refers to the present, the time delta refers to the
+-- future (or to the time between the current sample and the next sample).
 --
---   /WARN/: Do not use this function for standard simulation. This function is
---   intended only for debugging/testing. Apart from being potentially slower
---   and consuming more memory, it also breaks the FRP abstraction by making
---   samples discrete and step based.
---
+-- /WARN/: Do not use this function for standard simulation. This function is
+-- intended only for debugging/testing. Apart from being potentially slower and
+-- consuming more memory, it also breaks the FRP abstraction by making samples
+-- discrete and step based.
 evalFuture :: SF Identity a b -> a -> DTime -> (b, SF Identity a b)
 evalFuture sf = flip (evalAt sf)
 
 -- * Auxiliary functions
 
 -- ** Event handling
+
+-- | Replace the value of the input signal at time zero with the given
+-- argument.
 replaceOnce :: Monad m => a -> SF m a a
 replaceOnce a = dSwitch (arr $ const (a, Event ())) (const $ arr id)
 
 -- ** Tuples
-dup  x     = (x,x)
+
+-- | Duplicate an input.
+dup :: a -> (a, a)
+dup x = (x, x)
