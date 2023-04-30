@@ -46,6 +46,7 @@ import           Data.MonadicStreamFunction              as X hiding
                                                                repeatedly,
                                                                trace)
 import           Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
+import           FRP.BearRiver.Arrow                     as X
 
 -- Internal imports (dunai, instances)
 import Data.MonadicStreamFunction.Instances.ArrowLoop () -- not needed, just
@@ -886,9 +887,3 @@ evalFuture sf = flip (evalAt sf)
 -- argument.
 replaceOnce :: Monad m => a -> SF m a a
 replaceOnce a = dSwitch (arr $ const (a, Event ())) (const $ arr id)
-
--- ** Tuples
-
--- | Duplicate an input.
-dup :: a -> (a, a)
-dup x = (x, x)
