@@ -76,6 +76,7 @@ source-repository head
 library
   exposed-modules:
     FRP.BearRiver
+    FRP.BearRiver.Arrow
     FRP.Yampa
 
   build-depends:
