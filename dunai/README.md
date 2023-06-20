@@ -53,6 +53,7 @@ implemented.
 - [Technical information](#technical-information)
   - [Performance](#performance)
 - [Contributions](#contributions)
+  - [Discussions, issues and pull requests](#discussions-issues-and-pull-requests)
   - [Structure and internals](#structure-and-internals)
   - [Style](#style)
   - [Version control](#version-control)
@@ -351,17 +352,53 @@ only definitions from `FRP.Yampa`, `FRP.BearRiver` and
 # Contributions
 <sup>[(Back to top)](#table-of-contents)</sup>
 
-Feel free to open new issues. We are looking for:
+If this library helps you, you may want to consider [buying the maintainer a
+cup of coffee](https://github.com/sponsors/ivanperez-keera/).
 
-- New libraries that extend `dunai` with additional combinators, functions,
-  monads or instances.
-- Libraries that implement other FRP or reactive flavors on top of `dunai`.
-- Examples of apps written in classic FRP, reactive values, etc using `dunai`.
-- Unexplored ways of using MSFs.
-- Other games or applications that use MSFs (including but not limited to Yampa
-  games).
-- Papers that mention MSFs, Dunai or Bearriver.
-- Bug fixes.
+## Discussions, issues and pull requests
+<sup>[(Back to top)](#table-of-contents)</sup>
+
+**Discussions**
+
+If you have any comments, questions, ideas, or other topics that you think will
+be of interest to the Dunai community, start a new discussion
+[here](https://github.com/ivanperez-keera/dunai/discussions). Examples include:
+
+- You've created a new game or application that uses Dunai or BearRiver.
+- You've written or found a library that helps use Dunai/BearRiver in a
+  particular domain, or apply it to a specific platform.
+- You've written or found a paper that mentions Dunai/BearRiver.
+- You have an idea for an extension that will enable writing programs that are
+  not currently possible or convenient to capture.
+- You think you've found a bug.
+- You want to propose an improvement (e.g., make the code faster or smaller).
+- You have a question.
+- Something in the documentation, a tutorial or a Dunai / BearRiver / FRP paper
+  is unclear.
+- You like the project and want to introduce yourself.
+
+**Issues**
+
+If a specific change is being proposed (either a new feature or a bug fix), you
+can *open an issue* documenting the proposed change
+[here](https://github.com/ivanperez-keera/dunai/issues).
+
+If you are unsure about whether your submission should be filed as an issue or
+as a discussion, file it as a discussion. We can always move it later.
+
+**Pull requests**
+
+Once we determine that an issue will be addressed, we'll decide who does it and
+when the change will be added to Dunai. Even if you implement the solution,
+someone will walk you through the steps to ensure that your submission conforms
+with our version control process, style guide, etc. More information on our
+process is included below.
+
+Please, do not just send a PR unless there is an issue for it and someone from
+the Dunai team has confirmed that you should address it. The PR is *very*
+likely to be rejected, and we really want to accept your contributions, so it
+will make us very sad. Open a discussion / issue first and let us guide you
+through the process.
 
 ## Structure and internals
 <sup>[(Back to top)](#table-of-contents)</sup>
