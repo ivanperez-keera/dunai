@@ -1,4 +1,5 @@
-2023-04-30 Ivan Perez <ivan.perez@keera.co.uk>
+2023-06-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * Version bump (0.14.3) (#372).
         * Offer all definitions from FRP.Yampa.Arrow (#360).
 
 2023-04-21 Ivan Perez <ivan.perez@keera.co.uk>
