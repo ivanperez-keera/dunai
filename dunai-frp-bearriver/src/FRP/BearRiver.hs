@@ -26,7 +26,6 @@ import           Control.Applicative       (Applicative (..), (<$>))
 #endif
 import           Control.Applicative       (Alternative (..))
 import           Control.Arrow             as X
-import qualified Control.Category          as Category
 import           Control.DeepSeq           (NFData (..))
 import qualified Control.Monad.Fail        as Fail
 import           Control.Monad.Random      (MonadRandom)
@@ -47,14 +46,13 @@ import           Data.MonadicStreamFunction              as X hiding
                                                                trace)
 import           Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 import           FRP.BearRiver.Arrow                     as X
+import           FRP.BearRiver.Basic                     as X
 import           FRP.BearRiver.InternalCore              as X
 
 -- Internal imports (dunai, instances)
 import Data.MonadicStreamFunction.Instances.ArrowLoop () -- not needed, just
                                                          -- re-exported
                                                          --
-
-infixr 0 -->, -:>, >--, >=-
 
 -- * Basic definitions
 
@@ -125,22 +123,6 @@ arrEPrim = arr
 
 -- ** Basic signal functions
 
--- | Identity: identity = arr id
---
--- Using 'identity' is preferred over lifting id, since the arrow combinators
--- know how to optimise certain networks based on the transformations being
--- applied.
-identity :: Monad m => SF m a a
-identity = Category.id
-
--- | Identity: constant b = arr (const b)
---
--- Using 'constant' is preferred over lifting const, since the arrow
--- combinators know how to optimise certain networks based on the
--- transformations being applied.
-constant :: Monad m => b -> SF m a b
-constant = arr . const
-
 -- | Outputs the time passed since the signal function instance was started.
 localTime :: Monad m => SF m a Time
 localTime = constant 1.0 >>> integral
@@ -149,40 +131,6 @@ localTime = constant 1.0 >>> integral
 time :: Monad m => SF m a Time
 time = localTime
 
--- ** Initialization
-
--- | Initialization operator (cf. Lustre/Lucid Synchrone).
---
--- The output at time zero is the first argument, and from that point on it
--- behaves like the signal function passed as second argument.
-(-->) :: Monad m => b -> SF m a b -> SF m a b
-b0 --> sf = sf >>> replaceOnce b0
-
--- | Output pre-insert operator.
---
--- Insert a sample in the output, and from that point on, behave like the given
--- sf.
-(-:>) :: Monad m => b -> SF m a b -> SF m a b
-b -:> sf = iPost b sf
-
--- | Input initialization operator.
---
--- The input at time zero is the first argument, and from that point on it
--- behaves like the signal function passed as second argument.
-(>--) :: Monad m => a -> SF m a b -> SF m a b
-a0 >-- sf = replaceOnce a0 >>> sf
-
--- | Transform initial input value.
---
--- Applies a transformation 'f' only to the first input value at time zero.
-(>=-) :: Monad m => (a -> a) -> SF m a b -> SF m a b
-f >=- sf = MSF $ \a -> do
-  (b, sf') <- unMSF sf (f a)
-  return (b, sf')
-
--- | Override initial value of input signal.
-initially :: Monad m => a -> SF m a a
-initially = (--> identity)
 
 -- * Simple, stateful signal processing
 
@@ -859,12 +807,3 @@ evalAt sf dt a = runIdentity $ runReaderT (unMSF sf a) dt
 -- discrete and step based.
 evalFuture :: SF Identity a b -> a -> DTime -> (b, SF Identity a b)
 evalFuture sf = flip (evalAt sf)
-
--- * Auxiliary functions
-
--- ** Event handling
-
--- | Replace the value of the input signal at time zero with the given
--- argument.
-replaceOnce :: Monad m => a -> SF m a a
-replaceOnce a = dSwitch (arr $ const (a, Event ())) (const $ arr id)
