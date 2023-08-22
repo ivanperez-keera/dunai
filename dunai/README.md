@@ -349,6 +349,10 @@ game, but we need to run newer reliable benchmarks including every module and
 only definitions from `FRP.Yampa`, `FRP.BearRiver` and
 `Data.MonadicStreamFunction`.
 
+Dunai includes some benchmarks as part of the main library. You are encouraged
+to use them to evaluate your pull requests, and to improve the benchmarks
+themselves.
+
 # Contributions
 <sup>[(Back to top)](#table-of-contents)</sup>
 
@@ -409,6 +413,10 @@ This project is split in three parts:
 - _BearRiver_: Yampa implemented on top of Dunai.
 - _Examples_: ballbounce
   - sample applications that work both on traditional Yampa and BearRiver.
+
+Dunai also includes some benchmarks as part of the main library. You are
+encouraged to use them to evaluate your pull requests, and to improve the
+benchmarks themselves.
 
 ## Style
 <sup>[(Back to top)](#table-of-contents)</sup>
