@@ -77,7 +77,11 @@ library
   exposed-modules:
     FRP.BearRiver
     FRP.BearRiver.Arrow
+    FRP.BearRiver.Basic
     FRP.Yampa
+
+  other-modules:
+    FRP.BearRiver.InternalCore
 
   build-depends:
       base >= 4.6 && <5
