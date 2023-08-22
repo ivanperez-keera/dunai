@@ -79,6 +79,9 @@ library
     FRP.BearRiver.Arrow
     FRP.Yampa
 
+  other-modules:
+    FRP.BearRiver.InternalCore
+
   build-depends:
       base >= 4.6 && <5
     , deepseq             >= 1.3.0.0 && < 1.5

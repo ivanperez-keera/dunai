@@ -47,35 +47,16 @@ import           Data.MonadicStreamFunction              as X hiding
                                                                trace)
 import           Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 import           FRP.BearRiver.Arrow                     as X
+import           FRP.BearRiver.InternalCore              as X
 
 -- Internal imports (dunai, instances)
 import Data.MonadicStreamFunction.Instances.ArrowLoop () -- not needed, just
                                                          -- re-exported
+                                                         --
 
 infixr 0 -->, -:>, >--, >=-
 
 -- * Basic definitions
-
--- | Time is used both for time intervals (duration), and time w.r.t. some
--- agreed reference point in time.
-type Time = Double
-
--- | DTime is the time type for lengths of sample intervals. Conceptually,
--- DTime = R+ = { x in R | x > 0 }. Don't assume Time and DTime have the same
--- representation.
-type DTime = Double
-
--- | Extensible signal function (signal function with a notion of time, but
--- which can be extended with actions).
---
--- Signal function that transforms a signal carrying values of some type 'a'
--- into a signal carrying values of some type 'b'. You can think of it as
--- (Signal a -> Signal b). A signal is, conceptually, a function from 'Time' to
--- value.
-type SF m = MSF (ClockInfo m)
-
--- | Information on the progress of time.
-type ClockInfo m = ReaderT DTime m
 
 -- | A single possible event occurrence, that is, a value that may or may not
 -- occur. Events are used to represent values that are not produced
