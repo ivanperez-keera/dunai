@@ -22,17 +22,14 @@ module FRP.BearRiver
 
 -- External imports
 #if !MIN_VERSION_base(4,8,0)
-import           Control.Applicative       (Applicative (..), (<$>))
+import Control.Applicative   (Applicative (..), (<$>))
 #endif
-import           Control.Applicative       (Alternative (..))
-import           Control.Arrow             as X
-import           Control.DeepSeq           (NFData (..))
-import qualified Control.Monad.Fail        as Fail
-import           Control.Monad.Random      (MonadRandom)
-import           Data.Functor.Identity     (Identity (..))
-import           Data.Maybe                (fromMaybe)
-import           Data.Traversable          as T
-import           Data.VectorSpace          as X
+import Control.Arrow         as X
+import Control.Monad.Random  (MonadRandom)
+import Data.Functor.Identity (Identity (..))
+import Data.Maybe            (fromMaybe)
+import Data.Traversable      as T
+import Data.VectorSpace      as X
 
 -- Internal imports (dunai)
 import           Control.Monad.Trans.MSF                 hiding (dSwitch,
@@ -47,77 +44,12 @@ import           Data.MonadicStreamFunction              as X hiding
 import           Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 import           FRP.BearRiver.Arrow                     as X
 import           FRP.BearRiver.Basic                     as X
+import           FRP.BearRiver.Event                     as X
 import           FRP.BearRiver.InternalCore              as X
 
 -- Internal imports (dunai, instances)
 import Data.MonadicStreamFunction.Instances.ArrowLoop () -- not needed, just
                                                          -- re-exported
-                                                         --
-
--- * Basic definitions
-
--- | A single possible event occurrence, that is, a value that may or may not
--- occur. Events are used to represent values that are not produced
--- continuously, such as mouse clicks (only produced when the mouse is clicked,
--- as opposed to mouse positions, which are always defined).
-data Event a = Event a | NoEvent
-  deriving (Eq, Ord, Show)
-
--- | The type 'Event' is isomorphic to 'Maybe'. The 'Functor' instance of
--- 'Event' is analogous to the 'Functor' instance of 'Maybe', where the given
--- function is applied to the value inside the 'Event', if any.
-instance Functor Event where
-  fmap _ NoEvent   = NoEvent
-  fmap f (Event c) = Event (f c)
-
--- | The type 'Event' is isomorphic to 'Maybe'. The 'Applicative' instance of
--- 'Event' is analogous to the 'Applicative' instance of 'Maybe', where the
--- lack of a value (i.e., 'NoEvent') causes '(<*>)' to produce no value
--- ('NoEvent').
-instance Applicative Event where
-  pure = Event
-
-  Event f <*> Event x = Event (f x)
-  _       <*> _       = NoEvent
-
--- | The type 'Event' is isomorphic to 'Maybe'. The 'Monad' instance of 'Event'
--- is analogous to the 'Monad' instance of 'Maybe', where the lack of a value
--- (i.e., 'NoEvent') causes bind to produce no value ('NoEvent').
-instance Monad Event where
-  return = pure
-
-  Event x >>= f = f x
-  NoEvent >>= _ = NoEvent
-
--- | MonadFail instance
-instance Fail.MonadFail Event where
-  -- | Fail with 'NoEvent'.
-  fail _ = NoEvent
-
--- | Alternative instance
-instance Alternative Event where
-  -- | An empty alternative carries no event, so it is ignored.
-  empty = NoEvent
-  -- | Merge favouring the left event ('NoEvent' only if both are 'NoEvent').
-  NoEvent <|> r = r
-  l       <|> _ = l
-
--- | NFData instance
-instance NFData a => NFData (Event a) where
-  -- | Evaluate value carried by event.
-  rnf NoEvent   = ()
-  rnf (Event a) = rnf a `seq` ()
-
--- ** Lifting
-
--- | Lifts a pure function into a signal function (applied pointwise).
-arrPrim :: Monad m => (a -> b) -> SF m a b
-arrPrim = arr
-
--- | Lifts a pure function into a signal function applied to events (applied
--- pointwise).
-arrEPrim :: Monad m => (Event a -> b) -> SF m (Event a) b
-arrEPrim = arr
 
 -- * Signal functions
 
@@ -297,10 +229,6 @@ edgeBy :: Monad m => (a -> a -> Maybe b) -> a -> SF m a (Event b)
 edgeBy isEdge aPrev = MSF $ \a ->
   return (maybeToEvent (isEdge aPrev a), edgeBy isEdge a)
 
--- | Convert a maybe value into a event ('Event' is isomorphic to 'Maybe').
-maybeToEvent :: Maybe a -> Event a
-maybeToEvent = maybe NoEvent Event
-
 -- | A rising edge detector that can be initialized as up ('True', meaning that
 -- events occurring at time 0 will not be detected) or down ('False', meaning
 -- that events occurring at time 0 will be detected).
@@ -335,155 +263,6 @@ dropEvents :: Monad m => Int -> SF m (Event a) (Event a)
 dropEvents n | n <= 0 = identity
 dropEvents n =
   dSwitch (never &&& identity) (const (NoEvent >-- dropEvents (n - 1)))
-
--- * Pointwise functions on events
-
--- | Make the NoEvent constructor available. Useful e.g. for initialization,
--- ((-->) & friends), and it's easily available anyway (e.g. mergeEvents []).
-noEvent :: Event a
-noEvent = NoEvent
-
--- | Suppress any event in the first component of a pair.
-noEventFst :: (Event a, b) -> (Event c, b)
-noEventFst (_, b) = (NoEvent, b)
-
--- | Suppress any event in the second component of a pair.
-noEventSnd :: (a, Event b) -> (a, Event c)
-noEventSnd (a, _) = (a, NoEvent)
-
--- | An event-based version of the maybe function.
-event :: a -> (b -> a) -> Event b -> a
-event _ f (Event x) = f x
-event x _ NoEvent   = x
-
--- | Extract the value from an event. Fails if there is no event.
-fromEvent :: Event a -> a
-fromEvent (Event x) = x
-fromEvent _         = error "fromEvent NoEvent"
-
--- | Tests whether the input represents an actual event.
-isEvent :: Event a -> Bool
-isEvent (Event _) = True
-isEvent _         = False
-
--- | Negation of 'isEvent'.
-isNoEvent :: Event a -> Bool
-isNoEvent (Event _) = False
-isNoEvent _         = True
-
--- | Tags an (occurring) event with a value ("replacing" the old value).
---
--- Applicative-based definition:
--- tag = ($>)
-tag :: Event a -> b -> Event b
-tag NoEvent   _ = NoEvent
-tag (Event _) b = Event b
-
--- | Tags an (occurring) event with a value ("replacing" the old value). Same
--- as 'tag' with the arguments swapped.
---
--- Applicative-based definition:
--- tagWith = (<$)
-tagWith :: b -> Event a -> Event b
-tagWith = flip tag
-
--- | Attaches an extra value to the value of an occurring event.
-attach :: Event a -> b -> Event (a, b)
-e `attach` b = fmap (\a -> (a, b)) e
-
--- | Left-biased event merge (always prefer left event, if present).
-lMerge :: Event a -> Event a -> Event a
-lMerge = mergeBy (\e1 _ -> e1)
-
--- | Right-biased event merge (always prefer right event, if present).
-rMerge :: Event a -> Event a -> Event a
-rMerge = flip lMerge
-
--- | Unbiased event merge: simultaneous occurrence is an error.
-merge :: Event a -> Event a -> Event a
-merge = mergeBy $ error "Bearriver: merge: Simultaneous event occurrence."
-
--- Applicative-based definition:
--- mergeBy f le re = (f <$> le <*> re) <|> le <|> re
-mergeBy :: (a -> a -> a) -> Event a -> Event a -> Event a
-mergeBy _       NoEvent      NoEvent      = NoEvent
-mergeBy _       le@(Event _) NoEvent      = le
-mergeBy _       NoEvent      re@(Event _) = re
-mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
-
--- | A generic event merge-map utility that maps event occurrences, merging the
--- results. The first three arguments are mapping functions, the third of which
--- will only be used when both events are present. Therefore, 'mergeBy' =
--- 'mapMerge' 'id' 'id'
---
--- Applicative-based definition:
--- mapMerge lf rf lrf le re = (f <$> le <*> re) <|> (lf <$> le) <|> (rf <$> re)
-mapMerge :: (a -> c)
-            -- ^ Mapping function used when first event is present.
-         -> (b -> c)
-            -- ^ Mapping function used when second event is present.
-         -> (a -> b -> c)
-            -- ^ Mapping function used when both events are present.
-         -> Event a
-            -- ^ First event
-         -> Event b
-            -- ^ Second event
-         -> Event c
-mapMerge _  _  _   NoEvent   NoEvent   = NoEvent
-mapMerge lf _  _   (Event l) NoEvent   = Event (lf l)
-mapMerge _  rf _   NoEvent   (Event r) = Event (rf r)
-mapMerge _  _  lrf (Event l) (Event r) = Event (lrf l r)
-
--- | Merge a list of events; foremost event has priority.
---
--- Foldable-based definition:
--- mergeEvents :: Foldable t => t (Event a) -> Event a
--- mergeEvents =  asum
-mergeEvents :: [Event a] -> Event a
-mergeEvents = foldr lMerge NoEvent
-
--- | Collect simultaneous event occurrences; no event if none.
-catEvents :: [Event a] -> Event [a]
-catEvents eas = case [ a | Event a <- eas ] of
-                  [] -> NoEvent
-                  as -> Event as
-
--- | Join (conjunction) of two events. Only produces an event if both events
--- exist.
---
--- Applicative-based definition:
--- joinE = liftA2 (,)
-joinE :: Event a -> Event b -> Event (a, b)
-joinE NoEvent   _         = NoEvent
-joinE _         NoEvent   = NoEvent
-joinE (Event l) (Event r) = Event (l, r)
-
--- | Split event carrying pairs into two events.
-splitE :: Event (a, b) -> (Event a, Event b)
-splitE NoEvent        = (NoEvent, NoEvent)
-splitE (Event (a, b)) = (Event a, Event b)
-
-------------------------------------------------------------------------------
--- Event filtering
-------------------------------------------------------------------------------
-
--- | Filter out events that don't satisfy some predicate.
-filterE :: (a -> Bool) -> Event a -> Event a
-filterE p e@(Event a) = if p a then e else NoEvent
-filterE _ NoEvent     = NoEvent
-
--- | Combined event mapping and filtering. Note: since 'Event' is a 'Functor',
--- see 'fmap' for a simpler version of this function with no filtering.
-mapFilterE :: (a -> Maybe b) -> Event a -> Event b
-mapFilterE _ NoEvent   = NoEvent
-mapFilterE f (Event a) = case f a of
-                           Nothing -> NoEvent
-                           Just b  -> Event b
-
--- | Enable/disable event occurrences based on an external condition.
-gate :: Event a -> Bool -> Event a
-_ `gate` False = NoEvent
-e `gate` True  = e
 
 -- * Switching
 
