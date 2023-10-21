@@ -2,6 +2,7 @@
         * Offer all definitions from FRP.Yampa.Event (#380).
         * Offer all definitions from FRP.Yampa.Conditional (#382).
         * Offer all definitions from FRP.Yampa.Scan (#383).
+        * Offer all definitions from FRP.Yampa.Delays (#384).
 
 2023-08-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.14.4) (#377).
