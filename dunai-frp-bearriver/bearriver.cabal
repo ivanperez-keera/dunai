@@ -81,6 +81,7 @@ library
     FRP.BearRiver.Conditional
     FRP.BearRiver.Event
     FRP.BearRiver.EventS
+    FRP.BearRiver.Scan
     FRP.BearRiver.Switches
     FRP.Yampa
 
