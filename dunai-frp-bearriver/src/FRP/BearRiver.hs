@@ -38,6 +38,7 @@ import           Data.MonadicStreamFunction              as X hiding
 import           Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 import           FRP.BearRiver.Arrow                     as X
 import           FRP.BearRiver.Basic                     as X
+import           FRP.BearRiver.Conditional               as X
 import           FRP.BearRiver.Event                     as X
 import           FRP.BearRiver.EventS                    as X
 import           FRP.BearRiver.InternalCore              as X

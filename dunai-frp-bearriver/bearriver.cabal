@@ -78,6 +78,7 @@ library
     FRP.BearRiver
     FRP.BearRiver.Arrow
     FRP.BearRiver.Basic
+    FRP.BearRiver.Conditional
     FRP.BearRiver.Event
     FRP.BearRiver.EventS
     FRP.BearRiver.Switches
