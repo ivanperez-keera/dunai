@@ -27,7 +27,9 @@ before_install:
   - travis_retry cabal update
 
 script:
-  - cabal new-build all && cabal new-test all
+  # We use --max-backjumps to help cabal find an installation plan especially
+  # for older versions of GHC (see #381 for details).
+  - cabal new-build all --max-backjumps=10000 && cabal new-test all --max-backjumps=10000
 
 install:
   - skip
