@@ -78,6 +78,7 @@ library
     FRP.BearRiver
     FRP.BearRiver.Arrow
     FRP.BearRiver.Basic
+    FRP.BearRiver.Event
     FRP.Yampa
 
   other-modules:

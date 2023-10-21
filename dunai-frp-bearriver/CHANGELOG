@@ -1,3 +1,6 @@
+2023-10-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * Offer all definitions from FRP.Yampa.Event (#380).
+
 2023-08-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.14.4) (#377).
         * Offer all definitions from FRP.Yampa.Basic (#376).
