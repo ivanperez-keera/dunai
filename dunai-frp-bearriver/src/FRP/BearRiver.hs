@@ -21,21 +21,15 @@ module FRP.BearRiver
   where
 
 -- External imports
-#if !MIN_VERSION_base(4,8,0)
-import Control.Applicative   (Applicative (..), (<$>))
-#endif
 import Control.Arrow         as X
 import Control.Monad.Random  (MonadRandom)
 import Data.Functor.Identity (Identity (..))
 import Data.Maybe            (fromMaybe)
-import Data.Traversable      as T
 import Data.VectorSpace      as X
 
 -- Internal imports (dunai)
-import           Control.Monad.Trans.MSF                 hiding (dSwitch,
-                                                          switch)
+import           Control.Monad.Trans.MSF                 hiding (dSwitch)
 import qualified Control.Monad.Trans.MSF                 as MSF
-import           Control.Monad.Trans.MSF.List            (sequenceS, widthFirst)
 import           Data.MonadicStreamFunction              (iPre)
 import           Data.MonadicStreamFunction              as X hiding
                                                               (reactimate,
@@ -44,8 +38,11 @@ import           Data.MonadicStreamFunction              as X hiding
 import           Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 import           FRP.BearRiver.Arrow                     as X
 import           FRP.BearRiver.Basic                     as X
+import           FRP.BearRiver.Conditional               as X
 import           FRP.BearRiver.Event                     as X
+import           FRP.BearRiver.EventS                    as X
 import           FRP.BearRiver.InternalCore              as X
+import           FRP.BearRiver.Switches                  as X
 
 -- Internal imports (dunai, instances)
 import Data.MonadicStreamFunction.Instances.ArrowLoop () -- not needed, just
@@ -87,79 +84,6 @@ sscanPrim f cInit bInit = MSF $ \a -> do
     Nothing       -> return (bInit, sscanPrim f cInit bInit)
     Just (c', b') -> return (b',    sscanPrim f c' b')
 
--- | Event source that never occurs.
-never :: Monad m => SF m a (Event b)
-never = constant NoEvent
-
--- | Event source with a single occurrence at time 0. The value of the event is
--- given by the function argument.
-now :: Monad m => b -> SF m a (Event b)
-now b0 = Event b0 --> never
-
--- | Event source with a single occurrence at or as soon after (local) time /q/
--- as possible.
-after :: Monad m
-      => Time -- ^ The time /q/ after which the event should be produced
-      -> b    -- ^ Value to produce at that time
-      -> SF m a (Event b)
-after q x = feedback q go
-  where
-    go = MSF $ \(_, t) -> do
-           dt <- ask
-           let t' = t - dt
-               e  = if t > 0 && t' < 0 then Event x else NoEvent
-               ct = if t' < 0 then constant (NoEvent, t') else go
-           return ((e, t'), ct)
-
--- | Event source with repeated occurrences with interval q.
---
--- Note: If the interval is too short w.r.t. the sampling intervals, the result
--- will be that events occur at every sample. However, no more than one event
--- results from any sampling interval, thus avoiding an "event backlog" should
--- sampling become more frequent at some later point in time.
-repeatedly :: Monad m => Time -> b -> SF m a (Event b)
-repeatedly q x
-    | q > 0     = afterEach qxs
-    | otherwise = error "bearriver: repeatedly: Non-positive period."
-  where
-    qxs = (q, x):qxs
-
--- | Event source with consecutive occurrences at the given intervals.
---
--- Should more than one event be scheduled to occur in any sampling interval,
--- only the first will in fact occur to avoid an event backlog.
-
--- After all, after, repeatedly etc. are defined in terms of afterEach.
-afterEach :: Monad m => [(Time, b)] -> SF m a (Event b)
-afterEach qxs = afterEachCat qxs >>> arr (fmap head)
-
--- | Event source with consecutive occurrences at the given intervals.
---
--- Should more than one event be scheduled to occur in any sampling interval,
--- the output list will contain all events produced during that interval.
-afterEachCat :: Monad m => [(Time, b)] -> SF m a (Event [b])
-afterEachCat = afterEachCat' 0
-  where
-    afterEachCat' :: Monad m => Time -> [(Time, b)] -> SF m a (Event [b])
-    afterEachCat' _ []  = never
-    afterEachCat' t qxs = MSF $ \_ -> do
-      dt <- ask
-      let (ev, t', qxs') = fireEvents [] (t + dt) qxs
-          ev' = if null ev
-                  then NoEvent
-                  else Event (reverse ev)
-
-      return (ev', afterEachCat' t' qxs')
-
-    fireEvents :: [b] -> Time -> [(Time, b)] -> ([b], Time, [(Time, b)])
-    fireEvents ev t []       = (ev, t, [])
-    fireEvents ev t (qx:qxs)
-        | fst qx < 0   = error "bearriver: afterEachCat: Non-positive period."
-        | overdue >= 0 = fireEvents (snd qx:ev) overdue qxs
-        | otherwise    = (ev, t, qx:qxs)
-      where
-        overdue = t - fst qx
-
 -- * Events
 
 -- | Apply an 'MSF' to every input. Freezes temporarily if the input is
@@ -185,218 +109,6 @@ eventToMaybe = event Nothing Just
 boolToEvent :: Bool -> Event ()
 boolToEvent True  = Event ()
 boolToEvent False = NoEvent
-
--- * Hybrid SF m combinators
-
--- | A rising edge detector. Useful for things like detecting key presses. It
--- is initialised as /up/, meaning that events occurring at time 0 will not be
--- detected.
-edge :: Monad m => SF m Bool (Event ())
-edge = edgeFrom True
-
--- | A rising edge detector that can be initialized as up ('True', meaning that
--- events occurring at time 0 will not be detected) or down ('False', meaning
--- that events occurring at time 0 will be detected).
-iEdge :: Monad m => Bool -> SF m Bool (Event ())
-iEdge = edgeFrom
-
--- | Like 'edge', but parameterized on the tag value.
---
--- From Yampa
-edgeTag :: Monad m => a -> SF m Bool (Event a)
-edgeTag a = edge >>> arr (`tag` a)
-
--- | Edge detector particularized for detecting transitions on a 'Maybe'
--- signal from 'Nothing' to 'Just'.
---
--- From Yampa
-
--- !!! 2005-07-09: To be done or eliminated
--- !!! Maybe could be kept as is, but could be easy to implement directly in
--- !!! terms of sscan?
-edgeJust :: Monad m => SF m (Maybe a) (Event a)
-edgeJust = edgeBy isJustEdge (Just undefined)
-  where
-    isJustEdge Nothing  Nothing     = Nothing
-    isJustEdge Nothing  ma@(Just _) = ma
-    isJustEdge (Just _) (Just _)    = Nothing
-    isJustEdge (Just _) Nothing     = Nothing
-
--- | Edge detector parameterized on the edge detection function and initial
--- state, i.e., the previous input sample. The first argument to the edge
--- detection function is the previous sample, the second the current one.
-edgeBy :: Monad m => (a -> a -> Maybe b) -> a -> SF m a (Event b)
-edgeBy isEdge aPrev = MSF $ \a ->
-  return (maybeToEvent (isEdge aPrev a), edgeBy isEdge a)
-
--- | A rising edge detector that can be initialized as up ('True', meaning that
--- events occurring at time 0 will not be detected) or down ('False', meaning
--- that events occurring at time 0 will be detected).
-edgeFrom :: Monad m => Bool -> SF m Bool (Event())
-edgeFrom prev = MSF $ \a -> do
-  let res | prev      = NoEvent
-          | a         = Event ()
-          | otherwise = NoEvent
-      ct  = edgeFrom a
-  return (res, ct)
-
--- * Stateful event suppression
-
--- | Suppression of initial (at local time 0) event.
-notYet :: Monad m => SF m (Event a) (Event a)
-notYet = feedback False $ arr (\(e, c) ->
-  if c then (e, True) else (NoEvent, True))
-
--- | Suppress all but the first event.
-once :: Monad m => SF m (Event a) (Event a)
-once = takeEvents 1
-
--- | Suppress all but the first n events.
-takeEvents :: Monad m => Int -> SF m (Event a) (Event a)
-takeEvents n | n <= 0 = never
-takeEvents n = dSwitch (arr dup) (const (NoEvent >-- takeEvents (n - 1)))
-
--- | Suppress first n events.
-
--- Here dSwitch or switch does not really matter.
-dropEvents :: Monad m => Int -> SF m (Event a) (Event a)
-dropEvents n | n <= 0 = identity
-dropEvents n =
-  dSwitch (never &&& identity) (const (NoEvent >-- dropEvents (n - 1)))
-
--- * Switching
-
--- ** Basic switchers
-
--- | Basic switch.
---
--- By default, the first signal function is applied. Whenever the second value
--- in the pair actually is an event, the value carried by the event is used to
--- obtain a new signal function to be applied *at that time and at future
--- times*. Until that happens, the first value in the pair is produced in the
--- output signal.
---
--- Important note: at the time of switching, the second signal function is
--- applied immediately. If that second SF can also switch at time zero, then a
--- double (nested) switch might take place. If the second SF refers to the
--- first one, the switch might take place infinitely many times and never be
--- resolved.
---
--- Remember: The continuation is evaluated strictly at the time
--- of switching!
-switch :: Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
-switch sf sfC = MSF $ \a -> do
-  (o, ct) <- unMSF sf a
-  case o of
-    (_, Event c) -> local (const 0) (unMSF (sfC c) a)
-    (b, NoEvent) -> return (b, switch ct sfC)
-
--- | Switch with delayed observation.
---
--- By default, the first signal function is applied.
---
--- Whenever the second value in the pair actually is an event, the value
--- carried by the event is used to obtain a new signal function to be applied
--- *at future times*.
---
--- Until that happens, the first value in the pair is produced in the output
--- signal.
---
--- Important note: at the time of switching, the second signal function is used
--- immediately, but the current input is fed by it (even though the actual
--- output signal value at time 0 is discarded).
---
--- If that second SF can also switch at time zero, then a double (nested)
--- switch might take place. If the second SF refers to the first one, the
--- switch might take place infinitely many times and never be resolved.
---
--- Remember: The continuation is evaluated strictly at the time
--- of switching!
-dSwitch :: Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b
-dSwitch sf sfC = MSF $ \a -> do
-  (o, ct) <- unMSF sf a
-  case o of
-    (b, Event c) -> do (_, ct') <- local (const 0) (unMSF (sfC c) a)
-                       return (b, ct')
-    (b, NoEvent) -> return (b, dSwitch ct sfC)
-
--- * Parallel composition and switching
-
--- ** Parallel composition and switching over collections with broadcasting
-
-#if MIN_VERSION_base(4,8,0)
-parB :: Monad m => [SF m a b] -> SF m a [b]
-#else
-parB :: (Functor m, Monad m) => [SF m a b] -> SF m a [b]
-#endif
--- ^ Spatial parallel composition of a signal function collection. Given a
--- collection of signal functions, it returns a signal function that broadcasts
--- its input signal to every element of the collection, to return a signal
--- carrying a collection of outputs. See 'par'.
---
--- For more information on how parallel composition works, check
--- <https://www.antonycourtney.com/pubs/hw03.pdf>
-parB = widthFirst . sequenceS
-
--- | Decoupled parallel switch with broadcasting (dynamic collection of signal
--- functions spatially composed in parallel). See 'dpSwitch'.
---
--- For more information on how parallel composition works, check
--- <https://www.antonycourtney.com/pubs/hw03.pdf>
-dpSwitchB :: (Functor m, Monad m, Traversable col)
-          => col (SF m a b)
-          -> SF m (a, col b) (Event c)
-          -> (col (SF m a b) -> c -> SF m a (col b))
-          -> SF m a (col b)
-dpSwitchB sfs sfF sfCs = MSF $ \a -> do
-  res <- T.mapM (`unMSF` a) sfs
-  let bs   = fmap fst res
-      sfs' = fmap snd res
-  (e, sfF') <- unMSF sfF (a, bs)
-  ct <- case e of
-          Event c -> snd <$> unMSF (sfCs sfs c) a
-          NoEvent -> return (dpSwitchB sfs' sfF' sfCs)
-  return (bs, ct)
-
--- ** Parallel composition over collections
-
--- | Apply an SF to every element of a list.
---
--- Example:
---
--- >>> embed (parC integral) (deltaEncode 0.1 [[1, 2], [2, 4], [3, 6], [4.0, 8.0 :: Float]])
--- [[0.0,0.0],[0.1,0.2],[0.3,0.6],[0.6,1.2]]
---
--- The number of SFs or expected inputs is determined by the first input
--- list, and not expected to vary over time.
---
--- If more inputs come in a subsequent list, they are ignored.
---
--- >>> embed (parC (arr (+1))) (deltaEncode 0.1 [[0], [1, 1], [3, 4], [6, 7, 8], [1, 1], [0, 0], [1, 9, 8]])
--- [[1],[2],[4],[7],[2],[1],[2]]
---
--- If less inputs come in a subsequent list, an exception is thrown.
---
--- >>> embed (parC (arr (+1))) (deltaEncode 0.1 [[0, 0], [1, 1], [3, 4], [6, 7, 8], [1, 1], [0, 0], [1, 9, 8]])
--- [[1,1],[2,2],[4,5],[7,8],[2,2],[1,1],[2,10]]
-parC :: Monad m => SF m a b -> SF m [a] [b]
-parC = parC0
-  where
-    parC0 :: Monad m => SF m a b -> SF m [a] [b]
-    parC0 sf0 = MSF $ \as -> do
-      os <- T.mapM (\(a, sf) -> unMSF sf a) $
-              zip as (replicate (length as) sf0)
-
-      let bs  = fmap fst os
-          cts = fmap snd os
-      return (bs, parC' cts)
-
-    parC' :: Monad m => [SF m a b] -> SF m [a] [b]
-    parC' sfs = MSF $ \as -> do
-      os <- T.mapM (\(a, sf) -> unMSF sf a) $ zip as sfs
-      let bs  = fmap fst os
-          cts = fmap snd os
-      return (bs, parC' cts)
 
 -- * Discrete to continuous-time signal functions
 
