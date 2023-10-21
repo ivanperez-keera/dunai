@@ -42,6 +42,7 @@ import           FRP.BearRiver.Conditional               as X
 import           FRP.BearRiver.Event                     as X
 import           FRP.BearRiver.EventS                    as X
 import           FRP.BearRiver.InternalCore              as X
+import           FRP.BearRiver.Scan                      as X
 import           FRP.BearRiver.Switches                  as X
 
 -- Internal imports (dunai, instances)
@@ -59,30 +60,6 @@ localTime = constant 1.0 >>> integral
 -- | Alternative name for localTime.
 time :: Monad m => SF m a Time
 time = localTime
-
-
--- * Simple, stateful signal processing
-
--- | Applies a function point-wise, using the last output as next input. This
--- creates a well-formed loop based on a pure, auxiliary function.
-sscan :: Monad m => (b -> a -> b) -> b -> SF m a b
-sscan f bInit = feedback bInit u
-  where
-    u = undefined -- (arr f >>^ dup)
-
--- | Generic version of 'sscan', in which the auxiliary function produces an
--- internal accumulator and an "held" output.
---
--- Applies a function point-wise, using the last known 'Just' output to form
--- the output, and next input accumulator. If the output is 'Nothing', the last
--- known accumulators are used. This creates a well-formed loop based on a
--- pure, auxiliary function.
-sscanPrim :: Monad m => (c -> a -> Maybe (c, b)) -> c -> b -> SF m a b
-sscanPrim f cInit bInit = MSF $ \a -> do
-  let o = f cInit a
-  case o of
-    Nothing       -> return (bInit, sscanPrim f cInit bInit)
-    Just (c', b') -> return (b',    sscanPrim f c' b')
 
 -- * Events
 
