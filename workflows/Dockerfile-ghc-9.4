@@ -16,8 +16,8 @@ ENV PATH=$PATH:/root/.cabal/bin/
 RUN apt-get install --yes curl
 RUN apt-get install --yes gcc make libgmp3-dev g++
 RUN ghcup install ghc 9.4
-RUN ghcup install cabal 3.4
-RUN ghcup set ghc 9.4.4
+RUN ghcup install cabal 3.8
+RUN ghcup set ghc 9.4.7
 RUN cabal update
 
 SHELL ["/bin/bash", "-c"]
