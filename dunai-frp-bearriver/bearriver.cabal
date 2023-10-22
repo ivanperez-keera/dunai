@@ -79,6 +79,7 @@ library
     FRP.BearRiver.Arrow
     FRP.BearRiver.Basic
     FRP.BearRiver.Conditional
+    FRP.BearRiver.Delays
     FRP.BearRiver.Event
     FRP.BearRiver.EventS
     FRP.BearRiver.Scan

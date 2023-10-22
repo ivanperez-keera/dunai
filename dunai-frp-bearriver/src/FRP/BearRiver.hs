@@ -30,15 +30,16 @@ import Data.VectorSpace      as X
 -- Internal imports (dunai)
 import           Control.Monad.Trans.MSF                 hiding (dSwitch)
 import qualified Control.Monad.Trans.MSF                 as MSF
-import           Data.MonadicStreamFunction              (iPre)
-import           Data.MonadicStreamFunction              as X hiding
-                                                              (reactimate,
+import           Data.MonadicStreamFunction              as X hiding (iPre,
+                                                               once, reactimate,
                                                                repeatedly,
-                                                               trace)
+                                                               switch, trace)
+import qualified Data.MonadicStreamFunction              as MSF
 import           Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 import           FRP.BearRiver.Arrow                     as X
 import           FRP.BearRiver.Basic                     as X
 import           FRP.BearRiver.Conditional               as X
+import           FRP.BearRiver.Delays                    as X
 import           FRP.BearRiver.Event                     as X
 import           FRP.BearRiver.EventS                    as X
 import           FRP.BearRiver.InternalCore              as X
@@ -149,9 +150,9 @@ derivative = derivativeFrom zeroVector
 -- Starts from a given value for the input signal at time zero.
 derivativeFrom :: (Monad m, Fractional s, VectorSpace a s) => a -> SF m a a
 derivativeFrom a0 = proc a -> do
-  dt   <- constM ask -< ()
-  aOld <- iPre a0    -< a
-  returnA            -< (a ^-^ aOld) ^/ realToFrac dt
+  dt   <- constM ask  -< ()
+  aOld <- MSF.iPre a0 -< a
+  returnA             -< (a ^-^ aOld) ^/ realToFrac dt
 
 -- | Integrate using an auxiliary function that takes the current and the last
 -- input, the time between those samples, and the last output, and returns a
