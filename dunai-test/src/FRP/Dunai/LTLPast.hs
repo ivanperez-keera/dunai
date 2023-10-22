@@ -87,19 +87,23 @@ type SPred m a = MSF m a Bool
 -- ** Propositional MSFs
 
 -- | Output True at times when the input is False.
+{-# DEPRECATED notSF' "Use notSF instead" #-}
 notSF' :: Monad m => SPred m a -> SPred m a
 notSF' sf = sf >>> arr not
 
 -- | Output True at times when both inputs are True.
+{-# DEPRECATED andSF' "Use andSF instead" #-}
 andSF' :: Monad m => SPred m a -> SPred m a -> SPred m a
 andSF' sf1 sf2 = (sf1 &&& sf2) >>> arr (uncurry (&&))
 
 -- | Output True at times when at least one of the inputs is True.
+{-# DEPRECATED orSF' "Use orSF instead" #-}
 orSF' :: Monad m => SPred m a -> SPred m a -> SPred m a
 orSF' sf1 sf2 = (sf1 &&& sf2) >>> arr (uncurry (||))
 
 -- | Output True at times when the first input stream is False or the second
 -- one is True.
+{-# DEPRECATED implySF' "Use impliesSF instead" #-}
 implySF' :: Monad m => SPred m a -> SPred m a -> SPred m a
 implySF' sf1 sf2 = orSF' sf2 (notSF' sf1)
 
@@ -110,6 +114,7 @@ implySF' sf1 sf2 = orSF' sf2 (notSF' sf1)
 --
 -- This corresponds to Historically, or the past-time version of Globally or
 -- Always.
+{-# DEPRECATED history' "Use sofarSF instead" #-}
 history' :: Monad m => SPred m a -> SPred m a
 history' sf = feedback True $ proc (a, last) -> do
   b <- sf -< a
@@ -119,6 +124,7 @@ history' sf = feedback True $ proc (a, last) -> do
 -- | Output True at a time if the input has ever been True up until that time.
 --
 -- This corresponds to Ever, or the past-time version of Eventually.
+{-# DEPRECATED ever' "Use everSF instead" #-}
 ever' :: Monad m => SPred m a -> SPred m a
 ever' sf = feedback False $ proc (a, last) -> do
   b <- sf -< a
@@ -126,6 +132,7 @@ ever' sf = feedback False $ proc (a, last) -> do
   returnA -< (cur, cur)
 
 -- | Output True at a time if the input at the last time was True.
+{-# DEPRECATED prev' "Use lastSF instead" #-}
 prev' :: Monad m => SPred m a -> SPred m a
 prev' sf = feedback True $ proc (a, last) -> do
   b <- sf -< a

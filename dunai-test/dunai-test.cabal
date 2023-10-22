@@ -30,7 +30,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          dunai-test
-version:       0.11.2
+version:       0.12.0
 author:        Ivan Perez
 maintainer:    ivan.perez@keera.co.uk
 homepage:      https://github.com/ivanperez-keera/dunai
@@ -74,7 +74,7 @@ library
 
   build-depends:
       base >= 4 && < 5
-    , dunai >= 0.5 && < 0.12
+    , dunai >= 0.5 && < 0.13
     , normaldistribution
     , QuickCheck
 
