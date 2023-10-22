@@ -3,6 +3,7 @@
         * Offer all definitions from FRP.Yampa.Conditional (#382).
         * Offer all definitions from FRP.Yampa.Scan (#383).
         * Offer all definitions from FRP.Yampa.Delays (#384).
+        * Relax upper version constraint on deepseq (#386).
 
 2023-08-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.14.4) (#377).
