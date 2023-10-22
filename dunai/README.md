@@ -67,9 +67,8 @@ implemented.
 <sup>[(Back to top)](#table-of-contents)</sup>
 
 To use Dunai, you must have a Haskell compiler installed (GHC). We currently
-support `GHC` versions 7.6.3 to 9.4.1. It likely works with other versions as
-well. We recommend `GHC` versions 8.6 - 8.10, and a version of `cabal-install`
-between 2.4 and 3.2.
+support `GHC` versions 7.6.3 to 9.8.1. It likely works with other versions as
+well.
 
 On Debian/Ubuntu, both can be installed with:
 
