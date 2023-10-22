@@ -24,5 +24,6 @@ SHELL ["/bin/bash", "-c"]
 CMD git clone $REPO \
     && cd $NAME \
     && git checkout $COMMIT \
+    && sed -i -e '/dunai-examples/d' cabal.project \
     && cabal install --lib dunai/ dunai-test/ dunai-frp-bearriver/ \
     && echo Success
