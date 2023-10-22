@@ -1,4 +1,5 @@
 2023-10-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * Version bump (0.12.0) (#388).
         * Deprecate one of multiple ptLTL implementations (#385).
 
 2023-08-21 Ivan Perez <ivan.perez@keera.co.uk>

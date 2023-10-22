@@ -1,4 +1,5 @@
 2023-10-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * Version bump (0.14.5) (#388).
         * Offer all definitions from FRP.Yampa.Event (#380).
         * Offer all definitions from FRP.Yampa.Conditional (#382).
         * Offer all definitions from FRP.Yampa.Scan (#383).
