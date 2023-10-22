@@ -1,4 +1,5 @@
 2023-10-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * Version bump (0.12.0) (#388).
         * Increase max-backjumps in CI setup (#381).
         * Document GHC 9.8.1 support in readme (#387).
 
