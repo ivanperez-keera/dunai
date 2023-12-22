@@ -1,6 +1,6 @@
 2023-12-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Remove postgresql repo before installation in CI script (#392).
-        * Add version bounds to depdencies (#393).
+        * Add version bounds to dependencies (#393).
         * Mark package as uncurated (#394).
 
 2023-10-21 Ivan Perez <ivan.perez@keera.co.uk>
