@@ -63,6 +63,9 @@ description:
   large applications.
 
 
+x-curation: uncurated
+
+
 extra-source-files:
   CHANGELOG
 
