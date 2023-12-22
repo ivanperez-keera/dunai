@@ -42,6 +42,7 @@ import           FRP.BearRiver.Conditional               as X
 import           FRP.BearRiver.Delays                    as X
 import           FRP.BearRiver.Event                     as X
 import           FRP.BearRiver.EventS                    as X
+import           FRP.BearRiver.Integration               as X
 import           FRP.BearRiver.InternalCore              as X
 import           FRP.BearRiver.Scan                      as X
 import           FRP.BearRiver.Switches                  as X
@@ -124,46 +125,6 @@ accumHoldBy f b = feedback b $ arr $ \(a, b') ->
 -- | Loop with an initial value for the signal being fed back.
 loopPre :: Monad m => c -> SF m (a, c) (b, c) -> SF m a b
 loopPre = feedback
-
--- * Integration and differentiation
-
--- | Integration using the rectangle rule.
-integral :: (Monad m, Fractional s, VectorSpace a s) => SF m a a
-integral = integralFrom zeroVector
-
--- | Integrate using an auxiliary function that takes the current and the last
--- input, the time between those samples, and the last output, and returns a
--- new output.
-integralFrom :: (Monad m, Fractional s, VectorSpace a s) => a -> SF m a a
-integralFrom a0 = proc a -> do
-  dt <- constM ask        -< ()
-  accumulateWith (^+^) a0 -< realToFrac dt *^ a
-
--- | A very crude version of a derivative. It simply divides the value
--- difference by the time difference. Use at your own risk.
-derivative :: (Monad m, Fractional s, VectorSpace a s) => SF m a a
-derivative = derivativeFrom zeroVector
-
--- | A very crude version of a derivative. It simply divides the value
--- difference by the time difference. Use at your own risk.
---
--- Starts from a given value for the input signal at time zero.
-derivativeFrom :: (Monad m, Fractional s, VectorSpace a s) => a -> SF m a a
-derivativeFrom a0 = proc a -> do
-  dt   <- constM ask  -< ()
-  aOld <- MSF.iPre a0 -< a
-  returnA             -< (a ^-^ aOld) ^/ realToFrac dt
-
--- | Integrate using an auxiliary function that takes the current and the last
--- input, the time between those samples, and the last output, and returns a
--- new output.
-
--- NOTE: BUG in this function, it needs two a's but we can only provide one
-iterFrom :: Monad m => (a -> a -> DTime -> b -> b) -> b -> SF m a b
-iterFrom f b = MSF $ \a -> do
-  dt <- ask
-  let b' = f a a dt b
-  return (b, iterFrom f b')
 
 -- * Noise (random signal) sources and stochastic event sources
 

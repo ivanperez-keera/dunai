@@ -82,6 +82,7 @@ library
     FRP.BearRiver.Delays
     FRP.BearRiver.Event
     FRP.BearRiver.EventS
+    FRP.BearRiver.Integration
     FRP.BearRiver.Scan
     FRP.BearRiver.Switches
     FRP.Yampa
