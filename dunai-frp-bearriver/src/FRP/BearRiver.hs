@@ -46,22 +46,11 @@ import           FRP.BearRiver.Integration               as X
 import           FRP.BearRiver.InternalCore              as X
 import           FRP.BearRiver.Scan                      as X
 import           FRP.BearRiver.Switches                  as X
+import           FRP.BearRiver.Time                      as X
 
 -- Internal imports (dunai, instances)
 import Data.MonadicStreamFunction.Instances.ArrowLoop () -- not needed, just
                                                          -- re-exported
-
--- * Signal functions
-
--- ** Basic signal functions
-
--- | Outputs the time passed since the signal function instance was started.
-localTime :: Monad m => SF m a Time
-localTime = constant 1.0 >>> integral
-
--- | Alternative name for localTime.
-time :: Monad m => SF m a Time
-time = localTime
 
 -- * Events
 

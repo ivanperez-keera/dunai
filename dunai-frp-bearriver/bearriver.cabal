@@ -85,6 +85,7 @@ library
     FRP.BearRiver.Integration
     FRP.BearRiver.Scan
     FRP.BearRiver.Switches
+    FRP.BearRiver.Time
     FRP.Yampa
 
   other-modules:
