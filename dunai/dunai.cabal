@@ -72,6 +72,9 @@ description:
   (mirror: <http://ivanperez.io/#FRPRefactored>).
 
 
+x-curation: uncurated
+
+
 extra-source-files:
   CHANGELOG
 
