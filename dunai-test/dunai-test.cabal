@@ -54,6 +54,9 @@ description:
   <https://dl.acm.org/citation.cfm?id=3110246 Testing and Debugging Functional Reactive Programming>.
 
 
+x-curation: uncurated
+
+
 extra-source-files:
   CHANGELOG
 
