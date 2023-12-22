@@ -30,7 +30,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          bearriver
-version:       0.14.5
+version:       0.14.6
 author:        Ivan Perez, Manuel Bärenz
 maintainer:    ivan.perez@keera.co.uk
 homepage:      https://github.com/ivanperez-keera/dunai
@@ -63,6 +63,9 @@ description:
   large applications.
 
 
+x-curation: uncurated
+
+
 extra-source-files:
   CHANGELOG
 
@@ -82,8 +85,10 @@ library
     FRP.BearRiver.Delays
     FRP.BearRiver.Event
     FRP.BearRiver.EventS
+    FRP.BearRiver.Integration
     FRP.BearRiver.Scan
     FRP.BearRiver.Switches
+    FRP.BearRiver.Time
     FRP.Yampa
 
   other-modules:

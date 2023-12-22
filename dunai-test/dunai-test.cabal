@@ -30,7 +30,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          dunai-test
-version:       0.12.0
+version:       0.12.1
 author:        Ivan Perez
 maintainer:    ivan.perez@keera.co.uk
 homepage:      https://github.com/ivanperez-keera/dunai
@@ -52,6 +52,9 @@ description:
   .
   A detailed explanation of these ideas is included in the ICFP 2017 paper
   <https://dl.acm.org/citation.cfm?id=3110246 Testing and Debugging Functional Reactive Programming>.
+
+
+x-curation: uncurated
 
 
 extra-source-files:
