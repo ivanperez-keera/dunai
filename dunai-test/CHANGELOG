@@ -1,3 +1,6 @@
+2023-12-23 Ivan Perez <ivan.perez@keera.co.uk>
+        * Add version bounds to dependencies (#399).
+
 2023-12-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.12.1) (#395).
         * Mark package as uncurated (#394).
