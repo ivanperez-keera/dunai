@@ -25,6 +25,8 @@
 -- WARNING: the ListT transformer is considered dangerous, and imposes
 -- additional constraints on the inner monad in order for the combination of
 -- the monad and the transformer to be a monad. Use at your own risk.
+--
+-- From transformers-0.6 on, a valid list monad transformer from free-listt is used.
 module Control.Monad.Trans.MSF.List
     {-# WARNING "This module uses the ListT transformer, which is considered deprecated." #-}
     ( module Control.Monad.Trans.MSF.List

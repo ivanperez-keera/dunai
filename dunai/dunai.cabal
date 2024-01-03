@@ -129,7 +129,6 @@ library
       base >= 4.6 && < 5
     , MonadRandom         >= 0.2 && < 0.7
     , simple-affine-space >= 0.2 && < 0.3
-    , transformers        >= 0.3 && < 0.7
     , transformers-base   >= 0.4 && < 0.5
 
   default-language:
@@ -146,6 +145,15 @@ library
         MonadRandom         >= 0.2 && < 0.6
       , transformers-compat >= 0.3 && < 0.8
       , void                >= 0.1 && < 0.8
+
+  if impl(ghc < 9.6
+    build-depends:
+      transformers        >= 0.3 && < 0.6
+
+  if impl(ghc >= 9.6.0)
+    build-depends:
+        transformers        >= 0.6 && < 0.7
+      , free-listt          >= 0.1.0.1 && < 0.2
 
 test-suite hlint
   type:
