@@ -1,3 +1,6 @@
+2024-02-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * Limit version of transformers to < 0.6 (#405).
+
 2023-12-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.14.6) (#395).
         * Offer all definitions from FRP.Yampa.Time (#391).
