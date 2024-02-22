@@ -30,7 +30,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          bearriver
-version:       0.14.6
+version:       0.14.7
 author:        Ivan Perez, Manuel Bärenz
 maintainer:    ivan.perez@keera.co.uk
 homepage:      https://github.com/ivanperez-keera/dunai
@@ -85,6 +85,7 @@ library
     FRP.BearRiver.Delays
     FRP.BearRiver.Event
     FRP.BearRiver.EventS
+    FRP.BearRiver.Hybrid
     FRP.BearRiver.Integration
     FRP.BearRiver.Scan
     FRP.BearRiver.Switches
@@ -101,7 +102,7 @@ library
     , MonadRandom         >= 0.2   && < 0.7
     , mtl                 >= 2.1.2 && < 2.3
     , simple-affine-space >= 0.1   && < 0.3
-    , transformers >= 0.3 && < 0.7
+    , transformers >= 0.3 && < 0.6
 
   default-language:
     Haskell2010
