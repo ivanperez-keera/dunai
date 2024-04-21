@@ -26,9 +26,8 @@
 -- additional constraints on the inner monad in order for the combination of
 -- the monad and the transformer to be a monad. Use at your own risk.
 module Control.Monad.Trans.MSF.List
-    {-# WARNING "This module uses the ListT transformer, which is considered deprecated." #-}
     ( module Control.Monad.Trans.MSF.List
-    , module Control.Monad.Trans.List
+    , module List
     )
   where
 
@@ -37,13 +36,54 @@ module Control.Monad.Trans.MSF.List
 import Control.Applicative ((<$>))
 #endif
 
-import Control.Monad.Trans.List hiding (liftCallCC, liftCatch)
+#ifdef LIST_TRANSFORMER
+import           Control.Monad    (sequence)
+import           List.Transformer (ListT (ListT, next), Step (..), fold, select)
+import qualified List.Transformer as List
+#else
+import Control.Monad.Trans.List as List hiding (liftCallCC, liftCatch)
+#endif
 
 -- Internal imports
 import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- * List monad
 
+#ifdef LIST_TRANSFORMER
+
+-- | Run an 'MSF' in the 'ListT' transformer (i.e., multiple MSFs producing
+-- each producing one output), by applying the input stream to each MSF in the
+-- list transformer and concatenating the outputs of the MSFs together.
+--
+-- An MSF in the ListT transformer can spawn into more than one MSF, or none,
+-- so the outputs produced at each individual step are not guaranteed to all
+-- have the same length.
+widthFirst :: (Functor m, Monad m) => MSF (ListT m) a b -> MSF m a [b]
+widthFirst msf = widthFirst' [msf]
+  where
+    widthFirst' msfs = MSF $ \a -> do
+      (bs, msfs') <- unzip . concat <$> mapM (toList . flip unMSF a) msfs
+      return (bs, widthFirst' msfs')
+
+    toList :: (Functor m, Monad m) => ListT m a -> m [a]
+    toList = fmap reverse . fold (flip (:)) [] id
+
+-- | Build an 'MSF' in the 'ListT' transformer by broadcasting the input stream
+-- value to each MSF in a given list.
+sequenceS :: Monad m => [MSF m a b] -> MSF (ListT m) a b
+sequenceS msfs = MSF $ \a -> sequence' $ apply a <$> msfs
+  where
+    sequence' :: Monad m => [m a] -> ListT m a
+    sequence' xs = ListT $ next <$> select =<< sequence xs
+
+    apply :: Monad m => a -> MSF m a b -> m (b, MSF (ListT m) a b)
+    apply a msf = do
+      (b, msf') <- unMSF msf a
+      return (b, sequenceS [msf'])
+
+#else
+
+{-# DEPRECATED widthFirst "This ListT definition is deprecated. Use the list-transformer variant of this function instead." #-}
 -- | Run an 'MSF' in the 'ListT' transformer (i.e., multiple MSFs producing
 -- each producing one output), by applying the input stream to each MSF in the
 -- list transformer and concatenating the outputs of the MSFs together.
@@ -58,6 +98,7 @@ widthFirst msf = widthFirst' [msf]
       (bs, msfs') <- unzip . concat <$> mapM (runListT . flip unMSF a) msfs
       return (bs, widthFirst' msfs')
 
+{-# DEPRECATED sequenceS "This ListT definition is deprecated. Use the list-transformer variant of this function instead." #-}
 -- | Build an 'MSF' in the 'ListT' transformer by broadcasting the input stream
 -- value to each MSF in a given list.
 sequenceS :: Monad m => [MSF m a b] -> MSF (ListT m) a b
@@ -66,6 +107,8 @@ sequenceS msfs = MSF $ \a -> ListT $ sequence $ apply a <$> msfs
     apply a msf = do
       (b, msf') <- unMSF msf a
       return (b, sequenceS [msf'])
+
+#endif
 
 -- | Apply an 'MSF' to every input.
 mapMSF :: Monad m => MSF m a b -> MSF m [a] [b]
