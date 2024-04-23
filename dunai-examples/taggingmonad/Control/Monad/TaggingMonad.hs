@@ -21,4 +21,3 @@ instance Monoid t => Monad (TaggingMonad t) where
   (TaggingMonad t x) >>= f =
     let TaggingMonad t' x' = f x
     in TaggingMonad (mappend t t') x'
-
