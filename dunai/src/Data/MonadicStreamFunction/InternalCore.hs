@@ -17,7 +17,7 @@
 --
 -- This modules defines only the minimal core. By default, you should import
 -- "Data.MonadicStreamFunction.Core" or "Data.MonadicStreamFunction" whenever
--- possible, and define your functions without accessing the MSF constuctor.
+-- possible, and define your functions without accessing the MSF constructor.
 -- Those modules, as well as other modules in dunai, also provide convenient
 -- instances. This module may be useful if you are extending dunai with
 -- functionality that cannot be (conveniently) expressed using the existing
