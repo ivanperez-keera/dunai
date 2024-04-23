@@ -1,4 +1,5 @@
-2024-04-21 Ivan Perez <ivan.perez@keera.co.uk>
+2024-04-23 Ivan Perez <ivan.perez@keera.co.uk>
+        * Version bump (0.14.8) (#411).
         * Offer all definitions from FRP.Yampa.Loop (#407).
 
 2024-02-21 Ivan Perez <ivan.perez@keera.co.uk>
