@@ -57,7 +57,12 @@ render (px,py) = do
   white <- SDL.mapRGB (SDL.surfaceGetPixelFormat screen) 0xFF 0xFF 0xFF
   SDL.fillRect screen Nothing white
 
-  SDL.filledCircle screen (fromIntegral px) (fromIntegral py) 30 (Pixel 0xFF0000FF)
+  SDL.filledCircle
+    screen
+    (fromIntegral px)
+    (fromIntegral py)
+    30
+    (Pixel 0xFF0000FF)
 
   SDL.flip screen
 

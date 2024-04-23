@@ -1,7 +1,7 @@
 \begin{code}
-{-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE InstanceSigs         #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 module DunaiExamplesReactiveStreamsAndSinks where
 
 import Data.Functor.Contravariant

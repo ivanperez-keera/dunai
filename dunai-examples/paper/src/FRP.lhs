@@ -1,8 +1,8 @@
 \begin{code}
+{-# LANGUAGE Arrows         #-}
+{-# LANGUAGE ExplicitForAll #-}
 {-# LANGUAGE PackageImports #-}
 {-# LANGUAGE Rank2Types     #-}
-{-# LANGUAGE ExplicitForAll #-}
-{-# LANGUAGE Arrows #-}
 module FRP where
 import Data.Semigroup
 import Data.MonadicStreamFunction

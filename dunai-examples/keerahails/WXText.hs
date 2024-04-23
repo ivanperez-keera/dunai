@@ -31,8 +31,11 @@ hello = do
   entry2 <- textEntry  f []
   quit   <- button     f [ text := "Quit", on command := close f ]
 
-  reactiveWXFieldRW entry1 text =:= (liftRW2 (reverse, reverse) (reactiveWXFieldRW entry2 text))
-  reactiveWXFieldRO entry1 text =:> (arr (show.length) >>> reactiveWXFieldWO lenLbl text)
+  reactiveWXFieldRW entry1 text =:=
+    (liftRW2 (reverse, reverse) (reactiveWXFieldRW entry2 text))
+
+  reactiveWXFieldRO entry1 text =:>
+    (arr (show.length) >>> reactiveWXFieldWO lenLbl text)
 
   set f [layout := margin 10 (column 5 [ floatCentre (widget lenLbl)
                                        , floatCentre (widget entry1)
@@ -69,7 +72,8 @@ type ReactiveValueRO m a = (MStream m a, m () -> m ())
 type ReactiveValueWO m a = MSink   m a
 type ReactiveValueRW m a = (MStream m a, MSink m a, m () -> m ())
 
-liftRW2 :: Monad m => (a -> b, b -> a) -> ReactiveValueRW m a -> ReactiveValueRW m b
+liftRW2 :: Monad m
+        => (a -> b, b -> a) -> ReactiveValueRW m a -> ReactiveValueRW m b
 liftRW2 (f, f') (sg, sk, h) = (sg >>> arr f, arr f' >>> sk, h)
 
 (=:=) :: (Show a, Eq a) => ReactiveValueRW IO a -> ReactiveValueRW IO a -> IO ()
@@ -85,20 +89,23 @@ setProp :: widget -> Attr widget attr -> attr -> IO ()
 setProp c p v = set c [ p := v ]
 
 -- ** Keera Hails - WX bridge on top of Dunai
-reactiveWXFieldRO :: Updating widget => widget -> Attr widget attr -> ReactiveValueRO IO attr
+reactiveWXFieldRO :: Updating widget
+                  => widget -> Attr widget attr -> ReactiveValueRO IO attr
 reactiveWXFieldRO widget attr =
   ( constM (get widget attr)
   , \m -> set widget [ on update :~ (\m1 -> m1 >> m) ]
   )
 
-reactiveWXFieldWO :: Eq attr => widget -> Attr widget attr -> ReactiveValueWO IO attr
+reactiveWXFieldWO :: Eq attr
+                  => widget -> Attr widget attr -> ReactiveValueWO IO attr
 reactiveWXFieldWO widget attr = arrM $ \v -> do
   o <- get widget attr
   if v == o
     then return ()
     else setProp widget attr v
 
-reactiveWXFieldRW :: (Updating widget, Eq attr) => widget -> Attr widget attr -> ReactiveValueRW IO attr
+reactiveWXFieldRW :: (Updating widget, Eq attr)
+                  => widget -> Attr widget attr -> ReactiveValueRW IO attr
 reactiveWXFieldRW widget attr = (sg, sk, h)
  where (sg, h) = reactiveWXFieldRO widget attr
        sk      = reactiveWXFieldWO widget attr
