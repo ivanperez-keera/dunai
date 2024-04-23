@@ -33,15 +33,18 @@ timeTransformF :: Monad m
 timeTransformF f = timeTransformMSF (constant f)
 
 -- | Run an MSF with a fixed time delta.
-runAtFixedR :: Monad m => DTime -> MSF (ReaderT DTime m) a b -> MSF (ReaderT DTime m) a b
+runAtFixedR :: Monad m
+            => DTime -> MSF (ReaderT DTime m) a b -> MSF (ReaderT DTime m) a b
 runAtFixedR dt = timeTransformF (const dt)
 
 -- | Run an MSF with a maximum time delta.
-runAtMaxR :: Monad m => DTime -> MSF (ReaderT DTime m) a b ->  MSF (ReaderT DTime m) a b
+runAtMaxR :: Monad m
+          => DTime -> MSF (ReaderT DTime m) a b ->  MSF (ReaderT DTime m) a b
 runAtMaxR dt = timeTransformF (min dt)
 
 -- | Run an MSF with a minimum time delta.
-runAtMinR :: Monad m => DTime -> MSF (ReaderT DTime m) a b -> MSF (ReaderT DTime m) a b
+runAtMinR :: Monad m
+          => DTime -> MSF (ReaderT DTime m) a b -> MSF (ReaderT DTime m) a b
 runAtMinR dt = timeTransformF (max dt)
 
 -- * Asynchronous time transformations
@@ -60,7 +63,10 @@ type SelfClockingMSF m a b =
 
 -- ** Execution
 
--- runAtFixedS :: b -> DTime -> MSF (ReaderT DTime m) a b -> SelfClockingMSF m a b
+-- runAtFixedS :: b
+--             -> DTime
+--             -> MSF (ReaderT DTime m) a b
+--             -> SelfClockingMSF m a b
 -- runAtFixedS b dt msf = timeTransformF (const dt) msf
 --
 -- runAtMaxS :: DTime -> MSF (ReaderT DTime m) a b -> SelfClockingMSF m a b
@@ -81,7 +87,8 @@ mkAsyncMSF b0 msf = MSF $ \ma ->
 
 -- | Run an MSF with clocking information multiple times, possibly outputing
 -- several results.
-runSelfClocking :: Monad m => SelfClockingMSF m a b -> MSF (ReaderT DTime m) a [(DTime, b)]
+runSelfClocking :: Monad m
+                => SelfClockingMSF m a b -> MSF (ReaderT DTime m) a [(DTime, b)]
 runSelfClocking msf = MSF $ \a -> do
   runSelfClocking' msf a []
 
@@ -89,7 +96,9 @@ runSelfClocking' :: Monad m
                  => SelfClockingMSF m a b
                  -> a
                  -> [(DTime, b)]
-                 -> ReaderT DTime m ([(DTime, b)], MSF (ReaderT DTime m) a [(DTime, b)])
+                 -> ReaderT DTime
+                            m
+                            ([(DTime, b)], MSF (ReaderT DTime m) a [(DTime, b)])
 runSelfClocking' msf a acc = do
   dt <- ask
   ((b, msf'), (dt', last)) <- runStateT (unMSF msf a) (0, False)
@@ -141,10 +150,13 @@ syncBoards :: forall m a b c
            -> MSF (ReaderT DTime m) a c
 syncBoards msfDiscrete msfCont = MSF $ \a -> do
   (b, msfD') <- lift $ unMSF msfDiscrete a
-  let r :: StateT Bool (ReaderT DTime m) (c, MSF (StateT Bool (ReaderT DTime m)) b c)
+  let r :: StateT
+             Bool
+             (ReaderT DTime m)
+             (c, MSF (StateT Bool (ReaderT DTime m)) b c)
       r = unMSF msfCont b
 
-      r2 :: (ReaderT DTime m) ((c, MSF (StateT Bool (ReaderT DTime m)) b c), Bool)
+      r2 :: ReaderT DTime m ((c, MSF (StateT Bool (ReaderT DTime m)) b c), Bool)
       r2 = runStateT r True
 
   ((c, msfC'), finished) <- r2
@@ -192,11 +204,16 @@ cache :: ((DTime, a) -> Maybe (DTime, a) -> DTime -> a) -> MSF (Reader DTime) a 
 cache interpolate = cache' interpolate [] 0
 
 -- | Possible bug if initial dt is zero
-cache' :: ((DTime, a) -> Maybe (DTime, a) -> DTime -> a) -> History a -> DTime -> MSF (Reader DTime) a a
+cache' :: ((DTime, a) -> Maybe (DTime, a) -> DTime -> a)
+       -> History a
+       -> DTime
+       -> MSF (Reader DTime) a a
 cache' interpolate history globalDTime = MSF $ \a -> do
   dt <- ask
   if (dt == 0)
-    then return (snd $ lastSample history, cache' interpolate history globalDTime)
+    then return ( snd $ lastSample history
+                , cache' interpolate history globalDTime
+                )
     else -- dt <  0
          let globalDTime' = globalDTime + dt
              sample = sampleAt interpolate history globalDTime'
@@ -204,16 +221,25 @@ cache' interpolate history globalDTime = MSF $ \a -> do
              history'' = addSample  history' globalDTime' sample
          in return (sample, cache' interpolate history'' globalDTime')
   -- where
-  --   tf a | dt == 0 = (cache' interpolate history globalDTime, snd $ lastSample history)
+  --   tf a | dt == 0 = ( cache' interpolate history globalDTime
+  --                    , snd $ lastSample history
+  --                    )
   --        | dt <  0 = let globalDTime' = globalDTime + dt
   --                        sample = sampleAt interpolate history globalDTime'
   --                        history' = discardAfter history globalDTime'
   --                        history'' = addSample  history' globalDTime' sample
   --                    in (cache' interpolate history'' globalDTime', sample)
 
-sampleAt :: ((DTime, a) -> Maybe (DTime, a) -> DTime -> a) -> History a -> DTime -> a
-sampleAt interpolate history time = sampleAt' interpolate time (head history) (tail history)
-sampleAt' interpolate time (t0, a0) [] = interpolate (t0, a0) Nothing time
+sampleAt :: ((DTime, a) -> Maybe (DTime, a) -> DTime -> a)
+         -> History a
+         -> DTime
+         -> a
+sampleAt interpolate history time =
+  sampleAt' interpolate time (head history) (tail history)
+
+sampleAt' interpolate time (t0, a0) [] =
+  interpolate (t0, a0) Nothing time
+
 sampleAt' interpolate time (t0, a0) ((t1,a1):hs)
   | time >= t0 && time <= t1 = interpolate (t0, a0) (Just (t1, a1)) time
   | otherwise                = sampleAt' interpolate time (t1,a1) hs
@@ -231,7 +257,9 @@ addSample' time sample h@((t1,a1):hs)
   | t1 >  time = (time, sample):h
   | otherwise  = (t1,a1) : addSample' time sample hs
 
-revSwitch :: MSF (Reader DTime) a (b, Event c) -> (c -> MSF (Reader DTime) a b) -> MSF (Reader DTime) a b
+revSwitch :: MSF (Reader DTime) a (b, Event c)
+          -> (c -> MSF (Reader DTime) a b)
+          -> MSF (Reader DTime) a b
 revSwitch msf k = MSF $ \a -> do
   ((b0, e), sf1) <- unMSF msf a
   case e of
@@ -239,41 +267,67 @@ revSwitch msf k = MSF $ \a -> do
      Event c0 -> do (b1, sf2) <- unMSF (k c0) a
                     return (b1, switchingPoint sf1 k b1 sf2)
     -- where
-    --     tf0 a0 =
-    --         case tf10 a0 of
-    --             (sf1, (b0, NoEvent))  -> (switchAux sf1 k, b0)
-    --             (sf1, (_,  Event c0)) -> switchingPoint sf1 k (sfTF (k c0) a0)
+    --   tf0 a0 =
+    --     case tf10 a0 of
+    --       (sf1, (b0, NoEvent))  -> (switchAux sf1 k, b0)
+    --       (sf1, (_,  Event c0)) -> switchingPoint sf1 k (sfTF (k c0) a0)
 
  where
-        switchingPoint :: MSF (Reader DTime) a (b, Event c) -> (c -> MSF (Reader DTime) a b) -> b -> MSF (Reader DTime) a b -> MSF (Reader DTime) a b
+        switchingPoint :: MSF (Reader DTime) a (b, Event c)
+                       -> (c -> MSF (Reader DTime) a b)
+                       -> b
+                       -> MSF (Reader DTime) a b
+                       -> MSF (Reader DTime) a b
         switchingPoint sf1 k b sfN' = MSF $ \a -> do
            dt <- ask
            if | dt < 0  -> unMSF (switchAux sf1 k) a
               | dt > 0  -> do (b1, sfN'') <- unMSF sfN' a
                               return (b1, switchingPoint' sf1 k dt b1 sfN'')
               | dt == 0 -> return (b, switchingPoint sf1 k b sfN')
-          -- where sf' = MSF tf'
-          --       tf' dt a = if | dt < 0  -> unMSF (switchAux sf1 k) dt a
-          --                                  -- let (sf1', b') = unMSF sf1 dt a
-          --                                  -- in (switchAux sf1' k, b')
-          --                     | dt > 0  -> switchingPoint' sf1 k dt (unMSF sfN' dt a)
-          --                     | dt == 0 -> switchingPoint sf1 k (sfN', b)
+          -- where
+          --   sf' = MSF tf'
+          --   tf' dt a =
+          --     if | dt < 0  -> unMSF (switchAux sf1 k) dt a
+          --                     -- let (sf1', b') = unMSF sf1 dt a
+          --                     -- in (switchAux sf1' k, b')
+          --        | dt > 0  -> switchingPoint' sf1 k dt (unMSF sfN' dt a)
+          --        | dt == 0 -> switchingPoint sf1 k (sfN', b)
 
-        switchingPoint' :: MSF (Reader DTime) a (b, Event c) -> (c -> MSF (Reader DTime) a b) -> DTime -> b -> MSF (Reader DTime) a b -> MSF (Reader DTime) a b
+        switchingPoint' :: MSF (Reader DTime) a (b, Event c)
+                        -> (c -> MSF (Reader DTime) a b)
+                        -> DTime
+                        -> b
+                        -> MSF (Reader DTime) a b
+                        -> MSF (Reader DTime) a b
         switchingPoint' sf1 k accumDT b sfN' = MSF $ \a -> do
           dt <- ask
           let dt' = dt + accumDT
-          if | dt < 0  ->
-                           if | dt' < 0  -> withReaderT (const dt') (unMSF (switchAux sf1 k) a)
-                              | dt' > 0  -> dt' `seq` do (b1, sfN'') <- unMSF sfN' a
-                                                         return (b1, switchingPoint' sf1 k dt' b1 sfN'')
-                              | dt' == 0 -> return (b, switchingPoint' sf1 k accumDT b sfN')
-              | dt > 0  -> dt' `seq` do (b1, sfN'') <- unMSF sfN' a
-                                        return (b1, switchingPoint' sf1 k dt' b1 sfN'')
+          if | dt < 0 -> if | dt' < 0
+                            -> withReaderT
+                                 (const dt')
+                                 (unMSF (switchAux sf1 k) a)
+
+                            | dt' > 0
+                            -> dt' `seq` do
+                                 (b1, sfN'') <- unMSF sfN' a
+                                 return ( b1
+                                        , switchingPoint' sf1 k dt' b1 sfN''
+                                        )
+
+                            | dt' == 0
+                            -> return ( b
+                                      , switchingPoint' sf1 k accumDT b sfN'
+                                      )
+
+              | dt > 0 -> dt' `seq` do
+                  (b1, sfN'') <- unMSF sfN' a
+                  return (b1, switchingPoint' sf1 k dt' b1 sfN'')
+
               | dt == 0 -> return (b, switchingPoint' sf1 k accumDT b sfN')
 
-
-        switchAux :: MSF (Reader DTime) a (b, Event c) -> (c -> MSF (Reader DTime) a b) -> MSF (Reader DTime) a b
+        switchAux :: MSF (Reader DTime) a (b, Event c)
+                  -> (c -> MSF (Reader DTime) a b)
+                  -> MSF (Reader DTime) a b
         switchAux sf1 k = MSF $ \a -> do
           ((b, e), sf1') <- unMSF sf1 a
           case e of
@@ -281,7 +335,8 @@ revSwitch msf k = MSF $ \a -> do
            Event c -> do (b1, sf1'') <- unMSF (k c) a
                          return (b1, switchingPoint sf1 k b1 sf1'')
 
-checkpoint :: MSF (Reader DTime) a (b, Event (), Event ()) -> MSF (Reader DTime) a b
+checkpoint :: MSF (Reader DTime) a (b, Event (), Event ())
+           -> MSF (Reader DTime) a b
 checkpoint sf = MSF $ \a -> do
    ((b, advance, reset), sf') <- unMSF sf a
    case reset of
@@ -291,7 +346,8 @@ checkpoint sf = MSF $ \a -> do
                               NoEvent  -> Right sf
                    in return (b, checkpoint' pt sf')
 
-checkpoint' :: Either (MSF (Reader DTime) a (b, Event (), Event ())) (MSF (Reader DTime) a (b, Event (), Event ()))
+checkpoint' :: Either (MSF (Reader DTime) a (b, Event (), Event ()))
+                      (MSF (Reader DTime) a (b, Event (), Event ()))
             -> (MSF (Reader DTime) a (b, Event (), Event ()))
             -> MSF (Reader DTime) a b
 checkpoint' rstPt sf' = MSF $ \a -> do
@@ -310,7 +366,8 @@ forgetPast sf = MSF $ \a -> do
    (b, sf') <- unMSF sf a
    return (b, forgetPast' 0 sf')
 
-forgetPast' :: Monad m => DTime -> MSF (ReaderT DTime m) a b -> MSF (ReaderT DTime m) a b
+forgetPast' :: Monad m
+            => DTime -> MSF (ReaderT DTime m) a b -> MSF (ReaderT DTime m) a b
 forgetPast' time sf' = MSF $ \a -> do
   dt <- ask
   let time' = time + dt
@@ -329,7 +386,10 @@ limitHistory time sf = MSF $ \a -> do
   (b, sf') <- unMSF sf a
   return (b, limitHistory' 0 time sf')
 
-limitHistory' :: DTime -> DTime -> MSF (Reader DTime) a b -> MSF (Reader DTime) a b
+limitHistory' :: DTime
+              -> DTime
+              -> MSF (Reader DTime) a b
+              -> MSF (Reader DTime) a b
 limitHistory' curT maxT sf' = MSF $ \a -> do
   dt <- ask
   let curT' = curT + dt
@@ -341,13 +401,17 @@ limitHistory' curT maxT sf' = MSF $ \a -> do
     else do (b, sf'') <- unMSF sf' a
             return (b, limitHistory' time' maxT sf'')
 
-clocked :: MSF (Reader DTime) a DTime -> MSF (Reader DTime) a b -> MSF (Reader DTime) a b
+clocked :: MSF (Reader DTime) a DTime
+        -> MSF (Reader DTime) a b
+        -> MSF (Reader DTime) a b
 clocked clockSF sf = MSF $ \a -> do
   (b, sf')  <- unMSF sf a
   (_, cSF') <- unMSF clockSF a
   return (b, clocked' cSF' sf')
 
-clocked' :: MSF (Reader DTime) a DTime -> MSF (Reader DTime) a b -> MSF (Reader DTime) a b
+clocked' :: MSF (Reader DTime) a DTime
+         -> MSF (Reader DTime) a b
+         -> MSF (Reader DTime) a b
 clocked' clockSF sf = MSF $ \a -> do
   (dt', cSF') <- unMSF clockSF a
   (b, sf')    <- withReaderT (\_ -> dt')  (unMSF sf a)
