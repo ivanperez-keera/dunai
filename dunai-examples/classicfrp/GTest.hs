@@ -54,7 +54,12 @@ render (px,py) = do
   white <- SDL.mapRGB (SDL.surfaceGetPixelFormat screen) 0xFF 0xFF 0xFF
   SDL.fillRect screen Nothing white
 
-  SDL.filledCircle screen (fromIntegral px) (fromIntegral py) 30 (Pixel 0xFF0000FF)
+  SDL.filledCircle
+    screen
+    (fromIntegral px)
+    (fromIntegral py)
+    30
+    (Pixel 0xFF0000FF)
 
   SDL.flip screen
 
@@ -99,8 +104,10 @@ instance GameMonad IO where
 instance GameMonad Identity where
   getMousePos = return (400, 300)
 
-instance (Functor m, Applicative m, Monad m) => GameMonad (ReaderT PureGameEnv m) where
-  getMousePos = pureMousePos <$> ask
+instance (Functor m, Applicative m, Monad m)
+      => GameMonad (ReaderT PureGameEnv m)
+  where
+    getMousePos = pureMousePos <$> ask
 
 data PureGameEnv = PureGameEnv { pureMousePos :: (Int, Int)}
 
