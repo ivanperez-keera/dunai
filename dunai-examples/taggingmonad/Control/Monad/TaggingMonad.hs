@@ -18,7 +18,7 @@ instance Monoid t => Applicative (TaggingMonad t) where
 
 instance Monoid t => Monad (TaggingMonad t) where
   return x = TaggingMonad mempty x
-  (TaggingMonad t x) >>= f = 
+  (TaggingMonad t x) >>= f =
     let TaggingMonad t' x' = f x
     in TaggingMonad (mappend t t') x'
 
