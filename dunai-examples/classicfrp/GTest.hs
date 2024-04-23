@@ -1,5 +1,5 @@
-{-# LANGUAGE RankNTypes        #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE RankNTypes        #-}
 
 import           Control.Applicative
 import           Control.Concurrent
