@@ -1,6 +1,6 @@
-{-# LANGUAGE Arrows #-}
+{-# LANGUAGE Arrows              #-}
+{-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE MultiWayIf #-}
 import Data.MonadicStreamFunction
 import Data.MonadicStreamFunction.Core (MSF (unMSF))
 import Control.Monad.Trans.MSF
