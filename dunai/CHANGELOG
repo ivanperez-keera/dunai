@@ -1,3 +1,6 @@
+2024-04-23 Ivan Perez <ivan.perez@keera.co.uk>
+        * Fix typo in documentation (#410).
+
 2024-02-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.12.2) (#398).
         * Limit version of transformers to < 0.6 (#405).
