@@ -23,7 +23,8 @@ main = do
               bouncingBalls
 
 bouncingBalls = proc (mp@(mx, my, ml, mr)) -> do
-  b   <- bouncingBall (100.0 :: Float) (0.0) -< () -- Just to be sure the game is running
+  -- Just to be sure the game is running
+  b <- bouncingBall (100.0 :: Float) (0.0) -< ()
 
   -- More balls, started on clicks
   ml' <- isEvent ^<< edge -< ml
@@ -32,7 +33,9 @@ bouncingBalls = proc (mp@(mx, my, ml, mr)) -> do
 
 fireballs :: SF (Bool, (Float, Float)) [(Float, Float)]
 fireballs = switch
-  (arr (const []) &&& arr (\(mp, pos) -> if mp then Event pos else Yampa.NoEvent))
+  (    arr (const [])
+   &&& arr (\(mp, pos) -> if mp then Event pos else Yampa.NoEvent)
+  )
 
   (\(p, v) -> let oldfb = voidI $ runListMSF (liftTransS (bouncingBall p v))
                   newfb = fireballs
@@ -77,8 +80,12 @@ render ps = do
   white <- SDL.mapRGB (SDL.surfaceGetPixelFormat screen) 0xFF 0xFF 0xFF
   SDL.fillRect screen Nothing white
 
-  mapM_ (\((p,_),xi) ->
-     SDL.filledCircle screen (100 + xi * 100) (600 - 100 - round p) 30 (Pixel 0xFF0000FF))
+  mapM_ (\((p,_),xi) -> SDL.filledCircle
+                          screen
+                          (100 + xi * 100)
+                          (600 - 100 - round p)
+                          30
+                          (Pixel 0xFF0000FF))
      (zip ps [1..])
 
   SDL.flip screen

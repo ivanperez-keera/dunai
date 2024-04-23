@@ -36,8 +36,9 @@ fallingBall p0 v0 = proc () -> do
   returnA -< (p, v)
 
 -- bouncingBall p0 v0 =
---   switch (fallingBall p0 v0 >>> (arr id &&& whenS (\(p,v) -> p <= 0 && v < 0)))
---          (\(p,v) -> bouncingBall p (-v))
+--   switch
+--     (fallingBall p0 v0 >>> (arr id &&& whenS (\(p,v) -> p <= 0 && v < 0)))
+--     (\(p,v) -> bouncingBall p (-v))
 --
 -- fallingBall p0 v0 = proc () -> do
 --   v <- (v0 +) ^<< integral -< (-9.8)

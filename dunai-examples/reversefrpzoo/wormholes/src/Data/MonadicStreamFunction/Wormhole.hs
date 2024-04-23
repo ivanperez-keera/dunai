@@ -97,8 +97,8 @@ concurrently msf a b = do
 
 -- | Creates two ends of a synchronisation wormhole.
 --
--- Often, the external framework may have several parallel loops,
--- for example, OpenGL with a display callback, an idle callback and a keyboard callback.
+-- Often, the external framework may have several parallel loops, for example,
+-- OpenGL with a display callback, an idle callback and a keyboard callback.
 -- In such cases, one would like to let the different parts communicate.
 -- This is done through a wormhole, which is a shared mutable variable
 -- that can be written from one part and read from the other.

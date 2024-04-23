@@ -30,7 +30,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          bearriver
-version:       0.14.7
+version:       0.14.8
 author:        Ivan Perez, Manuel Bärenz
 maintainer:    ivan.perez@keera.co.uk
 homepage:      https://github.com/ivanperez-keera/dunai
@@ -87,6 +87,7 @@ library
     FRP.BearRiver.EventS
     FRP.BearRiver.Hybrid
     FRP.BearRiver.Integration
+    FRP.BearRiver.Loop
     FRP.BearRiver.Scan
     FRP.BearRiver.Switches
     FRP.BearRiver.Time
