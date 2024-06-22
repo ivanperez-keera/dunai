@@ -1,4 +1,5 @@
 2024-06-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * Version bump (0.14.9) (#420).
         * Offer all definitions from FRP.Yampa.Hybrid (#419).
 
 2024-04-23 Ivan Perez <ivan.perez@keera.co.uk>
