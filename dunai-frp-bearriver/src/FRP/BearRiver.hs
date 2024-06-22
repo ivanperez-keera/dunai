@@ -30,8 +30,9 @@ import Data.VectorSpace      as X
 -- Internal imports (dunai)
 import           Control.Monad.Trans.MSF                 hiding (dSwitch)
 import qualified Control.Monad.Trans.MSF                 as MSF
-import           Data.MonadicStreamFunction              as X hiding (iPre,
-                                                               once, reactimate,
+import           Data.MonadicStreamFunction              as X hiding (count,
+                                                               iPre, once,
+                                                               reactimate,
                                                                repeatedly,
                                                                switch, trace)
 import qualified Data.MonadicStreamFunction              as MSF
