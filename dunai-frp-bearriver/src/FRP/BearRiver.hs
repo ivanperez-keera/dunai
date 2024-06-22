@@ -30,7 +30,7 @@ import Data.VectorSpace      as X
 import           Control.Monad.Trans.MSF                 hiding (dSwitch)
 import qualified Control.Monad.Trans.MSF                 as MSF
 import           Data.MonadicStreamFunction              as X hiding (count,
-                                                               iPre, once,
+                                                               iPre, next, once,
                                                                reactimate,
                                                                repeatedly,
                                                                switch, trace)
@@ -45,6 +45,7 @@ import           FRP.BearRiver.EventS                    as X
 import           FRP.BearRiver.Hybrid                    as X
 import           FRP.BearRiver.Integration               as X
 import           FRP.BearRiver.InternalCore              as X
+import           FRP.BearRiver.Random                    as X
 import           FRP.BearRiver.Scan                      as X
 import           FRP.BearRiver.Switches                  as X
 import           FRP.BearRiver.Time                      as X
