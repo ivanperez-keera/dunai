@@ -91,6 +91,7 @@ library
     FRP.BearRiver.Random
     FRP.BearRiver.Scan
     FRP.BearRiver.Switches
+    FRP.BearRiver.Task
     FRP.BearRiver.Time
     FRP.Yampa
 
