@@ -22,7 +22,6 @@ module FRP.BearRiver
 
 -- External imports
 import Control.Arrow         as X
-import Control.Monad.Random  (MonadRandom)
 import Data.Functor.Identity (Identity (..))
 import Data.Maybe            (fromMaybe)
 import Data.VectorSpace      as X
@@ -31,7 +30,7 @@ import Data.VectorSpace      as X
 import           Control.Monad.Trans.MSF                 hiding (dSwitch)
 import qualified Control.Monad.Trans.MSF                 as MSF
 import           Data.MonadicStreamFunction              as X hiding (count,
-                                                               iPre, once,
+                                                               iPre, next, once,
                                                                reactimate,
                                                                repeatedly,
                                                                switch, trace)
@@ -46,6 +45,7 @@ import           FRP.BearRiver.EventS                    as X
 import           FRP.BearRiver.Hybrid                    as X
 import           FRP.BearRiver.Integration               as X
 import           FRP.BearRiver.InternalCore              as X
+import           FRP.BearRiver.Random                    as X
 import           FRP.BearRiver.Scan                      as X
 import           FRP.BearRiver.Switches                  as X
 import           FRP.BearRiver.Time                      as X
@@ -78,30 +78,6 @@ boolToEvent False = NoEvent
 -- | Loop with an initial value for the signal being fed back.
 loopPre :: Monad m => c -> SF m (a, c) (b, c) -> SF m a b
 loopPre = feedback
-
--- * Noise (random signal) sources and stochastic event sources
-
--- | Stochastic event source with events occurring on average once every tAvg
--- seconds. However, no more than one event results from any one sampling
--- interval in the case of relatively sparse sampling, thus avoiding an "event
--- backlog" should sampling become more frequent at some later point in time.
-occasionally :: MonadRandom m
-             => Time -- ^ The time /q/ after which the event should be produced
-                     -- on average
-             -> b    -- ^ Value to produce at time of event
-             -> SF m a (Event b)
-occasionally tAvg b
-    | tAvg <= 0
-    = error "bearriver: Non-positive average interval in occasionally."
-
-    | otherwise = proc _ -> do
-        r   <- getRandomRS (0, 1) -< ()
-        dt  <- timeDelta          -< ()
-        let p = 1 - exp (-(dt / tAvg))
-        returnA -< if r < p then Event b else NoEvent
-  where
-    timeDelta :: Monad m => SF m a DTime
-    timeDelta = constM ask
 
 -- * Execution/simulation
 
