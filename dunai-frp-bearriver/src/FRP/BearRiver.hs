@@ -48,6 +48,7 @@ import           FRP.BearRiver.InternalCore              as X
 import           FRP.BearRiver.Random                    as X
 import           FRP.BearRiver.Scan                      as X
 import           FRP.BearRiver.Switches                  as X
+import           FRP.BearRiver.Task                      as X
 import           FRP.BearRiver.Time                      as X
 
 -- Internal imports (dunai, instances)
