@@ -30,7 +30,8 @@ import Data.VectorSpace      as X
 import           Control.Monad.Trans.MSF                 hiding (dSwitch)
 import qualified Control.Monad.Trans.MSF                 as MSF
 import           Data.MonadicStreamFunction              as X hiding (count,
-                                                               iPre, next, once,
+                                                               embed, iPre,
+                                                               next, once,
                                                                reactimate,
                                                                repeatedly,
                                                                switch, trace)
@@ -47,6 +48,7 @@ import           FRP.BearRiver.Integration               as X
 import           FRP.BearRiver.InternalCore              as X
 import           FRP.BearRiver.Random                    as X
 import           FRP.BearRiver.Scan                      as X
+import           FRP.BearRiver.Simulation                as X
 import           FRP.BearRiver.Switches                  as X
 import           FRP.BearRiver.Task                      as X
 import           FRP.BearRiver.Time                      as X
@@ -79,91 +81,3 @@ boolToEvent False = NoEvent
 -- | Loop with an initial value for the signal being fed back.
 loopPre :: Monad m => c -> SF m (a, c) (b, c) -> SF m a b
 loopPre = feedback
-
--- * Execution/simulation
-
--- ** Reactimation
-
--- | Convenience function to run a signal function indefinitely, using a IO
--- actions to obtain new input and process the output.
---
--- This function first runs the initialization action, which provides the
--- initial input for the signal transformer at time 0.
---
--- Afterwards, an input sensing action is used to obtain new input (if any) and
--- the time since the last iteration. The argument to the input sensing
--- function indicates if it can block. If no new input is received, it is
--- assumed to be the same as in the last iteration.
---
--- After applying the signal function to the input, the actuation IO action is
--- executed. The first argument indicates if the output has changed, the second
--- gives the actual output). Actuation functions may choose to ignore the first
--- argument altogether. This action should return True if the reactimation must
--- stop, and False if it should continue.
---
--- Note that this becomes the program's /main loop/, which makes using this
--- function incompatible with GLUT, Gtk and other graphics libraries. It may
--- also impose a sizeable constraint in larger projects in which different
--- subparts run at different time steps. If you need to control the main loop
--- yourself for these or other reasons, use 'reactInit' and 'react'.
-reactimate :: Monad m
-           => m a
-           -> (Bool -> m (DTime, Maybe a))
-           -> (Bool -> b -> m Bool)
-           -> SF Identity a b
-           -> m ()
-reactimate senseI sense actuate sf = do
-    MSF.reactimateB $ senseSF >>> sfIO >>> actuateSF
-    return ()
-  where
-    sfIO = morphS (return.runIdentity) (runReaderS sf)
-
-    -- Sense
-    senseSF = MSF.dSwitch senseFirst senseRest
-
-    -- Sense: First sample
-    senseFirst = constM senseI >>> arr (\x -> ((0, x), Just x))
-
-    -- Sense: Remaining samples
-    senseRest a = constM (sense True) >>> (arr id *** keepLast a)
-
-    keepLast :: Monad m => a -> MSF m (Maybe a) a
-    keepLast a = MSF $ \ma ->
-      let a' = fromMaybe a ma
-      in a' `seq` return (a', keepLast a')
-
-    -- Consume/render
-    actuateSF = arr (\x -> (True, x)) >>> arrM (uncurry actuate)
-
--- * Debugging / Step by step simulation
-
--- | Evaluate an SF, and return an output and an initialized SF.
---
--- /WARN/: Do not use this function for standard simulation. This function is
--- intended only for debugging/testing. Apart from being potentially slower and
--- consuming more memory, it also breaks the FRP abstraction by making samples
--- discrete and step based.
-evalAtZero :: SF Identity a b -> a -> (b, SF Identity a b)
-evalAtZero sf a = runIdentity $ runReaderT (unMSF sf a) 0
-
--- | Evaluate an initialized SF, and return an output and a continuation.
---
--- /WARN/: Do not use this function for standard simulation. This function is
--- intended only for debugging/testing. Apart from being potentially slower and
--- consuming more memory, it also breaks the FRP abstraction by making samples
--- discrete and step based.
-evalAt :: SF Identity a b -> DTime -> a -> (b, SF Identity a b)
-evalAt sf dt a = runIdentity $ runReaderT (unMSF sf a) dt
-
--- | Given a signal function and time delta, it moves the signal function into
--- the future, returning a new uninitialized SF and the initial output.
---
--- While the input sample refers to the present, the time delta refers to the
--- future (or to the time between the current sample and the next sample).
---
--- /WARN/: Do not use this function for standard simulation. This function is
--- intended only for debugging/testing. Apart from being potentially slower and
--- consuming more memory, it also breaks the FRP abstraction by making samples
--- discrete and step based.
-evalFuture :: SF Identity a b -> a -> DTime -> (b, SF Identity a b)
-evalFuture sf = flip (evalAt sf)
