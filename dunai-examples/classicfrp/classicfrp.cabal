@@ -20,8 +20,8 @@ executable test
   -- other-modules:
   other-extensions:    Arrows, RankNTypes, FlexibleInstances
   build-depends:       base >=4.6 && <5
-                     , mtl >=2.2 && <2.3
-                     , transformers ==0.5.*
+                     , mtl >=2.2 && <2.4
+                     , transformers >=0.5 && <0.7
                      , SDL >=0.6 && <0.7
                      , SDL-gfx >=0.6 && <0.7
                      , dunai
@@ -35,8 +35,8 @@ executable gtest
   -- other-modules:
   other-extensions:    Arrows, RankNTypes, FlexibleInstances
   build-depends:       base >=4.6 && <5
-                     , mtl >=2.2 && <2.3
-                     , transformers ==0.5.*
+                     , mtl >=2.2 && <2.4
+                     , transformers >=0.5 && <0.7
                      , SDL >=0.6 && <0.7
                      , SDL-gfx >=0.6 && <0.7
                      , dunai
