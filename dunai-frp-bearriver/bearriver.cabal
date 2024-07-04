@@ -90,6 +90,7 @@ library
     FRP.BearRiver.Loop
     FRP.BearRiver.Random
     FRP.BearRiver.Scan
+    FRP.BearRiver.Simulation
     FRP.BearRiver.Switches
     FRP.BearRiver.Task
     FRP.BearRiver.Time

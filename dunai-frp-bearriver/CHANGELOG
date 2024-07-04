@@ -3,6 +3,7 @@
         * Offer all definitions from FRP.Yampa.Random (#423).
         * Offer all definitions from FRP.Yampa.Task (#424).
         * Increase upper bounds on mtl (#427).
+        * Offer all definitions from FRP.Yampa.Simulation (#425).
         * Thanks to @tomsmeding.
 
 2024-06-21 Ivan Perez <ivan.perez@keera.co.uk>

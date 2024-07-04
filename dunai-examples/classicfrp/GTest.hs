@@ -12,7 +12,7 @@ import           Data.Maybe
 import           Data.MonadicStreamFunction hiding (reactimate, switch, trace)
 import qualified Data.MonadicStreamFunction as MSF
 import           Debug.Trace
-import           FRP.BearRiver
+import           FRP.BearRiver              hiding (embed)
 import           Graphics.UI.SDL            as SDL
 import           Graphics.UI.SDL.Primitives as SDL
 
