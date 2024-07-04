@@ -23,7 +23,7 @@ module FRP.BearRiver.Switches
       -- * Basic switching
       switch,  dSwitch
     , rSwitch, drSwitch
-    , kSwitch
+    , kSwitch, dkSwitch
 
       -- * Parallel composition\/switching (collections)
       -- ** With broadcasting
@@ -47,7 +47,7 @@ import Control.Monad.Trans.Reader (ask)
 import Data.Traversable           as T
 
 -- Internal imports (dunai)
-import Control.Monad.Trans.MSF                 (local)
+import Control.Monad.Trans.MSF                 (local, performOnFirstSample)
 import Control.Monad.Trans.MSF.List            (sequenceS, widthFirst)
 import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
@@ -153,6 +153,39 @@ kSwitch sf10 tfe0 k = MSF tf0
       case me of
         NoEvent  -> return (b0, kSwitch sf1 sfe k)
         Event c0 -> unMSF (k sf10 c0) a0
+
+-- | 'kSwitch' with delayed observation.
+--
+-- Applies the first SF until the input signal and the output signal, when
+-- passed to the second SF, produce an event, in which case the original SF and
+-- the event are used to build an new SF to switch into.
+--
+-- The switch is decoupled ('dSwitch').
+--
+-- See <https://wiki.haskell.org/Yampa#Switches> for more information on how
+-- this switch works.
+#if MIN_VERSION_base(4,8,0)
+dkSwitch :: Monad m
+         => SF m a b
+         -> SF m (a, b) (Event c)
+         -> (SF m a b -> c -> SF m a b)
+         -> SF m a b
+#else
+dkSwitch :: (Functor m, Monad m)
+         => SF m a b
+         -> SF m (a, b) (Event c)
+         -> (SF m a b -> c -> SF m a b)
+         -> SF m a b
+#endif
+dkSwitch sf1 sfe k = MSF tf -- False
+      where
+        tf a = do
+          (b, sf1')  <- unMSF sf1 a
+          (me, sfe') <- unMSF sfe (a, b)
+          let sfe'' = case me of
+                        NoEvent -> dkSwitch sf1' sfe' k
+                        Event c -> performOnFirstSample (snd <$> unMSF (k sf1 c) a)
+          return (b, sfe'')
 
 -- * Parallel composition and switching
 
