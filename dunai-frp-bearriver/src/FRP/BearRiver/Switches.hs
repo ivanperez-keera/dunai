@@ -22,6 +22,7 @@ module FRP.BearRiver.Switches
     (
       -- * Basic switching
       switch,  dSwitch
+    , rSwitch
 
       -- * Parallel composition\/switching (collections)
       -- ** With broadcasting
@@ -40,6 +41,7 @@ module FRP.BearRiver.Switches
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative (Applicative (..), (<$>))
 #endif
+import Control.Arrow    (first)
 import Data.Traversable as T
 
 -- Internal imports (dunai)
@@ -48,7 +50,8 @@ import Control.Monad.Trans.MSF.List            (sequenceS, widthFirst)
 import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 
 -- Internal imports
-import FRP.BearRiver.Event        (Event (..))
+import FRP.BearRiver.Basic        ((>=-))
+import FRP.BearRiver.Event        (Event (..), noEventSnd)
 import FRP.BearRiver.InternalCore (SF)
 
 -- * Basic switches
@@ -104,6 +107,16 @@ dSwitch sf sfC = MSF $ \a -> do
     (b, Event c) -> do (_, ct') <- local (const 0) (unMSF (sfC c) a)
                        return (b, ct')
     (b, NoEvent) -> return (b, dSwitch ct sfC)
+
+-- | Recurring switch.
+--
+-- Uses the given SF until an event comes in the input, in which case the SF in
+-- the event is turned on, until the next event comes in the input, and so on.
+--
+-- See <https://wiki.haskell.org/Yampa#Switches> for more information on how
+-- this switch works.
+rSwitch :: Monad m => SF m a b -> SF m (a, Event (SF m a b)) b
+rSwitch sf = switch (first sf) ((noEventSnd >=-) . rSwitch)
 
 -- * Parallel composition and switching
 
