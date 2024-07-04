@@ -23,6 +23,7 @@ module FRP.BearRiver.Switches
       -- * Basic switching
       switch,  dSwitch
     , rSwitch, drSwitch
+    , kSwitch
 
       -- * Parallel composition\/switching (collections)
       -- ** With broadcasting
@@ -41,8 +42,9 @@ module FRP.BearRiver.Switches
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative (Applicative (..), (<$>))
 #endif
-import Control.Arrow    (first)
-import Data.Traversable as T
+import Control.Arrow              (first)
+import Control.Monad.Trans.Reader (ask)
+import Data.Traversable           as T
 
 -- Internal imports (dunai)
 import Control.Monad.Trans.MSF                 (local)
@@ -129,6 +131,28 @@ rSwitch sf = switch (first sf) ((noEventSnd >=-) . rSwitch)
 -- this switch works.
 drSwitch :: Monad m => SF m a b -> SF m (a, Event (SF m a b)) b
 drSwitch sf = dSwitch (first sf) ((noEventSnd >=-) . drSwitch)
+
+-- | Call-with-current-continuation switch.
+--
+-- Applies the first SF until the input signal and the output signal, when
+-- passed to the second SF, produce an event, in which case the original SF and
+-- the event are used to build an new SF to switch into.
+--
+-- See <https://wiki.haskell.org/Yampa#Switches> for more information on how
+-- this switch works.
+kSwitch :: Monad m
+        => SF m a b
+        -> SF m (a, b) (Event c)
+        -> (SF m a b -> c -> SF m a b)
+        -> SF m a b
+kSwitch sf10 tfe0 k = MSF tf0
+  where
+    tf0 a0 = do
+      (b0, sf1) <- unMSF sf10 a0
+      (me, sfe) <- unMSF tfe0 (a0, b0)
+      case me of
+        NoEvent  -> return (b0, kSwitch sf1 sfe k)
+        Event c0 -> unMSF (k sf10 c0) a0
 
 -- * Parallel composition and switching
 
