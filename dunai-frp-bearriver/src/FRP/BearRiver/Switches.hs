@@ -22,7 +22,7 @@ module FRP.BearRiver.Switches
     (
       -- * Basic switching
       switch,  dSwitch
-    , rSwitch
+    , rSwitch, drSwitch
 
       -- * Parallel composition\/switching (collections)
       -- ** With broadcasting
@@ -117,6 +117,18 @@ dSwitch sf sfC = MSF $ \a -> do
 -- this switch works.
 rSwitch :: Monad m => SF m a b -> SF m (a, Event (SF m a b)) b
 rSwitch sf = switch (first sf) ((noEventSnd >=-) . rSwitch)
+
+-- | Recurring switch with delayed observation.
+--
+-- Uses the given SF until an event comes in the input, in which case the SF in
+-- the event is turned on, until the next event comes in the input, and so on.
+--
+-- Uses decoupled switch ('dSwitch').
+--
+-- See <https://wiki.haskell.org/Yampa#Switches> for more information on how
+-- this switch works.
+drSwitch :: Monad m => SF m a b -> SF m (a, Event (SF m a b)) b
+drSwitch sf = dSwitch (first sf) ((noEventSnd >=-) . drSwitch)
 
 -- * Parallel composition and switching
 
