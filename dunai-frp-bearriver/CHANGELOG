@@ -1,7 +1,9 @@
-2024-06-23 Ivan Perez <ivan.perez@keera.co.uk>
+2024-07-04 Ivan Perez <ivan.perez@keera.co.uk>
         * Offer all definitions from FRP.Yampa.Integration (#422).
         * Offer all definitions from FRP.Yampa.Random (#423).
         * Offer all definitions from FRP.Yampa.Task (#424).
+        * Increase upper bounds on mtl (#427).
+        * Thanks to @tomsmeding.
 
 2024-06-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.14.9) (#420).
