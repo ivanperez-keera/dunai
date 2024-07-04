@@ -1,3 +1,7 @@
+2024-07-04 Ivan Perez <ivan.perez@keera.co.uk>
+        * Increase upper bounds on transformers (#427).
+        * Thanks to @tomsmeding.
+
 2024-06-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.13.0) (#420).
         * Implement List interface using list-transformer (#418).
