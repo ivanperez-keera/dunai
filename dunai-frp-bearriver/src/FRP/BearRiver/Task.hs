@@ -1,0 +1,187 @@
+{-# LANGUAGE CPP        #-}
+{-# LANGUAGE Rank2Types #-}
+-- |
+-- Module      : FRP.BearRiver.Task
+-- Copyright   : (c) Ivan Perez, 2014-2024
+--               (c) George Giorgidze, 2007-2012
+--               (c) Henrik Nilsson, 2005-2006
+--               (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
+-- License     : BSD3
+--
+-- Maintainer  : ivan.perez@keera.co.uk
+-- Stability   : provisional
+-- Portability : non-portable (GHC extensions)
+--
+-- Task abstraction on top of signal transformers.
+module FRP.BearRiver.Task
+    (
+      -- * The Task type
+      Task
+    , mkTask
+    , runTask
+    , runTask_
+    , taskToSF
+
+      -- * Basic tasks
+    , constT
+    , sleepT
+    , snapT
+
+    -- * Basic tasks combinators
+    , timeOut
+    , abortWhen
+    )
+  where
+
+-- External imports
+#if __GLASGOW_HASKELL__ < 710
+import Control.Applicative (Applicative(..))
+#endif
+
+-- Internal imports
+import FRP.BearRiver.Basic        (constant)
+import FRP.BearRiver.Event        (Event, lMerge)
+import FRP.BearRiver.EventS       (after, edgeBy, never, snap)
+import FRP.BearRiver.InternalCore (SF, Time, arr, first, (&&&), (>>>))
+import FRP.BearRiver.Switches     (switch)
+
+infixl 0 `timeOut`, `abortWhen`
+
+-- * The Task type
+
+-- | A task is a partially SF that may terminate with a result.
+newtype Task m a b c =
+  -- CPS-based representation allowing termination to be detected. Note the
+  -- rank 2 polymorphic type! The representation can be changed if necessary,
+  -- but the Monad laws follow trivially in this case.
+  Task (forall d . (c -> SF m a (Either b d)) -> SF m a (Either b d))
+
+unTask :: Monad m
+       => Task m a b c -> ((c -> SF m a (Either b d)) -> SF m a (Either b d))
+unTask (Task f) = f
+
+-- | Creates a 'Task' from an SF that returns, as a second output, an 'Event'
+-- when the SF terminates. See 'switch'.
+mkTask :: Monad m => SF m a (b, Event c) -> Task m a b c
+mkTask st = Task (switch (st >>> first (arr Left)))
+
+-- | Runs a task.
+--
+-- The output from the resulting signal transformer is tagged with Left while
+-- the underlying task is running. Once the task has terminated, the output
+-- goes constant with the value Right x, where x is the value of the
+-- terminating event.
+
+-- Check name.
+runTask :: Monad m => Task m a b c -> SF m a (Either b c)
+runTask tk = (unTask tk) (constant . Right)
+
+-- | Runs a task that never terminates.
+--
+-- The output becomes undefined once the underlying task has terminated.
+--
+-- Convenience function for tasks which are known not to terminate.
+runTask_ :: Monad m => Task m a b c -> SF m a b
+runTask_ tk =
+  runTask tk
+  >>> arr (either id (error "BearRiverTask: runTask_: Task terminated!"))
+
+-- | Creates an SF that represents an SF and produces an event when the task
+-- terminates, and otherwise produces just an output.
+taskToSF :: Monad m => Task m a b c -> SF m a (b, Event c)
+taskToSF tk =
+    runTask tk
+    >>> (arr (either id (error "BearRiverTask: runTask_: Task terminated!"))
+         &&& edgeBy isEdge (Left undefined))
+  where
+    isEdge (Left _) (Right c) = Just c
+    isEdge _        _         = Nothing
+
+-- * Functor, Applicative and Monad instance
+
+instance Monad m => Functor (Task m a b) where
+  fmap f tk = Task (\k -> unTask tk (k . f))
+
+instance Monad m => Applicative (Task m a b) where
+  pure x  = Task (\k -> k x)
+  f <*> v = Task (\k -> (unTask f) (\c -> unTask v (k . c)))
+
+instance Monad m => Monad (Task m a b) where
+  tk >>= f = Task (\k -> unTask tk (\c -> unTask (f c) k))
+  return   = pure
+
+-- Let's check the monad laws:
+--
+--   t >>= return
+--   = \k -> t (\c -> return c k)
+--   = \k -> t (\c -> (\x -> \k -> k x) c k)
+--   = \k -> t (\c -> (\x -> \k' -> k' x) c k)
+--   = \k -> t (\c -> k c)
+--   = \k -> t k
+--   = t
+--   QED
+--
+--   return x >>= f
+--   = \k -> (return x) (\c -> f c k)
+--   = \k -> (\k -> k x) (\c -> f c k)
+--   = \k -> (\k' -> k' x) (\c -> f c k)
+--   = \k -> (\c -> f c k) x
+--   = \k -> f x k
+--   = f x
+--   QED
+--
+--   (t >>= f) >>= g
+--   = \k -> (t >>= f) (\c -> g c k)
+--   = \k -> (\k' -> t (\c' -> f c' k')) (\c -> g c k)
+--   = \k -> t (\c' -> f c' (\c -> g c k))
+--   = \k -> t (\c' -> (\x -> \k' -> f x (\c -> g c k')) c' k)
+--   = \k -> t (\c' -> (\x -> f x >>= g) c' k)
+--   = t >>= (\x -> f x >>= g)
+--   QED
+--
+-- No surprises (obviously, since this is essentially just the CPS monad).
+
+-- * Basic tasks
+
+-- | Non-terminating task with constant output b.
+constT :: Monad m => b -> Task m a b c
+constT b = mkTask (constant b &&& never)
+
+-- | "Sleeps" for t seconds with constant output b.
+sleepT :: Monad m => Time -> b -> Task m a b ()
+sleepT t b = mkTask (constant b &&& after t ())
+
+-- | Takes a "snapshot" of the input and terminates immediately with the input
+-- value as the result.
+--
+-- No time passes; therefore, the following must hold:
+--
+-- @snapT >> snapT = snapT@
+snapT :: Monad m => Task m a b a
+snapT = mkTask (constant (error "BearRiverTask: snapT: Bad switch?") &&& snap)
+
+-- * Basic tasks combinators
+
+-- | Impose a time out on a task.
+timeOut :: Monad m => Task m a b c -> Time -> Task m a b (Maybe c)
+tk `timeOut` t = mkTask ((taskToSF tk &&& after t ()) >>> arr aux)
+  where
+    aux ((b, ec), et) = (b, lMerge (fmap Just ec) (fmap (const Nothing) et))
+
+-- | Run a "guarding" event source (SF m a (Event b)) in parallel with a
+-- (possibly non-terminating) task.
+--
+-- The task will be aborted at the first occurrence of the event source (if it
+-- has not terminated itself before that).
+--
+-- Useful for separating sequencing and termination concerns.  E.g. we can do
+-- something "useful", but in parallel watch for a (exceptional) condition
+-- which should terminate that activity, without having to check for that
+-- condition explicitly during each and every phase of the activity.
+--
+-- Example: @tsk `abortWhen` lbp@
+abortWhen :: Monad m
+          => Task m a b c -> SF m a (Event d) -> Task m a b (Either c d)
+tk `abortWhen` est = mkTask ((taskToSF tk &&& est) >>> arr aux)
+  where
+    aux ((b, ec), ed) = (b, lMerge (fmap Left ec) (fmap Right ed))

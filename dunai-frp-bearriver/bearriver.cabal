@@ -30,7 +30,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          bearriver
-version:       0.14.9
+version:       0.14.10
 author:        Ivan Perez, Manuel Bärenz
 maintainer:    ivan.perez@keera.co.uk
 homepage:      https://github.com/ivanperez-keera/dunai
@@ -88,8 +88,11 @@ library
     FRP.BearRiver.Hybrid
     FRP.BearRiver.Integration
     FRP.BearRiver.Loop
+    FRP.BearRiver.Random
     FRP.BearRiver.Scan
+    FRP.BearRiver.Simulation
     FRP.BearRiver.Switches
+    FRP.BearRiver.Task
     FRP.BearRiver.Time
     FRP.Yampa
 
@@ -100,8 +103,8 @@ library
       base >= 4.6 && <5
     , deepseq             >= 1.3.0.0 && < 1.6
     , dunai >= 0.6.0 && < 0.14
-    , MonadRandom         >= 0.2   && < 0.7
-    , mtl                 >= 2.1.2 && < 2.3
+    , mtl                 >= 2.1.2 && < 2.4
+    , random              >= 1.1   && < 1.3
     , simple-affine-space >= 0.1   && < 0.3
     , transformers >= 0.3 && < 0.7
 
