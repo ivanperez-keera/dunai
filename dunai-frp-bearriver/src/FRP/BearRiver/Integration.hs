@@ -27,6 +27,7 @@ module FRP.BearRiver.Integration
       -- * Integration
       integral
     , imIntegral
+    , trapezoidIntegral
     , impulseIntegral
     , count
 
@@ -68,6 +69,12 @@ integralFrom a0 = proc a -> do
 imIntegral :: (Fractional s, VectorSpace a s, Monad m)
            => a -> SF m a a
 imIntegral = ((\_ a' dt v -> v ^+^ realToFrac dt *^ a') `iterFrom`)
+
+-- | Trapezoid integral (using the average between the value at the last time
+-- and the value at the current time).
+trapezoidIntegral :: (Fractional s, VectorSpace a s, Monad m) => SF m a a
+trapezoidIntegral =
+  iterFrom (\a a' dt v -> v ^+^ (realToFrac dt / 2) *^ (a ^+^ a')) zeroVector
 
 -- | Integrate the first input signal and add the /discrete/ accumulation (sum)
 -- of the second, discrete, input signal.
