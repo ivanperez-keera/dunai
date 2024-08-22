@@ -1,4 +1,5 @@
-2024-07-04 Ivan Perez <ivan.perez@keera.co.uk>
+2024-08-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * Version bump (0.13.1) (#430).
         * Increase upper bounds on transformers (#427).
         * Thanks to @tomsmeding.
 
