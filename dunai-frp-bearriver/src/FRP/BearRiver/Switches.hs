@@ -44,7 +44,7 @@ module FRP.BearRiver.Switches
     , pSwitchZ
     , dpSwitchZ
     , rpSwitchZ
-
+    , drpSwitchZ
 
       -- ** With replication
     , parC
@@ -510,7 +510,22 @@ rpSwitchZ :: (Functor m, Monad m)
           => [SF m a b] -> SF m ([a], Event ([SF m a b] -> [SF m a b])) [b]
 rpSwitchZ = rpSwitch (safeZip "rpSwitchZ")
 
--- ** Parallel composition over collections
+-- | Decoupled recurring parallel switch with "zip" routing.
+--
+-- Uses the given list of SFs, until an event comes in the input, in which case
+-- the function in the 'Event' is used to transform the list of SF to be used
+-- with 'rpSwitchZ' again, until the next event comes in the input, and so on.
+--
+-- Zip routing is used to decide which subpart of the input goes to each SF in
+-- the list.
+--
+-- See 'rpSwitchZ' and 'drpSwitch'.
+--
+-- For more information on how parallel composition works, check
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
+drpSwitchZ :: (Functor m, Monad m)
+           => [SF m a b] -> SF m ([a], Event ([SF m a b] -> [SF m a b])) [b]
+drpSwitchZ = drpSwitch (safeZip "drpSwitchZ")
 
 -- | Zip two lists.
 --
