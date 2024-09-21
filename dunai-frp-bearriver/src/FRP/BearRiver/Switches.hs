@@ -41,6 +41,7 @@ module FRP.BearRiver.Switches
       --
       -- ** With "zip" routing
     , parZ
+    , pSwitchZ
 
 
       -- ** With replication
@@ -465,6 +466,18 @@ drpSwitch rf sfs =
 -- [[1],[2]]
 parZ :: (Functor m, Monad m) => [SF m a b] -> SF m [a] [b]
 parZ = par (safeZip "parZ")
+
+-- | Parallel switch (dynamic collection of signal functions spatially composed
+-- in parallel). See 'pSwitch'.
+--
+-- For more information on how parallel composition works, check
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
+pSwitchZ :: (Functor m, Monad m)
+         => [SF m a b]
+         -> SF m ([a], [b]) (Event c)
+         -> ([SF m a b] -> c -> SF m [a] [b])
+         -> SF m [a] [b]
+pSwitchZ = pSwitch (safeZip "pSwitchZ")
 
 -- ** Parallel composition over collections
 
