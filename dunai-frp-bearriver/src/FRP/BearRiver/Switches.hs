@@ -19,6 +19,54 @@
 -- The basic idea of switching is formed by combining a subordinate signal
 -- function and a signal function continuation parameterised over some initial
 -- data.
+--
+-- For example, the most basic switch has the following signature:
+--
+-- @switch :: Monad m => SF m a (b, Event c) -> (c -> SF m a b) -> SF m a b@
+--
+-- which indicates that it has two parameters: a signal function that produces
+-- an output and indicates, with an event, when it is time to switch, and a
+-- signal function that starts with the residual data left by the first SF in
+-- the event and continues onwards.
+--
+-- Switching occurs, at most, once. If you want something to switch repeatedly,
+-- in general, you need to loop, or to switch onto the same signal function
+-- again. However, some switches, explained below, are immediate (meaning that
+-- the second SF is started at the time of switching). If you use the same SF
+-- that originally provoked the switch, you are very likely to fall into an
+-- infinite loop. In those cases, the use of 'dSwitch' or '-->' may help.
+--
+-- Switches vary depending on a number of criteria:
+--
+-- - /Decoupled/ vs normal switching /(d)/: when an SF is being applied and a
+-- different SF needs to be applied next, one question is which one is used for
+-- the time in which the switching takes place. In decoupled switching, the old
+-- SF is used for the time of switching, and the one SF is only used after that.
+-- In normal or instantaneous or coupled switching, the old SF is discarded
+-- immediately and a new SF is used for the output already from that point in
+-- time.
+--
+-- - How the switching event is provided /( \/r\/k)/: normally, an 'Event' is
+-- used to indicate that a switching must take place. This event can be part of
+-- the argument SF (e.g., 'switch'), it can be part of the input (e.g.,
+-- 'rSwitch'), or it can be determined by a second argument SF (e.g, 'kSwitch').
+--
+-- - How many SFs are being handled /( \/p\/par)/: some combinators deal with
+-- only one SF, others handle collections, either in the form of a 'Functor' or
+-- a list ('[]').
+--
+-- - How the input is router /(B\/Z\/ )/: when multiple SFs are being combined,
+-- a decision needs to be made about how the input is passed to the internal
+-- SFs.  In some cases, broadcasting is used to pass the same input to all
+-- internal SFs. In others, the input is itself a collection, and each element
+-- is passed to one internal SF (i.e., /zipping/). In others, an auxiliary
+-- function is used to decide how to route specific inputs to specific SFs in
+-- the collection.
+--
+-- These gives a number of different combinations, some of which make no sense,
+-- and also helps determine the expected behaviour of a combinator by looking at
+-- its name. For example, 'drpSwitchB' is the decoupled (/d/), recurrent (/r/),
+-- parallel (/p/) switch with broadcasting (/B/).
 module FRP.BearRiver.Switches
     (
       -- * Basic switching
