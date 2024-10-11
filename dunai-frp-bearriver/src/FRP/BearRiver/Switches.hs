@@ -33,7 +33,7 @@ module FRP.BearRiver.Switches
 
       -- ** With helper routing function
     , par
-    , pSwitch
+    , pSwitch,  dpSwitch
 
       -- * Parallel composition\/switching (lists)
 
@@ -295,6 +295,46 @@ pSwitch rf sfs0 sfe0 k = MSF tf0
             NoEvent -> return (cs, pSwitchAux sfs' sfe')
             Event d -> do dt <- ask
                           unMSF (k (freezeCol sfs dt) d) a
+
+-- | Parallel switch with delayed observation parameterized on the routing
+-- function.
+--
+-- The collection argument to the function invoked on the switching event is of
+-- particular interest: it captures the continuations of the signal functions
+-- running in the collection maintained by 'dpSwitch' at the time of the
+-- switching event, thus making it possible to preserve their state across a
+-- switch.  Since the continuations are plain, ordinary signal functions, they
+-- can be resumed, discarded, stored, or combined with other signal functions.
+dpSwitch :: (Monad m, Traversable col)
+         => (forall sf. (a -> col sf -> col (b, sf)))
+            -- ^ Routing function. Its purpose is to pair up each running signal
+            -- function in the collection maintained by 'dpSwitch' with the
+            -- input it is going to see at each point in time. All the routing
+            -- function can do is specify how the input is distributed.
+         -> col (SF m b c)
+            -- ^ Initial collection of signal functions.
+         -> SF m (a, col c) (Event d)
+            -- ^ Signal function that observes the external input signal and the
+            -- output signals from the collection in order to produce a
+            -- switching event.
+         -> (col (SF m b c) -> d -> SF m a (col c))
+            -- ^ The fourth argument is a function that is invoked when the
+            -- switching event occurs, yielding a new signal function to switch
+            -- into based on the collection of signal functions previously
+            -- running and the value carried by the switching event. This allows
+            -- the collection to be updated and then switched back in, typically
+            -- by employing 'dpSwitch' again.
+         -> SF m a (col c)
+dpSwitch rf sfs sfF sfCs = MSF $ \a -> do
+  let bsfs = rf a sfs
+  res <- T.mapM (\(b, sf) -> unMSF sf b) bsfs
+  let cs   = fmap fst res
+      sfs' = fmap snd res
+  (e, sfF') <- unMSF sfF (a, cs)
+  let ct = case e of
+          Event d -> sfCs sfs' d
+          NoEvent -> dpSwitch rf sfs' sfF' sfCs
+  return (cs, ct)
 
 -- ** Parallel composition over collections
 
