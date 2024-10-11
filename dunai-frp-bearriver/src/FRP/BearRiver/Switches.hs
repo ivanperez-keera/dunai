@@ -29,7 +29,7 @@ module FRP.BearRiver.Switches
       -- * Parallel composition\/switching (collections)
       -- ** With broadcasting
     , parB
-    , dpSwitchB
+    , pSwitchB, dpSwitchB
 
       -- ** With helper routing function
     , par
@@ -198,6 +198,10 @@ dkSwitch sf1 sfe k = MSF tf -- False
 
 -- ** Parallel composition and switching over collections with broadcasting
 
+-- | Tuple a value up with every element of a collection of signal functions.
+broadcast :: Functor col => a -> col sf -> col (a, sf)
+broadcast a = fmap (\sf -> (a, sf))
+
 #if MIN_VERSION_base(4,8,0)
 parB :: Monad m => [SF m a b] -> SF m a [b]
 #else
@@ -211,6 +215,18 @@ parB :: (Functor m, Monad m) => [SF m a b] -> SF m a [b]
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
 parB = widthFirst . sequenceS
+
+-- | Parallel switch (dynamic collection of signal functions spatially composed
+-- in parallel) with broadcasting. See 'pSwitch'.
+--
+-- For more information on how parallel composition works, check
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
+pSwitchB :: (Functor m, Monad m, Traversable col, Functor col)
+         => col (SF m a b)
+         -> SF m (a, col b) (Event c)
+         -> (col (SF m a b) -> c -> SF m a (col b))
+         -> SF m a (col b)
+pSwitchB = pSwitch broadcast
 
 -- | Decoupled parallel switch with broadcasting (dynamic collection of signal
 -- functions spatially composed in parallel). See 'dpSwitch'.
