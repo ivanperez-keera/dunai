@@ -30,6 +30,9 @@ module FRP.BearRiver.Switches
     , parB
     , dpSwitchB
 
+      -- ** With helper routing function
+    , par
+
       -- * Parallel composition\/switching (lists)
 
 
@@ -224,6 +227,27 @@ dpSwitchB sfs sfF sfCs = MSF $ \a -> do
           Event c -> snd <$> unMSF (sfCs sfs c) a
           NoEvent -> return (dpSwitchB sfs' sfF' sfCs)
   return (bs, ct)
+
+-- * Parallel composition and switching over collections with general routing
+
+-- | Spatial parallel composition of a signal function collection parameterized
+-- on the routing function.
+par :: (Functor m, Monad m, Functor col, Traversable col)
+    => (forall sf . (a -> col sf -> col (b, sf)))
+       -- ^ Determines the input to each signal function in the collection.
+       -- IMPORTANT! The routing function MUST preserve the structure of the
+       -- signal function collection.
+    -> col (SF m b c)
+       -- ^ Signal function collection.
+    -> SF m a (col c)
+par rf sfs0 = MSF tf0
+  where
+    tf0 a0 = do
+      let bsfs0 = rf a0 sfs0
+      sfcs0 <- T.mapM (\(b0, sf0) -> (unMSF sf0) b0) bsfs0
+      let sfs = fmap snd sfcs0
+          cs0 = fmap fst sfcs0
+      return (cs0, par rf sfs)
 
 -- ** Parallel composition over collections
 
