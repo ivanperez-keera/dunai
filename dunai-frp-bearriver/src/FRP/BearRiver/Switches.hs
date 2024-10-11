@@ -38,6 +38,9 @@ module FRP.BearRiver.Switches
     , rpSwitch, drpSwitch
 
       -- * Parallel composition\/switching (lists)
+      --
+      -- ** With "zip" routing
+    , parZ
 
 
       -- ** With replication
@@ -441,7 +444,41 @@ drpSwitch rf sfs =
   dpSwitch (rf . fst) sfs (arr (snd . fst)) $ \sfs' f ->
     noEventSnd >=- drpSwitch rf (f sfs')
 
+-- * Parallel composition/switchers with "zip" routing
+
+-- | Parallel composition of a list of SFs.
+--
+-- Given a list of SFs, returns an SF that takes a list of inputs, applies each
+-- SF to each input in order, and returns the SFs' outputs.
+--
+-- >>> embed (parZ [arr (+1), arr (+2)]) (deltaEncode 0.1 [[0, 0], [1, 1]])
+-- [[1,2],[2,3]]
+--
+-- If there are more SFs than inputs, an exception is thrown.
+--
+-- >>> embed (parZ [arr (+1), arr (+1), arr (+2)]) (deltaEncode 0.1 [[0, 0], [1, 1]])
+-- [[1,1,*** Exception: FRP.Yampa.Switches.parZ: Input list too short.
+--
+-- If there are more inputs than SFs, the unused inputs are ignored.
+--
+-- >>> embed (parZ [arr (+1)]) (deltaEncode 0.1 [[0, 0], [1, 1]])
+-- [[1],[2]]
+parZ :: (Functor m, Monad m) => [SF m a b] -> SF m [a] [b]
+parZ = par (safeZip "parZ")
+
 -- ** Parallel composition over collections
+
+-- | Zip two lists.
+--
+-- PRE: The first list is not shorter than the second.
+safeZip :: String -> [a] -> [b] -> [(a, b)]
+safeZip fn = safeZip'
+  where
+    safeZip' :: [a] -> [b] -> [(a, b)]
+    safeZip' _      []     = []
+    safeZip' (a:as) (b:bs) = (a, b) : safeZip' as bs
+    safeZip' _      _      =
+      error $ "FRP.BearRiver.Switches: " ++ fn ++ ": Input list too short."
 
 -- Freezes a "running" signal function, i.e., turns it into a continuation in
 -- the form of a plain signal function.
