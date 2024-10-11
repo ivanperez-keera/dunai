@@ -30,6 +30,7 @@ module FRP.BearRiver.Switches
       -- ** With broadcasting
     , parB
     , pSwitchB, dpSwitchB
+    , rpSwitchB
 
       -- ** With helper routing function
     , par
@@ -247,6 +248,25 @@ dpSwitchB sfs sfF sfCs = MSF $ \a -> do
           Event c -> snd <$> unMSF (sfCs sfs c) a
           NoEvent -> return (dpSwitchB sfs' sfF' sfCs)
   return (bs, ct)
+
+-- | Recurring parallel switch with broadcasting.
+--
+-- Uses the given collection of SFs, until an event comes in the input, in which
+-- case the function in the 'Event' is used to transform the collections of SF
+-- to be used with 'rpSwitch' again, until the next event comes in the input,
+-- and so on.
+--
+-- Broadcasting is used to decide which subpart of the input goes to each SF in
+-- the collection.
+--
+-- See 'rpSwitch'.
+--
+-- For more information on how parallel composition works, check
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
+rpSwitchB :: (Functor m, Monad m, Functor col, Traversable col)
+          => col (SF m a b)
+          -> SF m (a, Event (col (SF m a b) -> col (SF m a b))) (col b)
+rpSwitchB = rpSwitch broadcast
 
 -- * Parallel composition and switching over collections with general routing
 
