@@ -34,6 +34,7 @@ module FRP.BearRiver.Switches
       -- ** With helper routing function
     , par
     , pSwitch,  dpSwitch
+    , rpSwitch
 
       -- * Parallel composition\/switching (lists)
 
@@ -47,7 +48,7 @@ module FRP.BearRiver.Switches
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative (Applicative (..), (<$>))
 #endif
-import Control.Arrow              (first)
+import Control.Arrow              (arr, first)
 import Control.Monad.Trans.Class  (lift)
 import Control.Monad.Trans.Reader (ask, runReaderT)
 import Data.Traversable           as T
@@ -335,6 +336,30 @@ dpSwitch rf sfs sfF sfCs = MSF $ \a -> do
           Event d -> sfCs sfs' d
           NoEvent -> dpSwitch rf sfs' sfF' sfCs
   return (cs, ct)
+
+-- | Recurring parallel switch parameterized on the routing function.
+--
+-- Uses the given collection of SFs, until an event comes in the input, in which
+-- case the function in the 'Event' is used to transform the collections of SF
+-- to be used with 'rpSwitch' again, until the next event comes in the input,
+-- and so on.
+--
+-- The routing function is used to decide which subpart of the input goes to
+-- each SF in the collection.
+--
+-- This is the parallel version of 'rSwitch'.
+rpSwitch :: (Functor m, Monad m, Functor col, Traversable col)
+         => (forall sf . (a -> col sf -> col (b, sf)))
+            -- ^ Routing function: determines the input to each signal function
+            -- in the collection. IMPORTANT! The routing function has an
+            -- obligation to preserve the structure of the signal function
+            -- collection.
+         -> col (SF m b c)
+            -- ^ Initial signal function collection.
+         -> SF m (a, Event (col (SF m b c) -> col (SF m b c))) (col c)
+rpSwitch rf sfs =
+  pSwitch (rf . fst) sfs (arr (snd . fst)) $ \sfs' f ->
+  noEventSnd >=- rpSwitch rf (f sfs')
 
 -- ** Parallel composition over collections
 
