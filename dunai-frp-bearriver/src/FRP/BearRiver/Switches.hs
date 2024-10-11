@@ -1,4 +1,5 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP        #-}
+{-# LANGUAGE Rank2Types #-}
 -- The following warning is disabled so that we do not see warnings due to
 -- using ListT on an MSF to implement parallelism with broadcasting.
 #if __GLASGOW_HASKELL__ < 800
@@ -32,6 +33,7 @@ module FRP.BearRiver.Switches
 
       -- ** With helper routing function
     , par
+    , pSwitch
 
       -- * Parallel composition\/switching (lists)
 
@@ -46,7 +48,8 @@ module FRP.BearRiver.Switches
 import Control.Applicative (Applicative (..), (<$>))
 #endif
 import Control.Arrow              (first)
-import Control.Monad.Trans.Reader (ask)
+import Control.Monad.Trans.Class  (lift)
+import Control.Monad.Trans.Reader (ask, runReaderT)
 import Data.Traversable           as T
 
 -- Internal imports (dunai)
@@ -57,7 +60,7 @@ import Data.MonadicStreamFunction.InternalCore (MSF (MSF, unMSF))
 -- Internal imports
 import FRP.BearRiver.Basic        ((>=-))
 import FRP.BearRiver.Event        (Event (..), noEventSnd)
-import FRP.BearRiver.InternalCore (SF)
+import FRP.BearRiver.InternalCore (DTime, SF)
 
 -- * Basic switches
 
@@ -249,7 +252,61 @@ par rf sfs0 = MSF tf0
           cs0 = fmap fst sfcs0
       return (cs0, par rf sfs)
 
+-- | Parallel switch parameterized on the routing function. This is the most
+-- general switch from which all other (non-delayed) switches in principle can
+-- be derived. The signal function collection is spatially composed in parallel
+-- and run until the event signal function has an occurrence. Once the switching
+-- event occurs, all signal function are "frozen" and their continuations are
+-- passed to the continuation function, along with the event value.
+pSwitch :: (Functor m, Monad m, Traversable col, Functor col)
+        => (forall sf . (a -> col sf -> col (b, sf)))
+           -- ^ Routing function: determines the input to each signal function
+           -- in the collection. IMPORTANT! The routing function has an
+           -- obligation to preserve the structure of the signal function
+           -- collection.
+        -> col (SF m b c)
+           -- ^ Signal function collection.
+        -> SF m (a, col c) (Event d)
+           -- ^ Signal function generating the switching event.
+        -> (col (SF m b c) -> d -> SF m a (col c))
+           -- ^ Continuation to be invoked once event occurs.
+        -> SF m a (col c)
+pSwitch rf sfs0 sfe0 k = MSF tf0
+  where
+    tf0 a0 = do
+      let bsfs0 = rf a0 sfs0
+      sfcs0 <- T.mapM (\(b0, sf0) -> (unMSF sf0) b0) bsfs0
+      let sfs   = fmap snd sfcs0
+          cs0   = fmap fst sfcs0
+      (e, sfe) <- unMSF sfe0 (a0, cs0)
+      case e of
+        NoEvent  -> return (cs0, pSwitchAux sfs sfe)
+        Event d0 -> unMSF (k sfs0 d0) a0
+
+    pSwitchAux sfs sfe = MSF tf
+      where
+        tf a = do
+          let bsfs = rf a sfs
+          sfcs' <- T.mapM (\(b, sf) -> (unMSF sf b)) bsfs
+          let sfs' = fmap snd sfcs'
+              cs   = fmap fst sfcs'
+          (e, sfe') <- unMSF sfe (a, cs)
+          case e of
+            NoEvent -> return (cs, pSwitchAux sfs' sfe')
+            Event d -> do dt <- ask
+                          unMSF (k (freezeCol sfs dt) d) a
+
 -- ** Parallel composition over collections
+
+-- Freezes a "running" signal function, i.e., turns it into a continuation in
+-- the form of a plain signal function.
+freeze :: Monad m => SF m a b -> DTime -> SF m a b
+freeze sf dt = MSF $ \a ->
+  lift $ runReaderT (unMSF sf a) dt
+
+freezeCol :: (Monad m, Functor col)
+          => col (SF m a b) -> DTime -> col (SF m a b)
+freezeCol sfs dt = fmap (`freeze` dt) sfs
 
 -- | Apply an SF to every element of a list.
 --
