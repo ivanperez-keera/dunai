@@ -9,8 +9,9 @@ module FRP.Yampa (module X, SF, FutureSF, embed) where
 import Data.Functor.Identity (Identity, runIdentity)
 
 -- Internal imports
-import           FRP.BearRiver as X hiding (FutureSF, SF, embed)
-import qualified FRP.BearRiver as BR
+import           FRP.BearRiver      as X hiding (FutureSF, SF, embed, loopPre)
+import qualified FRP.BearRiver      as BR
+import           FRP.BearRiver.Loop as X
 
 -- | Signal function (conceptually, a function between signals that respects
 -- causality).
