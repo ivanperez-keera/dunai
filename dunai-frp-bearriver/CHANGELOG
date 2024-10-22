@@ -1,3 +1,10 @@
+2024-10-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * Version bump (0.14.11) (#442).
+        * Offer all definitions from FRP.Yampa.Switches (#426).
+        * Publish embed specialized for FRP.Yampa's SF (#439).
+        * Increase upper bounds on MonadRandom (#436).
+        * Re-export FRP.BearRiver.Loop in FRP.Yampa (#438).
+
 2024-08-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.14.10) (#430).
         * Offer all definitions from FRP.Yampa.Integration (#422).
