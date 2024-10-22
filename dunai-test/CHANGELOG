@@ -1,5 +1,7 @@
-2024-10-19 Paul Brinkmeier <hallo@pbrinkmeier.de>
+2024-10-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * Version bump (0.13.2) (#442).
         * Increase upper bounds on QuickCheck (#436).
+        * Thanks to @pbrinkmeier.
 
 2024-08-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.13.1) (#430).
