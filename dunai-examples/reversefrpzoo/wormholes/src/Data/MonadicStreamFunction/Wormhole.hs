@@ -1,5 +1,10 @@
 {-# LANGUAGE TupleSections #-}
--- | As described by Winograd-Court in his PhD thesis,
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- As described by Winograd-Court in his PhD thesis,
 -- a wormhole consists of a data sink and a data source which are linked
 -- by a synchronisation mechanism.
 -- The aim of this technique is to abstract from the particular mechanism
