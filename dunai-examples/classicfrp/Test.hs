@@ -1,4 +1,12 @@
-module Test where
+module Main where
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- An example of an animation that bounces up and down, implemented in classic
+-- FRP style using dunai, using a game monad and introducing a type synonym for
+-- a signal.
 
 import           Control.Applicative
 import           Control.Concurrent
