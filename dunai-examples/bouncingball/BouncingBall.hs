@@ -1,5 +1,6 @@
 {-# LANGUAGE Arrows #-}
 {-# LANGUAGE CPP    #-}
+module Main where
 
 #ifdef BEARRIVER
 import FRP.BearRiver as Yampa
