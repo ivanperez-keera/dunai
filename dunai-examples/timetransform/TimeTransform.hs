@@ -1,6 +1,12 @@
 {-# LANGUAGE Arrows              #-}
 {-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- Transform and manipulate the flow of time in an MSF-driven simulation.
 module TimeTransform where
 
 import Data.MonadicStreamFunction
