@@ -1,4 +1,5 @@
 {-# LANGUAGE Arrows #-}
+module Main where
 
 import           Control.Applicative
 import           Control.Concurrent
