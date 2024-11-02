@@ -1,3 +1,5 @@
+module Test where
+
 import           Control.Applicative
 import           Control.Concurrent
 import           Control.Monad
