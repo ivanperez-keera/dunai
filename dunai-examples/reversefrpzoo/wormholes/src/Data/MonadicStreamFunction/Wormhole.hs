@@ -21,7 +21,6 @@
 -- such as 'MVar's, for wormholes. In typical use cases,
 -- the side effects of the sink and the source
 -- have to be assumed to be non-blocking, ruling e.g. 'MVar's out.
-
 module Data.MonadicStreamFunction.Wormhole where
 
 -- External
