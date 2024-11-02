@@ -1,6 +1,15 @@
 {-# LANGUAGE Arrows #-}
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- An example of a WX program using dunai to run the interactions.
+--
 -- Part of this code is taken and adapted from:
 -- https://wiki.haskell.org/WxHaskell/Quick_start#Hello_world_in_wxHaskell
+-- The wiki operates under a very permissive license (MIT No Attribution),
+-- which allows us to re-distribute this code under BSD3 license instead.
 --
 -- NOTE: Currently, there exists a problem with implementing push-based
 -- evaluation.
