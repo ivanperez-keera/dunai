@@ -1,6 +1,8 @@
 {-# LANGUAGE Arrows              #-}
 {-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+module TimeTransform where
+
 import Data.MonadicStreamFunction
 import Data.MonadicStreamFunction.Core (MSF (unMSF))
 import Control.Monad.Trans.MSF
