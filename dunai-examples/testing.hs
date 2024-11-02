@@ -1,4 +1,5 @@
 {-# LANGUAGE Arrows #-}
+module Testing where
 
 import Control.Monad
 import Data.MonadicStreamFunction
