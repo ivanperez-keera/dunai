@@ -180,7 +180,7 @@ test-suite hlint
   else
     build-depends:
         base  >= 4   && < 5
-      , hlint >= 1.7 && < 3.7
+      , hlint >= 1.7 && < 3.8
 
 -- Verify that the code is thoroughly documented
 test-suite haddock-coverage
