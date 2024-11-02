@@ -1,3 +1,10 @@
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- An example of adding a game environment in a monad to implement passing
+-- re-configurable settings to a game implemented using MSFs in a monad.
 module DunaiExamplesMonads where
 
 import Control.Monad (when, MonadPlus)
