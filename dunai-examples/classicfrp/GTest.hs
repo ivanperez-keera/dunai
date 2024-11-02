@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE RankNTypes        #-}
+module GTest where
 
 import           Control.Applicative
 import           Control.Concurrent
