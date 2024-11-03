@@ -1,3 +1,6 @@
+2024-11-03 Solomon Bothwell <ssbothwell@gmail.com>
+        * Remove deprecated definitions from FRP.Dunai.LTLPast (#444).
+
 2024-10-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.13.2) (#442).
         * Increase upper bounds on QuickCheck (#436).
