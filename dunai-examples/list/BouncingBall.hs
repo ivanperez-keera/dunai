@@ -116,6 +116,3 @@ runListMSF msf = runListMSF' [msf]
 -- Auxiliary Arrow functions
 voidI :: Arrow a => a () c -> a b c
 voidI =  (>>>) (arr (const ()))
-
-arr2 :: Arrow a => (b -> c -> d) -> a (b,c) d
-arr2 f = arr (uncurry f)
