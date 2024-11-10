@@ -43,6 +43,7 @@ fireballs :: SF (Bool, (Float, Float)) [(Float, Float)]
 fireballs = switch
   (    arr (const [])
    &&& arr (\(mp, pos) -> if mp then Event pos else Yampa.NoEvent)
+   >>> second notYet
   )
 
   (\(p, v) -> let oldfb = voidI $ runListMSF (liftTransS (bouncingBall p v))
