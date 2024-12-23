@@ -1,5 +1,7 @@
-2024-12-01 Solomon Bothwell <ssbothwell@gmail.com>
+2024-12-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * Version bump (0.14.0) (#460).
         * Implement reactimate function matching the signature in Yampa (#454).
+        * Thanks to @solomon-b.
 
 2024-10-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.14.11) (#442).
