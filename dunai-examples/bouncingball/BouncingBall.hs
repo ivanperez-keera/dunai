@@ -1,5 +1,12 @@
 {-# LANGUAGE Arrows #-}
 {-# LANGUAGE CPP    #-}
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- An example of an animation that bounces up and down.
+module Main where
 
 #ifdef BEARRIVER
 import FRP.BearRiver as Yampa

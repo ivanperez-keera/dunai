@@ -1,4 +1,12 @@
 {-# LANGUAGE Arrows #-}
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- Use a monad to keep a log of debugging information in an MSF-drive
+-- simulation.
+module Testing where
 
 import Control.Monad
 import Data.MonadicStreamFunction

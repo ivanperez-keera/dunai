@@ -30,7 +30,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          dunai
-version:       0.13.2
+version:       0.14.0
 author:        Ivan Perez, Manuel Bärenz
 maintainer:    ivan.perez@keera.co.uk
 homepage:      https://github.com/ivanperez-keera/dunai
@@ -97,10 +97,6 @@ flag test-doc-coverage
   default:     False
   manual:      True
 
-flag list-transformer
-  description: Use list-transformer instead of transformers to implement the ListT combinators
-  default: False
-
 
 library
   exposed-modules:
@@ -131,9 +127,11 @@ library
 
   build-depends:
       base >= 4.6 && < 5
-    , MonadRandom         >= 0.2 && < 0.7
-    , simple-affine-space >= 0.2 && < 0.3
-    , transformers-base   >= 0.4 && < 0.5
+    , MonadRandom         >= 0.2   && < 0.7
+    , list-transformer    >= 1.1.1 && < 1.2
+    , simple-affine-space >= 0.2   && < 0.3
+    , transformers        >= 0.3   && < 0.7
+    , transformers-base   >= 0.4   && < 0.5
 
   default-language:
     Haskell2010
@@ -149,17 +147,6 @@ library
         MonadRandom         >= 0.2 && < 0.6
       , transformers-compat >= 0.3 && < 0.8
       , void                >= 0.1 && < 0.8
-
-  -- The upper bound on transformers depends on whether this flag is set
-  if flag(list-transformer)
-    build-depends:
-        list-transformer >= 1.1.1 && < 1.2
-      , transformers     >= 0.3   && < 0.7
-
-    cpp-options: -DLIST_TRANSFORMER
-  else
-    build-depends:
-        transformers     >= 0.3   && < 0.6
 
 test-suite hlint
   type:
@@ -180,7 +167,7 @@ test-suite hlint
   else
     build-depends:
         base  >= 4   && < 5
-      , hlint >= 1.7 && < 3.7
+      , hlint >= 1.7 && < 3.8
 
 -- Verify that the code is thoroughly documented
 test-suite haddock-coverage
@@ -206,7 +193,7 @@ test-suite haddock-coverage
     build-depends:
         base           >= 4       && < 5
       , directory      >= 1.2     && < 1.4
-      , filepath       >= 1.3.0.1 && < 1.5
+      , filepath       >= 1.3.0.1 && < 1.6
       , process        >= 1.1.0.2 && < 1.7
       , regex-posix    >= 0.95    && < 0.97
 
@@ -230,7 +217,7 @@ test-suite regression-tests
   build-depends:
       base         >= 4   && < 5
     , transformers >= 0.3 && < 0.7
-    , tasty        >= 0.1 && < 1.5
+    , tasty        >= 0.1 && < 1.6
     , tasty-hunit  >= 0.8 && < 0.11
 
     , dunai
@@ -246,8 +233,8 @@ benchmark dunai-bench
   build-depends:
        base      >= 4       && < 5
      , criterion >= 0.5.0.0 && < 1.7
-     , filepath  >= 1.3.0.1 && < 1.5
-     , time      >= 1.4     && < 1.13
+     , filepath  >= 1.3.0.1 && < 1.6
+     , time      >= 1.4     && < 1.16
      , dunai
 
   default-language:

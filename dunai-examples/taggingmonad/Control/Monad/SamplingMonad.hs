@@ -1,5 +1,13 @@
 {-# LANGUAGE CPP                       #-}
 {-# LANGUAGE ExistentialQuantification #-}
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- A monad to capture when the next sample should be taken in an interactive
+-- system implemented using MSFs, to prevent missing collisions or other
+-- events.
 module Control.Monad.SamplingMonad where
 
 import Control.Monad.TaggingMonad

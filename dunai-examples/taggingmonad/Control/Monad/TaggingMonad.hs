@@ -1,3 +1,9 @@
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- Tag values with additional information.
 module Control.Monad.TaggingMonad where
 
 import Control.Applicative

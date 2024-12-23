@@ -1,5 +1,12 @@
 {-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+-- |
+-- Copyright  : (c) Ivan Perez and Manuel Baerenz, 2016
+-- License    : BSD3
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- An example of adding time in a reader monad to an MSF to implement arrowized
+-- FRP a-la Yampa.
 module DunaiExamplesExtensibleAFRP where
 
 import Data.Functor.Identity
