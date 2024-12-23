@@ -19,7 +19,7 @@ executable dunai-examples-bearriver-bouncingball-list
   build-depends:     base >=4.6 && < 5,
                      SDL,
                      SDL-gfx,
-                     list-t,
+                     list-transformer,
                      bearriver,
                      dunai,
                      transformers,
