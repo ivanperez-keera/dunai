@@ -13,6 +13,7 @@ import           Control.Concurrent
 import           Control.Monad
 import           Control.Monad.Identity
 import           Control.Monad.Trans.Reader
+import           Control.Monad.Trans.MSF.List (widthFirst)
 import           Data.MonadicStreamFunction hiding (reactimate, switch, trace)
 import           Data.MonadicStreamFunction.InternalCore (MSF(..))
 import qualified Data.MonadicStreamFunction as MSF
@@ -20,7 +21,7 @@ import           Debug.Trace
 import           FRP.Yampa                  as Yampa
 import           Graphics.UI.SDL            as SDL
 import           Graphics.UI.SDL.Primitives as SDL
-import           ListT                      as L
+import           List.Transformer           hiding (zip)
 
 main = do
    SDL.init [InitEverything]
@@ -46,7 +47,7 @@ fireballs = switch
    >>> second notYet
   )
 
-  (\(p, v) -> let oldfb = voidI $ runListMSF (liftTransS (bouncingBall p v))
+  (\(p, v) -> let oldfb = voidI $ widthFirst (liftTransS (bouncingBall p v))
                   newfb = fireballs
               in (oldfb &&& newfb) >>> arr2 (++)
   )
@@ -106,13 +107,6 @@ applyMSF :: Monad m => (a -> MSF m b c) -> MSF m (a, b) c
 applyMSF f = MSF $ \(a,b) -> do
   (c, msf') <- unMSF (f a) b
   return (c, arr snd >>> msf')
-
-runListMSF :: (Functor m, Monad m) => MSF (ListT m) a b -> MSF m a [b]
-runListMSF msf = runListMSF' [msf]
-  where
-    runListMSF' msfs = MSF $ \a -> do
-        (bs, msfs') <- unzip . concat <$> mapM (toList . (`unMSF` a)) msfs
-        return (bs, runListMSF' msfs')
 
 -- Auxiliary Arrow functions
 voidI :: Arrow a => a () c -> a b c

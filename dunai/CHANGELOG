@@ -1,5 +1,6 @@
-2024-11-02 Ivan Perez <ivan.perez@keera.co.uk>
+2024-12-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Increase upper bounds on filepath, tasty, time, hlint (#448).
+        * Remove deprecated functions related to list-t (#445).
 
 2024-10-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.13.2) (#442).
