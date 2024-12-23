@@ -97,10 +97,6 @@ flag test-doc-coverage
   default:     False
   manual:      True
 
-flag list-transformer
-  description: Use list-transformer instead of transformers to implement the ListT combinators
-  default: False
-
 
 library
   exposed-modules:
@@ -131,9 +127,11 @@ library
 
   build-depends:
       base >= 4.6 && < 5
-    , MonadRandom         >= 0.2 && < 0.7
-    , simple-affine-space >= 0.2 && < 0.3
-    , transformers-base   >= 0.4 && < 0.5
+    , MonadRandom         >= 0.2   && < 0.7
+    , list-transformer    >= 1.1.1 && < 1.2
+    , simple-affine-space >= 0.2   && < 0.3
+    , transformers        >= 0.3   && < 0.7
+    , transformers-base   >= 0.4   && < 0.5
 
   default-language:
     Haskell2010
@@ -149,17 +147,6 @@ library
         MonadRandom         >= 0.2 && < 0.6
       , transformers-compat >= 0.3 && < 0.8
       , void                >= 0.1 && < 0.8
-
-  -- The upper bound on transformers depends on whether this flag is set
-  if flag(list-transformer)
-    build-depends:
-        list-transformer >= 1.1.1 && < 1.2
-      , transformers     >= 0.3   && < 0.7
-
-    cpp-options: -DLIST_TRANSFORMER
-  else
-    build-depends:
-        transformers     >= 0.3   && < 0.6
 
 test-suite hlint
   type:
