@@ -1,19 +1,19 @@
-2025-02-27 Ivan Perez <ivan.perez@keera.co.uk>
+2025-02-27
         * Change contact address (#462).
 
-2024-12-21 Ivan Perez <ivan.perez@keera.co.uk>
+2024-12-21
         * Version bump (0.14.0) (#460).
         * Implement reactimate function matching the signature in Yampa (#454).
         * Thanks to @solomon-b.
 
-2024-10-21 Ivan Perez <ivan.perez@keera.co.uk>
+2024-10-21
         * Version bump (0.14.11) (#442).
         * Offer all definitions from FRP.Yampa.Switches (#426).
         * Publish embed specialized for FRP.Yampa's SF (#439).
         * Increase upper bounds on MonadRandom (#436).
         * Re-export FRP.BearRiver.Loop in FRP.Yampa (#438).
 
-2024-08-21 Ivan Perez <ivan.perez@keera.co.uk>
+2024-08-21
         * Version bump (0.14.10) (#430).
         * Offer all definitions from FRP.Yampa.Integration (#422).
         * Offer all definitions from FRP.Yampa.Random (#423).
@@ -23,25 +23,25 @@
         * Implement integral using trapezoid rule (#429).
         * Thanks to @tomsmeding.
 
-2024-06-21 Ivan Perez <ivan.perez@keera.co.uk>
+2024-06-21
         * Version bump (0.14.9) (#420).
         * Offer all definitions from FRP.Yampa.Hybrid (#419).
 
-2024-04-23 Ivan Perez <ivan.perez@keera.co.uk>
+2024-04-23
         * Version bump (0.14.8) (#411).
         * Offer all definitions from FRP.Yampa.Loop (#407).
 
-2024-02-21 Ivan Perez <ivan.perez@keera.co.uk>
+2024-02-21
         * Version bump (0.14.7) (#398).
         * Limit version of transformers to < 0.6 (#405).
         * Offer all definitions from FRP.Yampa.EventS (#400).
 
-2023-12-21 Ivan Perez <ivan.perez@keera.co.uk>
+2023-12-21
         * Version bump (0.14.6) (#395).
         * Offer all definitions from FRP.Yampa.Time (#391).
         * Mark package as uncurated (#394).
 
-2023-10-21 Ivan Perez <ivan.perez@keera.co.uk>
+2023-10-21
         * Version bump (0.14.5) (#388).
         * Offer all definitions from FRP.Yampa.Event (#380).
         * Offer all definitions from FRP.Yampa.Conditional (#382).
@@ -49,30 +49,30 @@
         * Offer all definitions from FRP.Yampa.Delays (#384).
         * Relax upper version constraint on deepseq (#386).
 
-2023-08-21 Ivan Perez <ivan.perez@keera.co.uk>
+2023-08-21
         * Version bump (0.14.4) (#377).
         * Offer all definitions from FRP.Yampa.Basic (#376).
 
-2023-06-21 Ivan Perez <ivan.perez@keera.co.uk>
+2023-06-21
         * Version bump (0.14.3) (#372).
         * Offer all definitions from FRP.Yampa.Arrow (#360).
 
-2023-04-21 Ivan Perez <ivan.perez@keera.co.uk>
+2023-04-21
         * Version bump (0.14.2) (#358).
         * Remove unused module FRP.Yampa.VectorSpace (#351).
         * Conformance with style guide (#347).
 
-2023-02-21 Ivan Perez <ivan.perez@keera.co.uk>
+2023-02-21
         * Version bump (0.14.1) (#342).
 
-2022-12-21 Ivan Perez <ivan.perez@keera.co.uk>
+2022-12-21
         * bearriver.cabal: Version bump (0.14) (#340).
         * Bump version bounds for MonadRandom (#337).
         * Adjust to work with simple-affine-space-0.2 (#339).
         * src/BearRiver.hs: show sections in haddock (#322).
         * Thanks: @geroldmeisinger.
 
-2022-10-21 Ivan Perez <ivan.perez@keera.co.uk>
+2022-10-21
         * bearriver.cabal: Version bump (0.13.7) (#335), update copyright
           owners, years (#332).
         * LICENSE: Update copyright owners, years (#332).
@@ -80,15 +80,15 @@
           instances for Event (#326), update copyright notices (#332), add
           documentation (#323).
 
-2022-08-21 Ivan Perez <ivan.perez@keera.co.uk>
+2022-08-21
         * bearriver.cabal: Version bump (0.13.6) (#302), add version bounds for
           dependencies (#303).
 
-2022-06-21 Ivan Perez <ivan.perez@keera.co.uk>
+2022-06-21
         * bearriver.cabal: Version bump (0.13.5) (#302).
         * src/: Disable warning due to use of ListT (#297).
 
-2022-04-21 Ivan Perez <ivan.perez@keera.co.uk>
+2022-04-21
         * bearriver.cabal: Version bump (0.13.4) (#280), declare changelog file
           (#273), declare subdir of source-repository (#272).
         * CHANGELOG: Add CHANGELOG file (#273).
