@@ -32,7 +32,7 @@ build-type:    Simple
 name:          dunai-test
 version:       0.14.0
 author:        Ivan Perez
-maintainer:    ivan.perez@keera.co.uk
+maintainer:    contact@ivanperez.io
 homepage:      https://github.com/ivanperez-keera/dunai
 license:       BSD3
 license-file:  LICENSE
