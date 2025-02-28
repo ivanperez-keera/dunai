@@ -1,4 +1,5 @@
 2025-02-27
+        * Version bump (0.15) (#465).
         * Change contact address (#462).
         * Remove emails from CHANGELOG (#463).
         * Deprecate FRP.BearRiver.Arrow.arr3,arr4,arr5 (#464).
