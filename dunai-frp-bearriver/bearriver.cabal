@@ -30,9 +30,9 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          bearriver
-version:       0.14.12
+version:       0.15
 author:        Ivan Perez, Manuel Bärenz
-maintainer:    ivan.perez@keera.co.uk
+maintainer:    contact@ivanperez.io
 homepage:      https://github.com/ivanperez-keera/dunai
 license:       BSD3
 license-file:  LICENSE
