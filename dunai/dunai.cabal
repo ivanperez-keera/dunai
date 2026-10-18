@@ -145,7 +145,7 @@ library
   if impl(ghc <= 7.8.4)
     build-depends:
         MonadRandom         >= 0.2 && < 0.6
-      , transformers-compat >= 0.3 && < 0.8
+      , transformers-compat >= 0.3 && < 0.9
       , void                >= 0.1 && < 0.8
 
   if impl(ghc < 8.0)
