@@ -1,3 +1,6 @@
+2026-10-18
+        * Constrain versions of `MonadRandom` for GHC < 8.0 (#470).
+
 2025-02-27
         * Version bump (0.15) (#465).
         * Change contact address (#462).

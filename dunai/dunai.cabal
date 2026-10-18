@@ -148,6 +148,10 @@ library
       , transformers-compat >= 0.3 && < 0.8
       , void                >= 0.1 && < 0.8
 
+  if impl(ghc < 8.0)
+    build-depends:
+     MonadRandom >= 0.2 && < 0.6.2.1
+
 test-suite hlint
   type:
     exitcode-stdio-1.0
