@@ -20,8 +20,8 @@ executable dunai-examples-bearriver-bouncingball-list
                      SDL,
                      SDL-gfx,
                      list-transformer,
-                     bearriver,
-                     dunai,
+                     bearriver >= 0.15   && < 0.16,
+                     dunai     >= 0.14.1 && < 0.15,
                      transformers,
                      mtl
 
