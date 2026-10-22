@@ -1,3 +1,9 @@
+2026-10-21
+        * Version bump (0.15.1) (#475).
+        * Constrain versions of `MonadRandom` for GHC < 8.0 (#470).
+        * Bump upper version bound on `random` (#471).
+        * Change repository protocol in Cabal file to https (#473).
+
 2025-02-27
         * Version bump (0.15) (#465).
         * Change contact address (#462).

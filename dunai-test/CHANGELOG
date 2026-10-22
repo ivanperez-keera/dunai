@@ -1,3 +1,9 @@
+2026-10-21
+        * Version bump (0.14.2) (#475).
+        * Bump upper version bound on `QuickCheck` (#471).
+        * Change repository protocol in Cabal file to https (#473).
+        * Remove extraneous horizontal space in CHANGELOG entry (#474).
+
 2025-02-27
         * Version bump (0.14.1) (#465).
         * Change contact address (#462).

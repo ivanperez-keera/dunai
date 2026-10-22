@@ -23,8 +23,8 @@ library
                        transformers,
                        TypeCompose,
                        simple-affine-space,
-                       bearriver,
-                       dunai
+                       bearriver >= 0.15   && < 0.16,
+                       dunai     >= 0.14.1 && < 0.15
 
   hs-source-dirs:      src
   default-language:    Haskell2010
